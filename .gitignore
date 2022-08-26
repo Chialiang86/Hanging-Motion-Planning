@@ -1,0 +1,4 @@
+models/geo_data
+models/robot
+*.txt
+*/__pycache__

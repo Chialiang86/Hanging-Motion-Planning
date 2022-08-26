@@ -1,0 +1,57 @@
+{
+    "019_pitcher-base": {
+        "post_points_num": 204,
+        "pre_points_num": 298,
+        "rate": 0.6845637583892618
+    },
+    "022_windex-bottle": {
+        "post_points_num": 408,
+        "pre_points_num": 551,
+        "rate": 0.7404718693284936
+    },
+    "025_mug": {
+        "post_points_num": 131,
+        "pre_points_num": 153,
+        "rate": 0.8562091503267973
+    },
+    "033_spatula": {
+        "post_points_num": 89,
+        "pre_points_num": 94,
+        "rate": 0.9468085106382979
+    },
+    "035_power-drill": {
+        "post_points_num": 17,
+        "pre_points_num": 19,
+        "rate": 0.8947368421052632
+    },
+    "037_scissors": {
+        "post_points_num": 332,
+        "pre_points_num": 373,
+        "rate": 0.8900804289544236
+    },
+    "042_adjustable-wrench": {
+        "post_points_num": 56,
+        "pre_points_num": 56,
+        "rate": 1.0
+    },
+    "048_hammer": {
+        "post_points_num": 283,
+        "pre_points_num": 403,
+        "rate": 0.7022332506203474
+    },
+    "050_medium-clamp": {
+        "post_points_num": 12,
+        "pre_points_num": 16,
+        "rate": 0.75
+    },
+    "051_large-clamp": {
+        "post_points_num": 97,
+        "pre_points_num": 106,
+        "rate": 0.9150943396226415
+    },
+    "052_extra-large-clamp": {
+        "post_points_num": 204,
+        "pre_points_num": 266,
+        "rate": 0.7669172932330827
+    }
+}
