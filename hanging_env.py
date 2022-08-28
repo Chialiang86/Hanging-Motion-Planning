@@ -278,7 +278,7 @@ def robot_apply_action(robot : pandaEnv, obj_id : int, action : tuple or list, g
     elif gripper_action == 'pre_grasp' :
 
         robot.pre_grasp()
-        for _ in range(int(1.0 / sim_timestep)): # 1 sec
+        for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
             p.stepSimulation()
             time.sleep(sim_timestep)
     else:
@@ -352,7 +352,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
 
     sample7d_fn = get_sample7d_fn(target_conf)
     distance7d_fn = get_distance7d_fn()
-    extend7d_fn = get_extend7d_fn(resolution=0.005)
+    extend7d_fn = get_extend7d_fn(resolution=0.01)
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
@@ -386,7 +386,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # reset obj pose
     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
 
-    for i in range(len(waypoints) - 1):
+    for i in range(len(waypoints) - 10):
 
         q1_pos = np.asarray(waypoints[i][:3])
         q2_pos = np.asarray(waypoints[i+1][:3])
@@ -397,13 +397,13 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
         r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
 
         diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=1)))
+        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
 
         # plan trajectory in the same way in collision detection module
         for i in range(steps):
             positions6d = (i + 1) / (steps + 1) * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
             positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
-            # draw_coordinate(positions7d)
+            draw_coordinate(positions7d)
             # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
 
             gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
@@ -411,15 +411,33 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             gripper_action = np.concatenate((gripper_pos, gripper_rot))
 
             robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-                sim_timestep=sim_timestep, diff_thresh=0.01, max_vel=max_vel, max_iter=100)
+                sim_timestep=sim_timestep, diff_thresh=0.01, max_vel=max_vel, max_iter=20)
+    
+
+    robot_apply_action(robot, obj_id, waypoints[-1], gripper_action='pre_grasp', 
+        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=max_vel)
 
     # execution step 4 : go to the ending pose
     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
     gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
     ending_gripper_pos = np.asarray(waypoints[-1][:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.2]])).reshape(3)
-    action = tuple(ending_gripper_pos) + tuple(waypoints[-1][3:])
-    robot_apply_action(robot, obj_id, action, gripper_action='nop', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=max_vel)
+    # action = tuple(ending_gripper_pos) + tuple(waypoints[-1][3:])
+    # robot_apply_action(robot, obj_id, action, gripper_action='nop', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=max_vel)
+
+    diff_q1_q2 = np.concatenate((ending_gripper_pos - np.asarray(waypoints[-1][:3]), np.array([0, 0, 0, 0]))) # translation only
+    steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
+    
+    # plan trajectory in the same way in collision detection module
+    for i in range(steps):
+        positions7d = (i + 1) / (steps + 1) * diff_q1_q2 + np.array(waypoints[-1])
+
+        gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
+        gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_pose)
+        gripper_action = np.concatenate((gripper_pos, gripper_rot))
+
+        robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
+            sim_timestep=sim_timestep, diff_thresh=0.01, max_vel=max_vel, max_iter=20)
 
 def gripper_motion_planning(robot : pandaEnv, tgt_gripper_pos : tuple or list, tgt_gripper_rot : tuple or list, 
                     obstacles : list = [], sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
@@ -493,7 +511,7 @@ def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
     while collision7d_fn(tuple(refine_pose)):
         refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
         refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
-        print(refine_pose)
+        # print(refine_pose)
     return refine_pose
 
 def draw_coordinate(pose : np.ndarray or tuple or list, size : float = 0.02):
@@ -573,7 +591,7 @@ def main(args):
     # object initialization
     init_pos = [0.6, 0.0, 0.67]
     # init_pos = [0.8, 0.0, 0.67]
-    init_rot = p.getQuaternionFromEuler([np.pi / 2, 0, 0])
+    init_rot = p.getQuaternionFromEuler([-np.pi / 2, 0, 0])
     obj_id, center = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id, init_pos, init_rot)
 
@@ -588,7 +606,8 @@ def main(args):
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
-    print(tgt_pose)
+    p.removeBody(obj_id_target)
+    # print(tgt_pose)
 
 
     # grasping
@@ -659,12 +678,14 @@ def main(args):
         sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.1)
 
     # move up slightly
-    after_grasp_pos = [0.59, 0.0, 0.9]
+    after_grasp_pos = [0.59, -0.1, 1.2]
     after_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
     after_grasp_action = after_grasp_pos + list(after_grasp_rot)
     robot_apply_action(robot, obj_id, after_grasp_action, gripper_action='nop', 
         sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.1)
     draw_coordinate(after_grasp_action)
+
+    time.sleep(5)
 
     # ------------------------------ #
     # --- Setting hanging motion --- #

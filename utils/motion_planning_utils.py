@@ -23,12 +23,12 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray, ratio_to_target=0
             # pos_euler.append(np.random.uniform(-1, 1))
             # pos_euler.append(np.random.uniform(-1, 1))
 
-            pos_euler.append(np.random.uniform(0.3, 1.0)) # x
-            pos_euler.append(np.random.uniform(-0.6, 1.0)) # y 
-            pos_euler.append(np.random.uniform(0.5, 1.2)) # z
+            pos_euler.append(np.random.uniform(0.3, 1.2)) # x
+            pos_euler.append(np.random.uniform(-0.4, 0.2)) # y 
+            pos_euler.append(np.random.uniform(0.8, 1.3)) # z
             for i in range(3, 6):
                 pos_euler.append(np.random.uniform(-np.pi, np.pi))
-            ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[:3]).as_quat())
+            ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
             
         return tuple(ret)
     return sample7d_fn
@@ -38,11 +38,15 @@ def get_distance7d_fn():
     def distance7d_fn(q1, q2):
         assert len(q1) == 7 and len(q2) == 7
 
-        q1_pos = q1[:3]
-        q2_pos = q2[:3]
+        q1_pos = np.asarray(q1[:3])
+        q2_pos = np.asarray(q2[:3])
+        q1_rot = R.from_quat(np.asarray(q1[3:])).as_rotvec()
+        q2_rot = R.from_quat(np.asarray(q2[3:])).as_rotvec()
 
-        diff = np.linalg.norm(np.asarray(q1_pos) - np.asarray(q2_pos))
-        return diff 
+        diff_pos = q1_pos - q2_pos
+        diff_rot = np.array([min((r1 - r2) ** 2, (r2 - r1) ** 2) for r1, r2 in zip(q1_rot, q2_rot)])
+
+        return 1.0 * np.sum(diff_pos ** 2) + 0.5 * np.sum(diff_rot ** 2)
     return distance7d_fn
 
 def get_extend7d_fn(resolution = 0.005):
@@ -63,7 +67,7 @@ def get_extend7d_fn(resolution = 0.005):
         # r12_rotvec = R.from_matrix(r12).as_rotvec()
 
         diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=1)))
+        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=2)))
 
         # generate collision check sequence
         yield q1
@@ -81,7 +85,6 @@ def get_extend7d_fn(resolution = 0.005):
         # rotmat1 = R.from_quat(q1[3:]).as_matrix()
         # rotmat2 = R.from_quat(q2[3:]).as_matrix()
         # print('{} = {}'.format(rotmat1 @ r12, rotmat2))
-
     
     return extend7d_fn
 

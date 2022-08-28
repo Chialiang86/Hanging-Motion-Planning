@@ -27,7 +27,7 @@ if [ $# -ge 1 ]; then
 
     elif [ $1 = 'vhacd' ]; then 
         
-        INPUT=('models/hanging_eval')
+        INPUT=('models/geo_data/mug')
         for input in "${INPUT[@]}"
         do
             python3 vhacd.py --input-dir $input

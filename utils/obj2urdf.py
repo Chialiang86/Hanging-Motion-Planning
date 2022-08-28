@@ -112,7 +112,7 @@ def main(args):
 
     target_length = 0.1
 
-    files = glob.glob(f'{input_dir}/*/base.obj')
+    files = glob.glob(f'{input_dir}/*/*model_normalized.obj')
 
     for file in files:
         dirname, filename = os.path.split(file)

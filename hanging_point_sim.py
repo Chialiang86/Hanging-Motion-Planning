@@ -181,15 +181,16 @@ def main(args):
     # obj_id = p.loadURDF(os.path.join(ycb_objects.getDataPath(), 'YcbBanana', "model.urdf"), [0.5, 0.0, 0.8])
 
     # wall
-    wall_pos = [0.8, -0.21, 0.8]
-    wall_orientation = p.getQuaternionFromEuler([0, 0, 0])
-    wall_id = p.loadURDF("models/wall/wall.urdf", wall_pos, wall_orientation)
+    # wall_pos = [0.8, -0.21, 0.8]
+    # wall_orientation = p.getQuaternionFromEuler([0, 0, 0])
+    # wall_id = p.loadURDF("models/wall/wall.urdf", wall_pos, wall_orientation)
 
     # stop critiria
     max_contact = 10
     max_iter = 1000
 
     # load hook
+    # hook_pos=[0.8, -0.2, 1.0] for hook_90
     hook_pos=[0.8, -0.2, 1.0]
     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
@@ -217,8 +218,9 @@ def main(args):
             failed = False
 
             p.setGravity(0, 0, 0)
-            # reset_pose(obj_id, x_offset=0.8, y_offset=0.0, z_offset=1.1)
-            reset_pose(obj_id, x_offset=0.8, y_offset=-0.05, z_offset=1.2)
+            # reset_pose(obj_id, x_offset=0.8, y_offset=0.0, z_offset=1.1) # for hook_bar
+            # reset_pose(obj_id, x_offset=0.8, y_offset=-0.1, z_offset=1.2) # for hook_90
+            reset_pose(obj_id, x_offset=0.8, y_offset=-0.1, z_offset=1.05) # for hook_60
 
             p.stepSimulation()
             contact_points = p.getContactPoints(obj_id, hook_id)
@@ -226,8 +228,9 @@ def main(args):
                 continue
 
             # toss to the hook by force in direction x
-            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1])
-            # p.resetBaseVelocity(obj_id, [0.0, -0.3, -0.1])
+            # p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
+            # p.resetBaseVelocity(obj_id, [0.0, -0.1, -0.3]) # for hook_90
+            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
             for _ in range(500):
                 p.stepSimulation()
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -315,9 +318,12 @@ def main(args):
 
             result_json['contact_info'].append(contact_info)
         p.removeBody(obj_id)
-        with open(result_path, 'w') as f:
-            json.dump(result_json, f, indent=4)
-            print(f'{result_path} saved')
+        if len(result_json['contact_info']) > 0:
+            with open(result_path, 'w') as f:
+                json.dump(result_json, f, indent=4)
+                print(f'{result_path} saved')
+        else :
+            print(f'no pose : {obj_path}')
 
 
 if __name__ == '__main__':
@@ -326,6 +332,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='mug')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook_bar')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook_60')
     args = parser.parse_args()
     main(args)
