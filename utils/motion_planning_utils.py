@@ -25,7 +25,7 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray, ratio_to_target=0
 
             pos_euler.append(np.random.uniform(0.3, 1.2)) # x
             pos_euler.append(np.random.uniform(-0.4, 0.2)) # y 
-            pos_euler.append(np.random.uniform(0.8, 1.3)) # z
+            pos_euler.append(np.random.uniform(1.2, 1.5)) # z
             for i in range(3, 6):
                 pos_euler.append(np.random.uniform(-np.pi, np.pi))
             ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())

@@ -111,7 +111,6 @@ def robot_apply_action(robot : pandaEnv, obj_id : int, action : tuple or list, g
             tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
             tmp_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5] # rotation
             diff = np.sum((np.array(tmp_pos + tmp_rot) - np.array(action)) ** 2) ** 0.5
-            print(diff)
 
     elif gripper_action == 'pre_grasp' :
 
@@ -219,7 +218,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # relative transform from object to gripper
     # see this stack-overflow issue : https://stackoverflow.com/questions/67001118/relative-transform
     obj2gripper_pose = np.linalg.inv(origin_obj_pose) @ origin_gripper_pose
-    planning_resolution = 0.01
+    planning_resolution = 0.05
 
     # reset obj pose
     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
@@ -236,10 +235,11 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
 
         diff_q1_q2 = np.concatenate((d12, r12_rotvec))
         steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
+        steps = 10
 
         # plan trajectory in the same way in collision detection module
         for i in range(steps):
-            positions6d = (i + 1) / (steps + 1) * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
+            positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
             positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
             draw_coordinate(positions7d)
             # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
@@ -249,33 +249,22 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             gripper_action = np.concatenate((gripper_pos, gripper_rot))
 
             robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-                sim_timestep=sim_timestep, diff_thresh=planning_resolution * 0.8, max_vel=max_vel, max_iter=100)
-    
+                sim_timestep=0.05, diff_thresh=0.05, max_vel=-1, max_iter=100)
+            
+            robot.grasp()
+            for _ in range(10): # 1 sec
+                p.stepSimulation()
 
     robot_apply_action(robot, obj_id, waypoints[-1], gripper_action='pre_grasp', 
-        sim_timestep=sim_timestep, diff_thresh=planning_resolution * 0.8, max_vel=max_vel)
+        sim_timestep=0.05, diff_thresh=0.01, max_vel=-1)
 
     # execution step 4 : go to the ending pose
     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
     gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
     ending_gripper_pos = np.asarray(waypoints[-1][:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.2]])).reshape(3)
-    # action = tuple(ending_gripper_pos) + tuple(waypoints[-1][3:])
-    # robot_apply_action(robot, obj_id, action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=max_vel)
-
-    diff_q1_q2 = np.concatenate((ending_gripper_pos - np.asarray(waypoints[-1][:3]), np.array([0, 0, 0, 0]))) # translation only
-    steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
-    
-    # plan trajectory in the same way in collision detection module
-    for i in range(steps):
-        positions7d = (i + 1) / (steps + 1) * diff_q1_q2 + np.array(waypoints[-1])
-
-        gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
-        gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_pose)
-        gripper_action = np.concatenate((gripper_pos, gripper_rot))
-
-        robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-            sim_timestep=sim_timestep, diff_thresh=planning_resolution, max_vel=max_vel, max_iter=100)
+    action = tuple(ending_gripper_pos) + tuple(gripper_rot)
+    robot_apply_action(robot, obj_id, action, gripper_action='nop', 
+        sim_timestep=0.05, diff_thresh=0.005, max_vel=-1)
 
 def gripper_motion_planning(robot : pandaEnv, tgt_gripper_pos : tuple or list, tgt_gripper_rot : tuple or list, 
                     obstacles : list = [], sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
@@ -386,10 +375,11 @@ def main(args):
     physics_client_id = p.connect(p.GUI)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-    cameraDistance=0.5,
-    cameraYaw=135,
-    cameraPitch=0,
-    cameraTargetPosition=[0.7, -0.2, 1.0])
+        cameraDistance=0.5,
+        cameraYaw=180,
+        cameraPitch=0,
+        cameraTargetPosition=[0.7, 0.0, 1.3]
+    )
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     sim_timestep = 1.0 / 240
@@ -517,7 +507,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4.json')
     # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-mug/Hook_60-mug_19.json')
     parser.add_argument('--method', '-m', type=str, default='birrt')
     parser.add_argument('--control', '-c', action='store_true', default=True)
