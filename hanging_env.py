@@ -6,7 +6,6 @@ import os, inspect
 import argparse
 import json
 import math as m
-from random import sample
 from tqdm import tqdm
 import time
 import numpy as np
@@ -17,7 +16,6 @@ import pybullet_data
 
 # for motion planners
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
-from pybullet_planning.interfaces.robots.collision import get_floating_body_collision_fn
 from pybullet_planning.interfaces.planner_interface.joint_motion_planning import plan_joint_motion, check_initial_end
 from pybullet_planning.motion_planners.rrt_connect import birrt
 
@@ -31,47 +29,6 @@ print(currentdir)
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
-def reset_pose(obj_id, x_offset=0.1, y_offset=0., z_offset=1.):
-    x = (np.random.rand() - 0.5) * 0.1 + x_offset
-    y = (np.random.rand() - 0.5) * 0.4 + y_offset
-    z = (np.random.rand() - 0.5) * 0.4 + z_offset
-
-    roll = np.random.rand() * np.pi * 2
-    pitch = np.random.rand() * np.pi * 2
-    yaw = np.random.rand() * np.pi * 2
-    p.setGravity(0, 0, 0)
-    p.resetBasePositionAndOrientation(
-        obj_id,
-        [x, y, z],
-        p.getQuaternionFromEuler([roll, pitch, yaw]))
-
-def load_visual_obj(obj_file, pos=[0,0,0.4], rot=[np.pi/2, 0, np.pi/2], shift=[0, -0.02, 0], scale=[1, 1, 1]):
-    visual_shape_id = p.createVisualShape(
-        shapeType=p.GEOM_MESH,
-        fileName=obj_file,
-        rgbaColor=[1, 1, 1, 1],
-        specularColor=[0.4, 0.4, 0],
-        visualFramePosition=shift,
-        meshScale=scale,
-    )
-    collision_shape_id = p.createCollisionShape(
-        shapeType=p.GEOM_MESH,
-        fileName=obj_file,
-        collisionFramePosition=shift,
-        meshScale=scale,
-    )
-    obj_id = p.createMultiBody(
-        baseMass=0,
-        baseCollisionShapeIndex=collision_shape_id,
-        baseVisualShapeIndex=visual_shape_id,
-        basePosition=[0, 0, 0],
-        useMaximalCoordinates=True
-    )
-    # obj_pos = pos
-    # obj_orientation = p.getQuaternionFromEuler(rot)
-    p.resetBasePositionAndOrientation(obj_id, pos, rot)
-
-    return obj_id
 
 def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
 
@@ -116,106 +73,6 @@ def render(robot):
     p.getCameraImage(width=width, height=height, viewMatrix=view_matrix, projectionMatrix=proj_matrix,
                      renderer=p.ER_BULLET_HARDWARE_OPENGL)  # renderer=self._p.ER_TINY_RENDERER)
 
-def update_debug_param(robot : pandaEnv):
-
-    p.removeAllUserParameters()
-
-    param_ids = []
-    joint_ids = []
-    num_joints = p.getNumJoints(robot.robot_id)
-
-    joint_states = p.getJointStates(robot.robot_id, range(0, num_joints))
-    joint_poses = [x[0] for x in joint_states]
-
-    for i in range(num_joints):
-        joint_info = p.getJointInfo(robot.robot_id, i)
-        joint_name = joint_info[1]
-        joint_type = joint_info[2]
-
-        if joint_type is p.JOINT_REVOLUTE or joint_type is p.JOINT_PRISMATIC:
-            joint_ids.append(i)
-            param_ids.append(
-                p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
-    
-    return param_ids    
-
-def robot_key_callback(robot : pandaEnv, keys : dict, object_id : int=None):
-
-    move_offset = 0.06
-    rot_offset = 0.1
-
-    # move up
-    if 65297 in keys and keys[65297] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): # up arrow
-        # quat_1 = p.getQuaternionFromEuler([m.pi, 0, 0])
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0], tmp_pos[1], tmp_pos[2] + move_offset)
-        robot.apply_action(new_pos)
-    # move down
-    elif 65298 in keys and keys[65298] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): # down arrow
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0], tmp_pos[1], tmp_pos[2] - move_offset)
-        robot.apply_action(new_pos)
-    # move left
-    elif 65295 in keys and keys[65295] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN):  # left arrow
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0], tmp_pos[1] - move_offset, tmp_pos[2])
-        robot.apply_action(new_pos)
-    # move right
-    elif 65296 in keys and keys[65296] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): # right arrow
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0], tmp_pos[1] + move_offset, tmp_pos[2])
-        robot.apply_action(new_pos)
-    # move front
-    elif ord('x') in keys and keys[ord('x')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0] + move_offset, tmp_pos[1], tmp_pos[2])
-        robot.apply_action(new_pos)
-    # move back
-    elif ord('d') in keys and keys[ord('d')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-        tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        new_pos = (tmp_pos[0] - move_offset, tmp_pos[1], tmp_pos[2])
-        robot.apply_action(new_pos)
-    # flip flop gripper
-    elif 32 in keys and keys[32] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-        gripper_pos = robot.get_gripper_pos()
-        robot.grasp(object_id)
-        if gripper_pos[0] < 0.005 or gripper_pos[1] < 0.005:
-            robot.pre_grasp()
-            # robot.apply_action_fingers([0.05, 0.05], object_id)
-        else :
-            robot.grasp(object_id)
-            # robot.apply_action_fingers([0.00, 0.00], object_id)
-        for _ in range(60):
-            p.stepSimulation()
-            time.sleep(0.01)
-    # rotate gripper : counter clockwise
-    elif ord('z') in keys and keys[ord('z')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-        joint_name_ids = robot.get_joint_name_ids()
-        tmp_pos = p.getJointState(robot.robot_id, joint_name_ids['panda_joint7'])[0]
-        p.setJointMotorControlArray(robot.robot_id, [joint_name_ids['panda_joint7']], p.POSITION_CONTROL, targetPositions=[tmp_pos-rot_offset])
-    # flip flop gripper : clockwise
-    elif ord('c') in keys and keys[ord('c')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-        joint_name_ids = robot.get_joint_name_ids()
-        tmp_pos = p.getJointState(robot.robot_id, joint_name_ids['panda_joint7'])[0]
-        p.setJointMotorControlArray(robot.robot_id, [joint_name_ids['panda_joint7']], p.POSITION_CONTROL, targetPositions=[tmp_pos+rot_offset])
-    elif ord('q') in keys and keys[ord('q')] & p.KEY_WAS_TRIGGERED:
-        return False
-    return True
-
-def reset_pose(obj_id, x_offset=0.1, y_offset=0., z_offset=1.):
-    x = (np.random.rand() - 0.5) * 0.2 + x_offset
-    y = (np.random.rand() - 0.5) * 0.1 + y_offset
-    z = (np.random.rand() - 0.5) * 0.2 + z_offset
-
-    roll = np.random.rand() * np.pi * 2
-    pitch = np.random.rand() * np.pi * 2
-    yaw = np.random.rand() * np.pi * 2
-    p.setGravity(0, 0, 0)
-    p.resetBasePositionAndOrientation(
-        obj_id,
-        [x, y, z],
-        p.getQuaternionFromEuler([roll, pitch, yaw]))
-
 def get_matrix_from_pos_rot(pos : list or tuple, rot : list or tuple):
     assert (len(pos) == 3 and len(rot) == 4) or (len(pos) == 3 and len(rot) == 3)
     pos_m = np.asarray(pos)
@@ -242,25 +99,6 @@ def robot_apply_action(robot : pandaEnv, obj_id : int, action : tuple or list, g
     if gripper_action == 'nop':
         assert len(action) == 7, 'action length should be 7'
 
-        # tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
-        # tmp_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5] # rotation
-
-        # tgt_pos = action[:3]
-        # tgt_rot = action[3:]
-
-        # d12 = np.asarray(tgt_pos) - np.asarray(tmp_pos)
-        # r12_rotvec = R.from_quat(tgt_rot).as_rotvec() - R.from_quat(tmp_rot).as_rotvec()
-
-        # diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        # steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=1)))
-
-        # for i in range(steps):
-        #     positions6d = (i + 1) / (steps + 1) * diff_q1_q2 + np.concatenate((tmp_pos, R.from_quat(tmp_rot).as_rotvec()))
-        #     positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
-        #     robot.apply_action(positions7d, max_vel=max_vel)
-        #     p.stepSimulation()
-        #     time.sleep(sim_timestep)
-
         robot.apply_action(action, max_vel=max_vel)
         diff = 10.0
         iter = 0
@@ -273,7 +111,7 @@ def robot_apply_action(robot : pandaEnv, obj_id : int, action : tuple or list, g
             tmp_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4] # position
             tmp_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5] # rotation
             diff = np.sum((np.array(tmp_pos + tmp_rot) - np.array(action)) ** 2) ** 0.5
-            # print(diff)
+            print(diff)
 
     elif gripper_action == 'pre_grasp' :
 
@@ -386,7 +224,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # reset obj pose
     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
 
-    for i in range(len(waypoints) - 10):
+    for i in range(len(waypoints) - 1):
 
         q1_pos = np.asarray(waypoints[i][:3])
         q2_pos = np.asarray(waypoints[i+1][:3])
@@ -411,11 +249,11 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             gripper_action = np.concatenate((gripper_pos, gripper_rot))
 
             robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-                sim_timestep=sim_timestep, diff_thresh=0.01, max_vel=max_vel, max_iter=20)
+                sim_timestep=sim_timestep, diff_thresh=planning_resolution * 0.8, max_vel=max_vel, max_iter=100)
     
 
     robot_apply_action(robot, obj_id, waypoints[-1], gripper_action='pre_grasp', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=max_vel)
+        sim_timestep=sim_timestep, diff_thresh=planning_resolution * 0.8, max_vel=max_vel)
 
     # execution step 4 : go to the ending pose
     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
@@ -437,7 +275,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
         gripper_action = np.concatenate((gripper_pos, gripper_rot))
 
         robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-            sim_timestep=sim_timestep, diff_thresh=0.01, max_vel=max_vel, max_iter=20)
+            sim_timestep=sim_timestep, diff_thresh=planning_resolution, max_vel=max_vel, max_iter=100)
 
 def gripper_motion_planning(robot : pandaEnv, tgt_gripper_pos : tuple or list, tgt_gripper_rot : tuple or list, 
                     obstacles : list = [], sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
@@ -557,11 +395,11 @@ def main(args):
     sim_timestep = 1.0 / 240
     p.setTimeStep(sim_timestep)
 
-    # Load plane contained in pybullet_data
-    planeId = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))
-
     # Set gravity for simulation
     p.setGravity(0, 0, -9.8)
+
+    # Load plane contained in pybullet_data
+    planeId = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))
 
     # ------------------- #
     # --- Setup robot --- #
@@ -588,104 +426,79 @@ def main(args):
     hook_orientation = json_dict['hook_pose'][3:]
     hook_id = p.loadURDF(json_dict['hook_path'], hook_pos, hook_orientation)
 
-    # object initialization
-    init_pos = [0.6, 0.0, 0.67]
-    # init_pos = [0.8, 0.0, 0.67]
-    init_rot = p.getQuaternionFromEuler([-np.pi / 2, 0, 0])
-    obj_id, center = load_obj_urdf(json_dict['obj_path'])
-    p.resetBasePositionAndOrientation(obj_id, init_pos, init_rot)
-
     # get target hanging pose
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
     index = 0
     contact_info = json_dict['contact_info'][index]
     tgt_obj_pos = contact_info['object_pose'][:3]
     tgt_obj_rot = contact_info['object_pose'][3:]
-    # tgt_obj_pos = [tgt_obj_pos[0], tgt_obj_pos[1] + 0.001, tgt_obj_pos[2] + 0.01] 
-    # tgt_obj_rot = contact_info['object_pose'][3:]
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
+    print(tgt_pose)
     p.removeBody(obj_id_target)
-    # print(tgt_pose)
 
+    # object initialization
+    initial_info = json_dict['initial_pose'][index]
+    obj_pos = initial_info['object_pose'][:3]
+    obj_rot = initial_info['object_pose'][3:]
+    obj_id, center = load_obj_urdf(json_dict['obj_path'])
+    # obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
 
     # grasping
-    # robot.apply_action(contact_info['object_pose'])
-    sim_timestep = 1.0 / 240
-    p.setTimeStep(sim_timestep)
+    initial_info = json_dict['initial_pose'][index]
+    robot_pos = initial_info['robot_pose'][:3]
+    robot_rot = initial_info['robot_pose'][3:]
+    # robot_transform = get_matrix_from_pos_rot(robot_pos, robot_rot)
+    robot_pose = robot_pos + robot_rot
 
-    # start_pos = [0.3, 0.0, 0.8]
-    # start_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # start_action = start_pos + list(start_rot)
-    # robot_apply_action(robot, obj_id, start_action, gripper_action='pre_grasp', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.5)
-    # robot_apply_action(robot, obj_id, start_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.5)
-
-    # # go above the object
-    # pre_grasp_pos = [0.59, 0.0, 0.8]
-    # # pre_grasp_pos = [0.8, 0.0, 0.8]
-    # pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # gripper_motion_planning(robot, pre_grasp_pos, pre_grasp_rot, obstacles=[obj_id, hook_id, wall_id, planeId],sim_timestep=sim_timestep, max_vel=0.2)
-    # # pre_grasp_action = pre_grasp_pos + list(pre_grasp_rot)
-    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
-    # #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.5)
-    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
-    # #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.5)
-
-    # # go down to the object
-    # grasp_pos = [0.59, 0.0, 0.72]
-    # # grasp_pos = [0.8, 0.0, 0.72]
-    # grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # grasp_action = grasp_pos + list(grasp_rot)
-    # robot_apply_action(robot, obj_id, grasp_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.1)
-
-    # # grasping
-    # robot_apply_action(robot, obj_id, None, gripper_action='grasp', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.1)
-
-    # # move up slightly
-    # after_grasp_pos = [0.8, 0.0, 0.9]
-    # after_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # after_grasp_action = after_grasp_pos + list(after_grasp_rot)
-    # robot_apply_action(robot, obj_id, after_grasp_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.02, max_vel=0.1)
-
+    robot.apply_action(robot_pose, max_vel=-1)
+    for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
+        p.stepSimulation()
+        time.sleep(sim_timestep)
+    robot.grasp(obj_id=obj_id)
+    for _ in range(int(1.0 / sim_timestep) * 3): # 1 sec
+        p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
+        p.stepSimulation()
+        time.sleep(sim_timestep)
 
     # ----------------------------- #
     # --- Setting inital motion --- #
     # ----------------------------- #
 
-    pre_grasp_pos = [0.59, 0.0, 0.8]
-    pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    pre_grasp_action = pre_grasp_pos + list(pre_grasp_rot)
-    robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.5)
-    robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.5)
+    # pre_grasp_pos = [grasp_x_offset, 0.0, 0.9]
+    # pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
+    # pre_grasp_action = pre_grasp_pos + list(pre_grasp_rot)
+    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
+    # #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
+    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
+    # #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=-1)
+    # pre_grasp_pos = tgt_pose[:3]
+    # pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
+    # pre_grasp_action = list(pre_grasp_pos) + list(pre_grasp_rot)
+    # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
+    # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
 
-    # go down to the object
-    grasp_pos = [0.59, 0.0, 0.70]
-    grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    grasp_action = grasp_pos + list(grasp_rot)
-    robot_apply_action(robot, obj_id, grasp_action, gripper_action='nop', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.1)
+    # # go down to the object
+    # grasp_pos = [grasp_x_offset, 0.0, 0.70]
+    # grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
+    # grasp_action = grasp_pos + list(grasp_rot)
+    # robot_apply_action(robot, obj_id, grasp_action, gripper_action='nop', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
 
-    # grasping
-    robot_apply_action(robot, obj_id, None, gripper_action='grasp', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.1)
+    # # grasping
+    # robot_apply_action(robot, obj_id, None, gripper_action='grasp', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
 
-    # move up slightly
-    after_grasp_pos = [0.59, -0.1, 1.2]
-    after_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    after_grasp_action = after_grasp_pos + list(after_grasp_rot)
-    robot_apply_action(robot, obj_id, after_grasp_action, gripper_action='nop', 
-        sim_timestep=sim_timestep, diff_thresh=0.005, max_vel=0.1)
-    draw_coordinate(after_grasp_action)
-
-    time.sleep(5)
+    # # move up slightly
+    # after_grasp_pos = [grasp_x_offset, -0.1, 1.1]
+    # after_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
+    # after_grasp_action = after_grasp_pos + list(after_grasp_rot)
+    # robot_apply_action(robot, obj_id, after_grasp_action, gripper_action='nop', 
+    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.2)
+    # draw_coordinate(after_grasp_action)
 
     # ------------------------------ #
     # --- Setting hanging motion --- #
@@ -696,51 +509,16 @@ def main(args):
         hanging_by_ik(robot, obj_id, target_conf=target_conf)
     elif args.method == 'birrt':
         target_conf = tgt_obj_pos + tgt_obj_rot
-        hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[ table_id, hook_id])
+        hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[ table_id, hook_id], max_vel=0.1)
     
-    # if manual contral needed
-    if args.control:
-        param_ids = []
-        joint_ids = []
-        num_joints = p.getNumJoints(robot.robot_id)
-
-        joint_states = p.getJointStates(robot.robot_id, range(0, num_joints))
-        joint_poses = [x[0] for x in joint_states]
-        idx = 0
-        for i in range(num_joints):
-            joint_info = p.getJointInfo(robot.robot_id, i)
-            joint_name = joint_info[1]
-            joint_type = joint_info[2]
-
-            if joint_type is p.JOINT_REVOLUTE or joint_type is p.JOINT_PRISMATIC:
-                joint_ids.append(i)
-                param_ids.append(
-                    p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
-                idx += 1
-                
-        while True:
-            
-            # key callback
-            keys = p.getKeyboardEvents()
-            if keys != {} :
-                if robot_key_callback(robot, keys, obj_id) == False:
-                    break
-                param_ids = update_debug_param(robot)
-            else :
-                new_pos = []
-                for i in param_ids:
-                    new_pos.append(p.readUserDebugParameter(i))
-                p.setJointMotorControlArray(robot.robot_id, joint_ids, p.POSITION_CONTROL, targetPositions=new_pos)
-
-            p.stepSimulation()
-            time.sleep(sim_timestep)
     
     print('process complete')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-mug/Hook_90-mug_19.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5.json')
+    # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-mug/Hook_60-mug_19.json')
     parser.add_argument('--method', '-m', type=str, default='birrt')
     parser.add_argument('--control', '-c', action='store_true', default=True)
     args = parser.parse_args()

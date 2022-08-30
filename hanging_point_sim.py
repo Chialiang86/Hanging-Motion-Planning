@@ -7,14 +7,12 @@ import argparse
 import glob
 import time
 import json
-import cv2
 import numpy as np
 import skrobot
 import os
 import xml.etree.ElementTree as ET
 
 from tqdm import tqdm
-from unittest import result
 from utils.renderer import Renderer
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -25,7 +23,6 @@ os.sys.path.insert(0, parentdir)
 import pybullet as p
 import pybullet_data
 from pybullet_robot_envs.envs.panda_envs.panda_env import pandaEnv
-from pybullet_object_models import ycb_objects
 
 
 def reset_pose(obj_id, x_offset=0.1, y_offset=0., z_offset=1.):
@@ -122,6 +119,29 @@ def reset_pose(obj_id, x_offset=0.1, y_offset=0., z_offset=1.):
         [x, y, z],
         p.getQuaternionFromEuler([roll, pitch, yaw]))
 
+def update_debug_param(robot : pandaEnv):
+
+    p.removeAllUserParameters()
+
+    param_ids = []
+    joint_ids = []
+    num_joints = p.getNumJoints(robot.robot_id)
+
+    joint_states = p.getJointStates(robot.robot_id, range(0, num_joints))
+    joint_poses = [x[0] for x in joint_states]
+
+    for i in range(num_joints):
+        joint_info = p.getJointInfo(robot.robot_id, i)
+        joint_name = joint_info[1]
+        joint_type = joint_info[2]
+
+        if joint_type is p.JOINT_REVOLUTE or joint_type is p.JOINT_PRISMATIC:
+            joint_ids.append(i)
+            param_ids.append(
+                p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
+    
+    return param_ids    
+    
 def main(args):
 
     # ----------------------- #
@@ -186,17 +206,21 @@ def main(args):
     # wall_id = p.loadURDF("models/wall/wall.urdf", wall_pos, wall_orientation)
 
     # stop critiria
-    max_contact = 10
+    max_contact = 1
     max_iter = 1000
 
     # load hook
     # hook_pos=[0.8, -0.2, 1.0] for hook_90
-    hook_pos=[0.8, -0.2, 1.0]
+    # hook_pos=[0.8, -0.2, 1.0]
+    hook_pos=[0.5, -0.1, 1.3]
     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
     height_thresh = 0.8
     for obj_path in obj_paths:
+
+        # if 'wrench' in obj_path:
+        #     continue
 
         obj_id, center = load_obj_urdf(obj_path)
         
@@ -213,14 +237,22 @@ def main(args):
         contact_cnt = 0
         try_num = 0
 
-        while contact_cnt < max_contact and try_num < max_iter:
+        while contact_cnt < max_contact :# and try_num < max_iter:
             try_num += 1
             failed = False
 
             p.setGravity(0, 0, 0)
-            # reset_pose(obj_id, x_offset=0.8, y_offset=0.0, z_offset=1.1) # for hook_bar
-            # reset_pose(obj_id, x_offset=0.8, y_offset=-0.1, z_offset=1.2) # for hook_90
-            reset_pose(obj_id, x_offset=0.8, y_offset=-0.1, z_offset=1.05) # for hook_60
+
+            if args.hook == 'Hook_bar':
+                reset_pose(obj_id, x_offset=0.5, y_offset=-0.0, z_offset=1.3) # for hook_bar
+            elif args.hook == 'Hook_180':
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.4) # for hook_bar
+            elif args.hook == 'Hook_90':
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.35) # for hook_90
+            elif args.hook == 'Hook_60':
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.35) # for hook_60
+            elif args.hook == 'Hook_skew':
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.3) # for hook_60
 
             p.stepSimulation()
             contact_points = p.getContactPoints(obj_id, hook_id)
@@ -228,9 +260,18 @@ def main(args):
                 continue
 
             # toss to the hook by force in direction x
-            # p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
-            # p.resetBaseVelocity(obj_id, [0.0, -0.1, -0.3]) # for hook_90
-            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            if args.hook == 'Hook_bar':
+                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
+            elif args.hook == 'Hook_180':
+                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
+            elif args.hook == 'Hook_90':
+                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            elif args.hook == 'Hook_60':
+                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            elif args.hook == 'Hook_skew':
+                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+
+            
             for _ in range(500):
                 p.stepSimulation()
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -276,7 +317,7 @@ def main(args):
                 continue
 
             p.setGravity(0, 0, gravity)
-            for _ in range(2000):
+            for _ in range(6000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
                 if pos[2] < height_thresh:
                     failed = True
@@ -331,7 +372,7 @@ if __name__ == '__main__':
     parser.add_argument('--output-dir', '-or', type=str, default='data')
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
-    parser.add_argument('--obj', '-o', type=str, default='mug')
+    parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
     parser.add_argument('--hook', '-ho', type=str, default='Hook_60')
     args = parser.parse_args()
     main(args)

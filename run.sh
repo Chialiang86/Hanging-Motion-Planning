@@ -19,7 +19,7 @@ if [ $# -ge 1 ]; then
 
     elif [ $1 = 'obj2urdf' ]; then 
         
-        INPUT=('models/geo_data/mug')
+        INPUT=('models/geo_data/hanging_exp')
         for input in "${INPUT[@]}"
         do
             python3 utils/obj2urdf.py --input-dir $input
@@ -27,7 +27,7 @@ if [ $# -ge 1 ]; then
 
     elif [ $1 = 'vhacd' ]; then 
         
-        INPUT=('models/geo_data/mug')
+        INPUT=('models/geo_data/hanging_exp')
         for input in "${INPUT[@]}"
         do
             python3 vhacd.py --input-dir $input
