@@ -2,3 +2,5 @@ models/geo_data
 models/robot
 *.txt
 */__pycache__
+*.gif
+*.zip

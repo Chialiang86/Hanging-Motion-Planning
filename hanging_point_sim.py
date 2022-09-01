@@ -175,10 +175,11 @@ def main(args):
     physics_client_id = p.connect(p.GUI)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-    cameraDistance=0.5,
-    cameraYaw=135,
-    cameraPitch=0,
-    cameraTargetPosition=[0.7, -0.2, 1.0])
+        cameraDistance=0.3,
+        cameraYaw=120,
+        cameraPitch=-30,
+        cameraTargetPosition=[0.7, 0.0, 1.3]
+    )
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     sim_timestep = 1.0 / 1000
@@ -216,11 +217,19 @@ def main(args):
     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
+    ignore_list = []
+    # ignore_list = ['scissor', 'bag', 'daily', 'mug']
+
     height_thresh = 0.8
     for obj_path in obj_paths:
+        cont = False
+        for ignore_item in ignore_list:
+            if ignore_item in obj_path:
+                print(f'ignore : {ignore_item}')
+                cont = True
+        if cont:
+            continue
 
-        # if 'wrench' in obj_path:
-        #     continue
 
         obj_id, center = load_obj_urdf(obj_path)
         
@@ -317,7 +326,7 @@ def main(args):
                 continue
 
             p.setGravity(0, 0, gravity)
-            for _ in range(6000):
+            for _ in range(8000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
                 if pos[2] < height_thresh:
                     failed = True
@@ -373,6 +382,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook_60')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook_90')
     args = parser.parse_args()
     main(args)

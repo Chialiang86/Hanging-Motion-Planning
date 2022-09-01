@@ -10,7 +10,12 @@ from pybullet_planning.interfaces.robots.body import set_pose
 from pybullet_planning.interfaces.robots.link import get_all_links
 from pybullet_planning.interfaces.debug_utils.debug_utils import draw_collision_diagnosis
 
-def get_sample7d_fn(target_conf : list or tuple or np.ndarray, ratio_to_target=0.5):
+def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
+                    low_limit : list or tuple or np.ndarray,
+                    high_limit : list or tuple or np.ndarray, 
+                    ratio_to_target=0.1):
+
+    assert len(low_limit) == 3 and len(high_limit) == 3, 'illegal size of limit, len(limit) must be 3'
     
     def sample7d_fn():
         rand_val = np.random.random()
@@ -19,13 +24,12 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray, ratio_to_target=0
             ret = target_conf
         else:
             pos_euler = []
-            # pos_euler.append(np.random.uniform(-1, 1))
-            # pos_euler.append(np.random.uniform(-1, 1))
-            # pos_euler.append(np.random.uniform(-1, 1))
 
-            pos_euler.append(np.random.uniform(0.3, 1.2)) # x
-            pos_euler.append(np.random.uniform(-0.4, 0.2)) # y 
-            pos_euler.append(np.random.uniform(1.2, 1.5)) # z
+            rotvec = R.from_quat(target_conf[3:]).as_rotvec()
+
+            pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
+            pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
+            pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
             for i in range(3, 6):
                 pos_euler.append(np.random.uniform(-np.pi, np.pi))
             ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
@@ -46,11 +50,10 @@ def get_distance7d_fn():
         diff_pos = q1_pos - q2_pos
         diff_rot = np.array([min((r1 - r2) ** 2, (r2 - r1) ** 2) for r1, r2 in zip(q1_rot, q2_rot)])
 
-        return 1.0 * np.sum(diff_pos ** 2) + 0.5 * np.sum(diff_rot ** 2)
+        return 1.0 * np.sum(diff_pos ** 2) + 2.0 * np.sum(diff_rot ** 2)
     return distance7d_fn
 
 def get_extend7d_fn(resolution = 0.005):
-    
     
     def extend7d_fn(q1, q2):
         assert len(q1) == 7 and len(q2) == 7
@@ -61,7 +64,15 @@ def get_extend7d_fn(resolution = 0.005):
         q2_rot = np.asarray(q2[3:])
 
         d12 = q2_pos - q1_pos
+
         r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
+        # q1_rotvec = R.from_quat(q1_rot).as_rotvec() 
+        # q2_rotvec = R.from_quat(q2_rot).as_rotvec() 
+        # r12_rotvec = np.asarray([0.0, 0.0, 0.0]) 
+        # for i in range(3):
+        #     diff = q2_rotvec[i] - q1_rotvec[i]
+        #     if np.abs(diff) > np.pi: # another way
+        #         r12_rotvec[i] = diff + 2 * np.pi if diff < 0 else diff - 2 * np.pi 
 
         # r12 = np.linalg.inv(R.from_quat(q1_rot).as_matrix()) @ R.from_quat(q2_rot).as_matrix() # from R1 -> R2
         # r12_rotvec = R.from_matrix(r12).as_rotvec()
@@ -73,6 +84,11 @@ def get_extend7d_fn(resolution = 0.005):
         yield q1
         for i in range(steps):
             positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
+            # for ri in range(3, 6):
+            #     if positions6d[ri] < -np.pi:
+            #         positions6d[ri] = positions6d[ri] + 2 * np.pi 
+            #     elif positions6d[ri] > np.pi:
+            #         positions6d[ri] = positions6d[ri] - 2 * np.pi 
             positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
             yield positions7d
 

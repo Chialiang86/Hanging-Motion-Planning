@@ -66,8 +66,8 @@ def update_debug_param(robot : pandaEnv):
 
 def robot_key_callback(robot : pandaEnv, keys : dict, object_id : int=None):
 
-    move_offset = 0.01
-    rot_offset = 0.05
+    move_offset = 0.002
+    rot_offset = 0.005
     ret = None
 
     # move up
@@ -278,6 +278,7 @@ def main(args):
                         'object_pose': obj_pose_shift
                     }
                     json_dict['initial_pose'].append(initial_pose_ele)
+                    print(json_dict['initial_pose'])
 
                     with open(input_json, 'w') as f:
                         print(f'append to {input_json}')
@@ -285,13 +286,13 @@ def main(args):
 
                     break
 
-                elif ord('o') in keys and keys[ord('o')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
+                elif ord('o') in keys and keys[ord('o')] & (p.KEY_WAS_TRIGGERED): 
 
                     p.removeBody(hook_id)
 
-                elif ord('a') in keys and keys[ord('a')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
+                elif ord('a') in keys and keys[ord('a')] & (p.KEY_WAS_TRIGGERED): 
                     
-                    param_control = not param_control
+                    param_control = False if param_control == True else True
                     param_ids = update_debug_param(robot)
 
                 else:
@@ -322,7 +323,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
     # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-mug/Hook_60-mug_19.json')
     parser.add_argument('--method', '-m', type=str, default='birrt')
     parser.add_argument('--control', '-c', action='store_true', default=True)

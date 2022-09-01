@@ -113,8 +113,14 @@ def main(args):
     target_length = 0.1
 
     files = glob.glob(f'{input_dir}/*/*_normalized.obj')
+    ignore_list = ['bag', 'wrench']
 
     for file in files:
+
+        for ignore_item in ignore_list:
+            if ignore_item in file:
+                print(f'ignore : {ignore_item}')
+
         dirname, filename = os.path.split(file)
         filename_without_ext, ext = os.path.splitext(filename)
 
