@@ -152,8 +152,6 @@ def get_target_gripper_pose(robot : pandaEnv, obj_id : int, tgt_obj_pos : tuple 
 
     return tuple(tgt_gripper_pos), tuple(tgt_gripper_rot)
 
-
-        
 def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
     collision7d_fn = get_collision7d_fn(physicsClientId, body, obstacles=obstacles)
 
@@ -329,7 +327,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             #     elif positions6d[ri] > np.pi:
             #         positions6d[ri] = positions6d[ri] - 2 * np.pi 
             positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
-            draw_coordinate(positions7d)
+            # draw_coordinate(positions7d)
             # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
 
             gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
@@ -345,7 +343,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             for _ in range(10): # 1 sec
                 p.stepSimulation()
 
-            img = p.getCameraImage(640, 640, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
             imgs.append(img)
     
     # execution step 2 : release gripper
@@ -443,9 +441,9 @@ def main(args):
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
         cameraDistance=0.3,
-        cameraYaw=120,
+        cameraYaw=90,
         cameraPitch=-30,
-        cameraTargetPosition=[0.7, 0.0, 1.3]
+        cameraTargetPosition=[0.5, 0.0, 1.3]
     )
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
@@ -509,7 +507,7 @@ def main(args):
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=[hook_id])
 
     len_init_pose = len(json_dict['initial_pose'])
-    # assert len_init_pose == 3, f'initial poses need to be 3, not {len_init_pose}'
+    assert len_init_pose == 3, f'initial poses need to be 3, not {len_init_pose}'
     for index in range(len_init_pose):
         # object initialization
         initial_info = json_dict['initial_pose'][index]
@@ -549,7 +547,7 @@ def main(args):
         print('[Success]|{}'.format(1 if contact else 0))
 
         status = 'success' if contact else 'failed'
-        init_pose = ['short', 'middle', 'long'][index]
+        init_pose = ['easy', 'medium', 'hard'][index]
         gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}.gif')
         imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
         

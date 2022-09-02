@@ -5,13 +5,13 @@ import pandas as pd
 def main(args):
     
     in_file = args.input
-    out_file = args.output
+    out_files = [f'{args.output}_easy.csv', f'{args.output}_medium.csv', f'{args.output}_hard.csv']
 
     assert os.path.exists(in_file), f'{in_file} not exists'
     hook_name = os.path.splitext(in_file)[0].split('/')[-1].split('-')[0]
     obj_name = os.path.splitext(in_file)[0].split('/')[-1].split('-')[1]
 
-    print(f'processing : {out_file} hook name : {hook_name}, obj name : {obj_name}')
+    print(f'hook name : {hook_name}, obj name : {obj_name}')
     
     before_length = 0.0
     after_length = 0.0
@@ -29,32 +29,54 @@ def main(args):
         # print('[Results]|Iterations {}|Nodes {}|Time {}'.format(iteration, len(nodes1) + len(nodes2), elapsed_time(start_time)))
         result_token = '[Results]' 
         success_token = '[Success]' 
+
+        before_length = [0, 0, 0]
+        after_length = [0, 0, 0]
+        success = [0, 0, 0]
+        iteration = [0, 0, 0]
+        nodes = [0, 0, 0]
+        time = [0, 0, 0]
         for l in lines:
             line = l.split('\n')[0]
             if before_token in line:
-                before_length = int(line.split('|')[1].split(' ')[1])
+                before_length.append(int(line.split('|')[1].split(' ')[1]))
             if after_token in line:
-                after_length = int(line.split('|')[1].split(' ')[1])
+                after_length.append(int(line.split('|')[1].split(' ')[1]))
             if success_token in line:
-                success = int(line.split('|')[1])
+                success.append(int(line.split('|')[1]))
             if result_token in line:
-                iteration = int(line.split('|')[1].split(' ')[1])
-                nodes = int(line.split('|')[2].split(' ')[1])
-                time = float(line.split('|')[3].split(' ')[1])
+                iteration.append(int(line.split('|')[1].split(' ')[1]))
+                nodes.append(int(line.split('|')[2].split(' ')[1]))
+                time.append(float(line.split('|')[3].split(' ')[1]))
+
+        # print(f'before_length {len(before_length)}')
+        # print(f'after_length {len(after_length)}')
+        # print(f'success {len(success)}')
+        # print(f'iteration {len(iteration)}')
+        # print(f'nodes {len(nodes)}')
+        # print(f'time {len(time)}')
+
+        # assert len(before_length) == 3
+        # assert len(after_length) == 3
+        # assert len(success) == 3
+        # assert len(iteration) == 3
+        # assert len(nodes) == 3
+        # assert len(time) == 3
 
         # column_names = ['object', 'hook', 'success', 'time', 'iteration', 'nodes', 'length_before', 'length_after']
-        data_dict = {
-            'object': [obj_name],
-            'hook': [hook_name],
-            'success': [success],
-            'time': [time],
-            'iteration': [iteration],
-            'nodes': [nodes],
-            'length_before': [before_length],
-            'length_after': [after_length]
-        }
-        data_df = pd.DataFrame(data_dict)
-        data_df.to_csv(out_file, mode='a', index=False, header=False)
+        for i in range(3):
+            data_dict = {
+                'object': [obj_name],
+                'hook': [hook_name],
+                'success': [success[i]],
+                'time': [time[i]],
+                'iteration': [iteration[i]],
+                'nodes': [nodes[i]],
+                'length_before': [before_length[i]],
+                'length_after': [after_length[i]]
+            }
+            data_df = pd.DataFrame(data_dict)
+            data_df.to_csv(out_files[i], mode='a', index=False, header=False)
         
         print('process completed')
 

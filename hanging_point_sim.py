@@ -218,7 +218,7 @@ def main(args):
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
     ignore_list = []
-    # ignore_list = ['scissor', 'bag', 'daily', 'mug']
+    ignore_list = ['scissor', 'bag', 'daily', 'mug']
 
     height_thresh = 0.8
     for obj_path in obj_paths:
@@ -253,7 +253,7 @@ def main(args):
             p.setGravity(0, 0, 0)
 
             if args.hook == 'Hook_bar':
-                reset_pose(obj_id, x_offset=0.5, y_offset=-0.0, z_offset=1.3) # for hook_bar
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.15) # for hook_bar
             elif args.hook == 'Hook_180':
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.4) # for hook_bar
             elif args.hook == 'Hook_90':
@@ -326,7 +326,7 @@ def main(args):
                 continue
 
             p.setGravity(0, 0, gravity)
-            for _ in range(8000):
+            for _ in range(16000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
                 if pos[2] < height_thresh:
                     failed = True
@@ -382,6 +382,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook_90')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook_bar')
     args = parser.parse_args()
     main(args)
