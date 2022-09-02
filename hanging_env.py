@@ -258,7 +258,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
             low_limit[i] = target_pos[i] - padding[i]
             high_limit[i] = start_pos[i] + padding[i] 
     
-    draw_bbox(low_limit[:3], high_limit[:3])
+    draw_bbox(low_limit, high_limit)
 
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
@@ -361,8 +361,6 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
         sim_timestep=0.05, diff_thresh=0.005, max_vel=-1, max_iter=100)
 
     return [Image.fromarray(img) for img in imgs]
-
-    
 
 def gripper_motion_planning(robot : pandaEnv, tgt_gripper_pos : tuple or list, tgt_gripper_rot : tuple or list, 
                     obstacles : list = [], sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
@@ -487,98 +485,74 @@ def main(args):
 
     # get target hanging pose
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
-    index = 0
-    contact_info = json_dict['contact_info'][index]
+    contact_index = 0
+    contact_info = json_dict['contact_info'][contact_index]
     tgt_obj_pos = contact_info['object_pose'][:3]
     tgt_obj_rot = contact_info['object_pose'][3:]
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
-    print(tgt_pose)
     p.removeBody(obj_id_target)
 
+    # config output path
+    output_root = os.path.split(args.input_json)[0]
+    output_dir = os.path.splitext(os.path.split(args.input_json)[1])[0]
+    os.makedirs(os.path.join(output_root, output_dir), exist_ok=True)
+    output_dir = os.path.join(output_root, output_dir)
 
-    # object initialization
-    initial_info = json_dict['initial_pose'][index]
-    obj_pos = initial_info['object_pose'][:3]
-    obj_rot = initial_info['object_pose'][3:]
+    # random position noise
+    # low = [-0.005, -0.02, -0.01]
+    # high = [0.005, 0.02, 0.03]
+    # pos_noise = np.zeros(3)
+    # pos_noise = np.random.uniform(low=low, high=high, size=3)
     obj_id, center = load_obj_urdf(json_dict['obj_path'])
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=[hook_id])
-    # obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
 
-    # grasping
-    initial_info = json_dict['initial_pose'][index]
-    robot_pos = initial_info['robot_pose'][:3]
-    robot_rot = initial_info['robot_pose'][3:]
-    robot_pose = robot_pos + robot_rot
+    len_init_pose = len(json_dict['initial_pose'])
+    # assert len_init_pose == 3, f'initial poses need to be 3, not {len_init_pose}'
+    for index in range(len_init_pose):
+        # object initialization
+        initial_info = json_dict['initial_pose'][index]
+        obj_pos = initial_info['object_pose'][:3]
+        obj_rot = initial_info['object_pose'][3:]
+        # obj_pos = list(np.asarray(obj_pos) + pos_noise)
+        # obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
 
-    robot.apply_action(robot_pose, max_vel=-1)
-    for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-        p.stepSimulation()
-        time.sleep(sim_timestep)
-    robot.grasp(obj_id=obj_id)
-    for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-        p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
-        p.stepSimulation()
-        time.sleep(sim_timestep)
+        # grasping
+        initial_info = json_dict['initial_pose'][index]
+        robot_pos = initial_info['robot_pose'][:3]
+        robot_rot = initial_info['robot_pose'][3:]
+        # robot_pos = list(np.asarray(robot_pos) + pos_noise)
+        robot_pose = robot_pos + robot_rot
 
-    # ----------------------------- #
-    # --- Setting inital motion --- #
-    # ----------------------------- #
+        robot.apply_action(robot_pose, max_vel=-1)
+        for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
+            p.stepSimulation()
+            time.sleep(sim_timestep)
+        robot.grasp(obj_id=obj_id)
+        for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
+            p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
+            p.stepSimulation()
+            time.sleep(sim_timestep)
 
-    # pre_grasp_pos = [grasp_x_offset, 0.0, 0.9]
-    # pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # pre_grasp_action = pre_grasp_pos + list(pre_grasp_rot)
-    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
-    # #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
-    # # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
-    # #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=-1)
-    # pre_grasp_pos = tgt_pose[:3]
-    # pre_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # pre_grasp_action = list(pre_grasp_pos) + list(pre_grasp_rot)
-    # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='pre_grasp', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
-    # robot_apply_action(robot, obj_id, pre_grasp_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
+        # ----------------------------- #
+        # --- Setting inital motion --- #
+        # ----------------------------- #
 
-    # # go down to the object
-    # grasp_pos = [grasp_x_offset, 0.0, 0.70]
-    # grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # grasp_action = grasp_pos + list(grasp_rot)
-    # robot_apply_action(robot, obj_id, grasp_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
-
-    # # grasping
-    # robot_apply_action(robot, obj_id, None, gripper_action='grasp', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.5)
-
-    # # move up slightly
-    # after_grasp_pos = [grasp_x_offset, -0.1, 1.1]
-    # after_grasp_rot = p.getQuaternionFromEuler([np.pi, 0, 0])
-    # after_grasp_action = after_grasp_pos + list(after_grasp_rot)
-    # robot_apply_action(robot, obj_id, after_grasp_action, gripper_action='nop', 
-    #     sim_timestep=sim_timestep, diff_thresh=0.05, max_vel=0.2)
-    # draw_coordinate(after_grasp_action)
-
-    # ------------------------------ #
-    # --- Setting hanging motion --- #
-    # ------------------------------ #
-    if args.method == 'ik':
-        # todo : modify input to target_conf
-        target_conf = tgt_obj_pos + tgt_obj_rot
-        hanging_by_ik(robot, obj_id, target_conf=target_conf)
-    elif args.method == 'birrt':
-        target_conf = tgt_obj_pos + tgt_obj_rot
-        gif_path = os.path.splitext(args.input_json)[0] + f'_{args.id}.gif'
+        # run RRT algorithm
         imgs_array = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[ table_id, hook_id], max_vel=0.1)
-        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
-    
-    
-    obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
-    obj_pose = obj_pos + obj_rot
-    contact = collision_fn(obj_pose)
-    print('[Success]|{}'.format(1 if contact else 0))
+        
+        # check success
+        obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
+        obj_pose = obj_pos + obj_rot
+        contact = collision_fn(obj_pose)
+        print('[Success]|{}'.format(1 if contact else 0))
 
+        status = 'success' if contact else 'failed'
+        init_pose = ['short', 'middle', 'long'][index]
+        gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}.gif')
+        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+        
     print('process complete...')
     # while True:
         

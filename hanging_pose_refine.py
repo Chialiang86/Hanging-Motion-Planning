@@ -226,106 +226,120 @@ def main(args):
     # tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
     # print(tgt_pose)
 
+    # reset json
+    json_dict['initial_pose'] = []
+
     # grasping
     # robot.apply_action(contact_info['object_pose'])
     sim_timestep = 1.0 / 240.0
     p.setTimeStep(sim_timestep)
 
+    init_pose = (0.38231226801872253, -0.03931187838315964, 1.2498921155929565, 0.7112785577774048, -0.0645006000995636, 0.6992669105529785, 0.030794139951467514)
+    robot.apply_action(init_pose)
+    for i in range(100):
+        p.stepSimulation()
+        time.sleep(sim_timestep)
+  
     # if manual contral needed
-    if args.control:
-        param_ids = []
-        joint_ids = []
-        num_joints = p.getNumJoints(robot.robot_id)
+    param_ids = []
+    joint_ids = []
+    num_joints = p.getNumJoints(robot.robot_id)
 
-        joint_states = p.getJointStates(robot.robot_id, range(0, num_joints))
-        joint_poses = [x[0] for x in joint_states]
-        idx = 0
-        for i in range(num_joints):
-            joint_info = p.getJointInfo(robot.robot_id, i)
-            joint_name = joint_info[1]
-            joint_type = joint_info[2]
-            print(joint_name)
+    joint_states = p.getJointStates(robot.robot_id, range(0, num_joints))
+    joint_poses = [x[0] for x in joint_states]
+    idx = 0
+    for i in range(num_joints):
+        joint_info = p.getJointInfo(robot.robot_id, i)
+        joint_name = joint_info[1]
+        joint_type = joint_info[2]
+        print(joint_name)
 
-            if joint_type is p.JOINT_REVOLUTE or joint_type is p.JOINT_PRISMATIC:
-                joint_ids.append(i)
-                param_ids.append(
-                    p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
-                idx += 1
+        if joint_type is p.JOINT_REVOLUTE or joint_type is p.JOINT_PRISMATIC:
+            joint_ids.append(i)
+            param_ids.append(
+                p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
+            idx += 1
 
-        close_flag = False
-        param_control = True
-        while True:
+    close_flag = False
+    param_control = True
+    max_cnt = 3
+    cnt = 0
+
+    while True:
+        
+        # key callback
+        keys = p.getKeyboardEvents()
+        if keys != {} :
             
-            # key callback
-            keys = p.getKeyboardEvents()
-            if keys != {} :
-                
-                if ord('p') in keys and keys[ord('p')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
+            if ord('p') in keys and keys[ord('p')] & (p.KEY_WAS_TRIGGERED): 
 
-                    gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
-                    gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
-                    gripper_pose_shift = list(np.array(gripper_pos) + np.array([0.0, 0.0, 0.0])) + list(gripper_rot)
-                    # gripper_pose_shift = list(np.array(gripper_pos) + np.array([0.0, 0.15, 0.1])) + list(gripper_rot)
+                gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+                gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+                gripper_pose_shift = list(np.array(gripper_pos) + np.array([0.0, 0.0, 0.0])) + list(gripper_rot)
+                # gripper_pose_shift = list(np.array(gripper_pos) + np.array([0.0, 0.15, 0.1])) + list(gripper_rot)
 
-                    obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id_target)
-                    obj_pose_shift = list(np.array(obj_pos) + np.array([0.0, 0.0, 0.0])) + list(obj_rot)
-                    # obj_pose_shift = list(np.array(obj_pos) + np.array([0.0, 0.15, 0.1])) + list(obj_rot)
+                obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id_target)
+                obj_pose_shift = list(np.array(obj_pos) + np.array([0.0, 0.0, 0.0])) + list(obj_rot)
+                # obj_pose_shift = list(np.array(obj_pos) + np.array([0.0, 0.15, 0.1])) + list(obj_rot)
 
-                    # refine initial pose of gripper and object
-                    json_dict['initial_pose'] = []
-                    initial_pose_ele = {
-                        'robot_pose': gripper_pose_shift,
-                        'object_pose': obj_pose_shift
-                    }
-                    json_dict['initial_pose'].append(initial_pose_ele)
-                    print(json_dict['initial_pose'])
+                # refine initial pose of gripper and object
+                initial_pose_ele = {
+                    'robot_pose': gripper_pose_shift,
+                    'object_pose': obj_pose_shift
+                }
+                json_dict['initial_pose'].append(initial_pose_ele)
 
-                    with open(input_json, 'w') as f:
-                        print(f'append to {input_json}')
-                        json_dict = json.dump(json_dict, f, indent=4)
-
+                cnt += 1
+                print(f'cnt : {cnt}, pose : {initial_pose_ele}')
+                if cnt == max_cnt:
                     break
 
-                elif ord('o') in keys and keys[ord('o')] & (p.KEY_WAS_TRIGGERED): 
+            elif ord('o') in keys and keys[ord('o')] & (p.KEY_WAS_TRIGGERED): 
 
-                    p.removeBody(hook_id)
+                p.removeBody(hook_id)
 
-                elif ord('a') in keys and keys[ord('a')] & (p.KEY_WAS_TRIGGERED): 
-                    
-                    param_control = False if param_control == True else True
-                    param_ids = update_debug_param(robot)
+            # elif ord('k') in keys and keys[ord('k')] & (p.KEY_WAS_TRIGGERED): 
+            #     gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+            #     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+            #     print(gripper_pos + gripper_rot)
 
-                else:
-                    action = robot_key_callback(robot, keys, obj_id_target)
-                    if action == 'quit':
-                        break
-                    elif action == 'close':
-                        close_flag = True
-                    elif action == 'open':
-                        close_flag = False
-                    
-                    if close_flag:
-                        robot.grasp(obj_id_target)
-                        for _ in range(5):
-                            p.stepSimulation()
+            elif ord('a') in keys and keys[ord('a')] & (p.KEY_WAS_TRIGGERED): 
+                
+                param_control = False if param_control == True else True
+                param_ids = update_debug_param(robot)
 
-                # param_ids = update_debug_param(robot)
+            else:
+                action = robot_key_callback(robot, keys, obj_id_target)
+                if action == 'quit':
+                    break
+                elif action == 'close':
+                    close_flag = True
+                elif action == 'open':
+                    close_flag = False
+                
+                if close_flag:
+                    robot.grasp(obj_id_target)
+                    for _ in range(5):
+                        p.stepSimulation()
 
-            elif param_control:
-                new_pos = []
-                for i in param_ids:
-                    new_pos.append(p.readUserDebugParameter(i))
-                p.setJointMotorControlArray(robot.robot_id, joint_ids, p.POSITION_CONTROL, targetPositions=new_pos)
+            # param_ids = update_debug_param(robot)
 
-            p.stepSimulation()
-            time.sleep(sim_timestep)
+        elif param_control:
+            new_pos = []
+            for i in param_ids:
+                new_pos.append(p.readUserDebugParameter(i))
+            p.setJointMotorControlArray(robot.robot_id, joint_ids, p.POSITION_CONTROL, targetPositions=new_pos)
+
+        p.stepSimulation()
+        time.sleep(sim_timestep)
+    
+    with open(input_json, 'w') as f:
+        print(f'append to {input_json}')
+        json_dict = json.dump(json_dict, f, indent=4)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
-    # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-mug/Hook_60-mug_19.json')
-    parser.add_argument('--method', '-m', type=str, default='birrt')
-    parser.add_argument('--control', '-c', action='store_true', default=True)
+    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59.json')
     args = parser.parse_args()
     main(args)
