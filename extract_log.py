@@ -30,12 +30,12 @@ def main(args):
         result_token = '[Results]' 
         success_token = '[Success]' 
 
-        before_length = [0, 0, 0]
-        after_length = [0, 0, 0]
-        success = [0, 0, 0]
-        iteration = [0, 0, 0]
-        nodes = [0, 0, 0]
-        time = [0, 0, 0]
+        before_length = []
+        after_length = []
+        success = []
+        iteration = []
+        nodes = []
+        time = []
         for l in lines:
             line = l.split('\n')[0]
             if before_token in line:
@@ -48,6 +48,19 @@ def main(args):
                 iteration.append(int(line.split('|')[1].split(' ')[1]))
                 nodes.append(int(line.split('|')[2].split(' ')[1]))
                 time.append(float(line.split('|')[3].split(' ')[1]))
+        
+        if len(before_length) == 0:
+            before_length = [0, 0, 0]
+        if len(after_length) == 0:
+            after_length = [0, 0, 0]
+        if len(success) == 0:
+            success = [0, 0, 0]
+        if len(iteration) == 0:
+            iteration = [0, 0, 0]
+        if len(nodes) == 0:
+            nodes = [0, 0, 0]
+        if len(time) == 0:
+            time = [0, 0, 0]
 
         # print(f'before_length {len(before_length)}')
         # print(f'after_length {len(after_length)}')

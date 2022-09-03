@@ -35,7 +35,7 @@ if [ $# -ge 1 ]; then
     
     elif [ $1 = 'hangenv' ]; then 
         
-        max=30
+        max=20
         # INPUT='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5'
         INPUT=( 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5' \
