@@ -1,8 +1,10 @@
 
 import numpy as np
 import pybullet as p
+import open3d as o3d
 
 from scipy.spatial.transform import Rotation as R
+from sklearn.neighbors import NearestNeighbors
 
 from itertools import product
 from pybullet_planning.interfaces.robots.collision import pairwise_link_collision
@@ -190,7 +192,27 @@ def get_collision7d_fn(physicsClientId, body, obstacles=[], attachments=[], disa
         return False
     return collision7d_fn
 
+def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud):
+    obj_points = np.asarray(obj_pcd)
+    obstacle_points = np.asarray(obstacle_pcd)
+    obstacle_normals = np.asarray(obstacle_pcd.normals)
+
+    neigh = NearestNeighbors(n_neighbors=1, algorithm='kd_tree')
+    neigh.fit(obj_points)
+    distances, indices = neigh.kneighbors(obstacle_points)
+
+
+
+def get_collision7d_partial_fn(obj_pcd : o3d.geometry.PointCloud,
+                                obstacle_pcd : o3d.geometry.PointCloud, obstacle_pose : np.ndarray):
+
 
             
+    def collision7d_fn(pose, diagnosis=False):
+        # * body - body check
+        obj_pcd.transform(pose)
+
+        return False
+    return collision7d_fn
 
         

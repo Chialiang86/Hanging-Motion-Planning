@@ -265,6 +265,9 @@ def main(args):
     max_cnt = 3
     cnt = 0
 
+    debugcam = p.getDebugVisualizerCamera()
+    print(debugcam)
+
     while True:
         
         # key callback
