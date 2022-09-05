@@ -2,6 +2,7 @@
 import numpy as np
 import pybullet as p
 import open3d as o3d
+import copy
 
 from scipy.spatial.transform import Rotation as R
 from sklearn.neighbors import NearestNeighbors
@@ -192,27 +193,50 @@ def get_collision7d_fn(physicsClientId, body, obstacles=[], attachments=[], disa
         return False
     return collision7d_fn
 
-def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud):
-    obj_points = np.asarray(obj_pcd)
-    obstacle_points = np.asarray(obstacle_pcd)
-    obstacle_normals = np.asarray(obstacle_pcd.normals)
 
+def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud, thresh : float = 0.0):
+
+    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.002)
+    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.002)
+    obj_points = np.asarray(obj_pcd_down.points)
+    obstacle_points = np.asarray(obstacle_pcd_down.points)
+    obstacle_normals = np.asarray(obstacle_pcd_down.normals)
+
+    # obstacle_to_obj
     neigh = NearestNeighbors(n_neighbors=1, algorithm='kd_tree')
-    neigh.fit(obj_points)
-    distances, indices = neigh.kneighbors(obstacle_points)
+    neigh.fit(obstacle_points)
+    distances, indices = neigh.kneighbors(obj_points)
+    distances = distances.squeeze()
+    indices = indices.squeeze()
 
+    obstacle_to_obj = obj_points - obstacle_points[indices]
+    obstacle_to_obj = (obstacle_to_obj.T / np.linalg.norm(obstacle_to_obj, ord=2, axis=1)).T 
+    ret_obstacle_to_obj = np.sum(obstacle_to_obj * obstacle_normals[indices])
 
+    ratio = ret_obstacle_to_obj / obj_points.shape[0]
+    return ratio < thresh
 
-def get_collision7d_partial_fn(obj_pcd : o3d.geometry.PointCloud,
-                                obstacle_pcd : o3d.geometry.PointCloud, obstacle_pose : np.ndarray):
+def get_collision7d_hce_fn(obj_pcd : o3d.geometry.PointCloud,
+                                obstacle_pcd : o3d.geometry.PointCloud, obstacle_pose : np.ndarray, thresh : float = 0.0):
 
+    assert len(obstacle_pose) == 7
+    obstacle_pose_matrix = np.identity(4)
+    obstacle_pose_matrix[:3, :3] = R.from_quat(obstacle_pose[3:]).as_matrix()
+    obstacle_pose_matrix[:3, 3] = obstacle_pose[:3]
+    obstacle_pcd_copy = copy.deepcopy(obstacle_pcd)
+    obstacle_pcd_copy.transform(obstacle_pose_matrix)
 
-            
-    def collision7d_fn(pose, diagnosis=False):
+    def collision7d_hce_fn(pose : np.ndarray, diagnosis : bool = False):
+        assert len(pose) == 7
+
         # * body - body check
-        obj_pcd.transform(pose)
+        obj_pcd_copy = copy.deepcopy(obj_pcd)   
+        pbj_pose_matrix = np.identity(4)
+        pbj_pose_matrix[:3, :3] = R.from_quat(pose[3:]).as_matrix()
+        pbj_pose_matrix[:3, 3] = pose[:3]
+        obj_pcd_copy.transform(pbj_pose_matrix)
 
-        return False
-    return collision7d_fn
+        return HCE(obj_pcd_copy, obstacle_pcd_copy, thresh=thresh)
+    return collision7d_hce_fn
 
         
