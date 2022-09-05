@@ -62,12 +62,12 @@ def main(args):
         if len(time) == 0:
             time = [0, 0, 0]
 
-        # print(f'before_length {len(before_length)}')
-        # print(f'after_length {len(after_length)}')
-        # print(f'success {len(success)}')
-        # print(f'iteration {len(iteration)}')
-        # print(f'nodes {len(nodes)}')
-        # print(f'time {len(time)}')
+        print(f'before_length {before_length}')
+        print(f'after_length {after_length}')
+        print(f'success {success}')
+        print(f'iteration {iteration}')
+        print(f'nodes {nodes}')
+        print(f'time {time}')
 
         # assert len(before_length) == 3
         # assert len(after_length) == 3

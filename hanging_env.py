@@ -545,13 +545,15 @@ def main(args):
         obj_pose = obj_pos + obj_rot
         contact = collision_fn(obj_pose)
         print('[Success]|{}'.format(1 if contact else 0))
+        sys.stdout.flush()
 
-        status = 'success' if contact else 'failed'
-        init_pose = ['easy', 'medium', 'hard'][index]
-        gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}.gif')
-        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+        if imgs_array is not None:
+            status = 'success' if contact else 'failed'
+            init_pose = ['easy', 'medium', 'hard'][index]
+            gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}.gif')
+            imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
         
-    print('process complete...')
+    print('process complete...')        
     # while True:
         
     #     # key callback
