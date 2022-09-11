@@ -78,33 +78,34 @@ if [ $# -ge 1 ]; then
 
     elif [ $1 = 'hangenvhce' ]; then 
         
-        max=1
+        max=20
         # INPUT='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5'
-        INPUT=( # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
+        INPUT=( 
+                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_bag_5' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_scissor_4' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_bag_5' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_mug_59' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_scissor_4' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_bag_5' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_mug_59' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_scissor_4' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_wrench_1' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_wrench_1' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_wrench_1'
+                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
+                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4' \
+                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_bag_5' \
+                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5' \
+                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59' \
+                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_scissor_4' \
+                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_bag_5' \
+                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5' \
+                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_mug_59' \
+                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_scissor_4' \
+                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_bag_5' \
+                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5' \
+                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_mug_59' \
+                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_scissor_4' \
+                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_wrench_1' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1' \
+                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_wrench_1' \
+                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1' \
+                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_wrench_1'
             )
         for input in "${INPUT[@]}"
         do
@@ -158,7 +159,8 @@ if [ $# -ge 1 ]; then
 
         OBJ='models/geo_data/hanging_exp'
         HOOK='models/hook'
-        THRESH=(0.0 -0.05 -0.1 -0.15 -0.2 -0.25 -0.3 -0.35 -0.4)
+        # THRESH=(0.0)
+        THRESH=(0.1 0.05 0.0 -0.05 -0.1 -0.15 -0.2)
         for thresh in ${THRESH[@]}
         do
             python3 test_hce.py --obj $OBJ --hook $HOOK --thresh $thresh

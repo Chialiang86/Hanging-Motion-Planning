@@ -4,6 +4,7 @@ import argparse
 import open3d as o3d
 import pybullet as p
 import pybullet_data
+import time
 
 from scipy.spatial.transform import Rotation as R
 from sklearn.neighbors import NearestNeighbors
@@ -23,8 +24,8 @@ def get_matrix_from_pos_rot(pos : list or tuple, rot : list or tuple):
 
 def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud, thresh : float = 0.0):
 
-    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.002)
-    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.002)
+    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.003)
+    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.003)
     obj_points = np.asarray(obj_pcd_down.points)
     obstacle_points = np.asarray(obstacle_pcd_down.points)
     obstacle_normals = np.asarray(obstacle_pcd_down.normals)
@@ -44,10 +45,10 @@ def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointClou
 
     return ratio < thresh
 
-def random_pose(low_limits=[-0.2, -0.2, -0.2, -np.pi, -np.pi, -np.pi], 
-                high_limits=[0.2,  0.2,  0.2, np.pi, np.pi, np.pi]):
+def random_pose(low_limits=[ -0.2, -0.2, -0.2, -np.pi, -np.pi, -np.pi], 
+                high_limits=[ 0.2,  0.2,  0.2,  np.pi,  np.pi,  np.pi]):
     pos = np.random.uniform(low_limits[:3], high_limits[:3], size=3)
-    rot_vec = np.random.uniform(low_limits[:3], high_limits[:3], size=3)
+    rot_vec = np.random.uniform(low_limits[3:], high_limits[3:], size=3)
     rot = R.from_rotvec(rot_vec).as_quat()
 
     return list(pos), list(rot)
@@ -78,9 +79,9 @@ def main(args):
     low_limits = [ -0.1, -0.2,    0, -np.pi, -np.pi, -np.pi]
     high_limits = [ 0.1,  0.2,  0.2,  np.pi,  np.pi,  np.pi]
 
-    obj_pcd_paths = glob.glob(f'{obj_dir}/*/base.ply')
+    obj_pcd_paths = glob.glob(f'{obj_dir}/*/base_merged.ply')
     obj_urdf_paths = glob.glob(f'{obj_dir}/*/base.urdf')
-    hook_pcd_paths = glob.glob(f'{hook_dir}/*/base.ply')
+    hook_pcd_paths = glob.glob(f'{hook_dir}/*/base_merged.ply')
     hook_urdf_paths = glob.glob(f'{hook_dir}/*/base.urdf')
 
     assert len(obj_pcd_paths) == len(obj_urdf_paths)
@@ -88,14 +89,15 @@ def main(args):
 
     gt = []
     pred = []
-    for obj_i in range(len(obj_pcd_paths)):
-        for hook_i in range(len(hook_pcd_paths)):
+    for hook_i in range(len(hook_pcd_paths)):
+        for obj_i in range(len(obj_pcd_paths)):
             obj_id = p.loadURDF(obj_urdf_paths[obj_i], [0, 0, 0])
             hook_id = p.loadURDF(hook_urdf_paths[hook_i], [0, 0, 0])
             obj_pcd = o3d.io.read_point_cloud(obj_pcd_paths[obj_i])
             obstacle_pcd = o3d.io.read_point_cloud(hook_pcd_paths[hook_i])
             collision_cnt = 0
             uncollision_cnt = 0
+            # collision = 0
             while collision_cnt < collision_max or uncollision_cnt < uncollision_max:
 
                 pos, rot = random_pose(low_limits=low_limits, high_limits=high_limits)
@@ -108,6 +110,7 @@ def main(args):
                     if collision_cnt < collision_max:
                         gt.append(1)
                         collision_cnt += 1
+                        # collision = 1
                         print(f'collision : {collision_cnt}')
                     else :
                         continue
@@ -115,6 +118,7 @@ def main(args):
                     if uncollision_cnt < uncollision_max:
                         gt.append(0)
                         uncollision_cnt += 1
+                        # collision = 0
                         print(f'no collision : {uncollision_cnt}')
                     else :
                         continue
@@ -122,18 +126,49 @@ def main(args):
                 extrinsic = get_matrix_from_pos_rot(pos, rot)
                 obj_pcd.transform(extrinsic)
 
-                # origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
                 ret = HCE(obj_pcd=obj_pcd, obstacle_pcd=obstacle_pcd, thresh=args.thresh)
                 if ret :
                     pred.append(1)
                 else :
                     pred.append(0)
 
+                # origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
                 # o3d.visualization.draw_geometries([origin, obj_pcd, obstacle_pcd], point_show_normal=True)
+
+                # # Visualize Point Cloud
+                # vis = o3d.visualization.Visualizer()
+                # vis.create_window()
+                # vis.add_geometry(obj_pcd)
+                # vis.update_geometry(obj_pcd)
+                # vis.add_geometry(obstacle_pcd)
+                # vis.update_geometry(obstacle_pcd)
+
+                # # Read camera params
+                # # param = o3d.io.read_pinhole_camera_parameters('cameraparams.json')
+                # # ctr = vis.get_view_control()
+                # # ctr.convert_from_pinhole_camera_parameters(param)
+
+                # # Updates
+                # vis.poll_events()
+                # vis.update_renderer()
+
+                # # Capture image
+                # time.sleep(0.5)
+                # if collision == 1:
+                #     path = f'visualization/_obj_{obj_id}_hook_{hook_id}_collision_{collision_cnt}.png'
+                # else :
+                #     path = f'visualization/_obj_{obj_id}_hook_{hook_id}_nocollision_{uncollision_cnt}.png'
+                # vis.capture_screen_image(path)
+                # # image = vis.capture_screen_float_buffer()
+
+                # # Close
+                # vis.destroy_window()
+
                 obj_pcd.transform(np.linalg.inv(extrinsic))
+
             p.removeBody(obj_id)
             p.removeBody(hook_id)
-    
+
     gt = np.asarray(gt)
     pred = np.asarray(pred)
     diff = gt - pred
@@ -146,7 +181,7 @@ def main(args):
     precision = np.sum(gt[pred_positive_cond]) / len(pred_positive_cond)
     recall = np.sum(pred[gt_positive_cond]) / len(gt_positive_cond)
 
-    path = f'hce_test/hce_{args.thresh}.txt'
+    path = f'hce_test/hce_{args.thresh}_merged.txt'
     with open(path, 'w') as f:
         f.write('-------------------------\n')
         f.write(f'| accuracy : {accuracy}\n')
