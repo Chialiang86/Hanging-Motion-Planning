@@ -13,6 +13,7 @@ import pybullet as p
 import pybullet_data
 from PIL import Image
 import sys
+import quaternion
 
 # for motion planners
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
@@ -72,6 +73,14 @@ def render(robot):
 
     p.getCameraImage(width=width, height=height, viewMatrix=view_matrix, projectionMatrix=proj_matrix,
                      renderer=p.ER_BULLET_HARDWARE_OPENGL)  # renderer=self._p.ER_TINY_RENDERER)
+
+def xyzw2wxyz(quat : np.ndarray):
+    assert len(quat) == 4, f'quaternion size must be 4, got {len(quat)}'
+    return np.asarray([quat[3], quat[0], quat[1], quat[2]])
+
+def wxyz2xyzw(quat : np.ndarray):
+    assert len(quat) == 4, f'quaternion size must be 4, got {len(quat)}'
+    return np.asarray([quat[1], quat[2], quat[3], quat[0]])
 
 def get_matrix_from_pos_rot(pos : list or tuple, rot : list or tuple):
     assert (len(pos) == 3 and len(rot) == 4) or (len(pos) == 3 and len(rot) == 3)
@@ -260,7 +269,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
 
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
-    extend7d_fn = get_extend7d_fn(resolution=0.01)
+    extend7d_fn = get_extend7d_fn(resolution=0.0005)
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
@@ -289,7 +298,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # relative transform from object to gripper
     # see this stack-overflow issue : https://stackoverflow.com/questions/67001118/relative-transform
     obj2gripper_pose = np.linalg.inv(origin_obj_pose) @ origin_gripper_pose
-    planning_resolution = 0.005
+    planning_resolution = 0.0005
 
     # reset obj pose
     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
@@ -298,35 +307,35 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # execution step 1 : execute RRT trajectories
     for i in range(len(waypoints) - 1):
 
-        q1_pos = np.asarray(waypoints[i][:3])
-        q2_pos = np.asarray(waypoints[i+1][:3])
-        q1_rot = np.asarray(waypoints[i][3:])
-        q2_rot = np.asarray(waypoints[i+1][3:])
+        # q1_pos = np.asarray(waypoints[i][:3])
+        # q2_pos = np.asarray(waypoints[i+1][:3])
+        # q1_rot = np.asarray(waypoints[i][3:])
+        # q2_rot = np.asarray(waypoints[i+1][3:])
 
-        d12 = q2_pos - q1_pos
+        # d12 = q2_pos - q1_pos
 
-        r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
-        # q1_rotvec = R.from_quat(q1_rot).as_rotvec() 
-        # q2_rotvec = R.from_quat(q2_rot).as_rotvec() 
-        # r12_rotvec = np.asarray([0.0, 0.0, 0.0]) 
-        # for i in range(3):
-        #     diff = q2_rotvec[i] - q1_rotvec[i]
-        #     if np.abs(diff) > np.pi: # another way
-        #         r12_rotvec[i] = diff + 2 * np.pi if diff < 0 else diff - 2 * np.pi 
+        # r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
 
-        diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
-        print(f'steps : {steps}')
+        # diff_q1_q2 = np.concatenate((d12, r12_rotvec))
+        # steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
+        # print(f'steps : {steps}')
+
+        d12 = np.asarray(waypoints[i+1][:3]) - np.asarray(waypoints[i][:3])
+        steps = int(np.ceil(np.linalg.norm(np.divide(d12, planning_resolution), ord=2)))
+        obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(waypoints[i][3:]))
+        obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(waypoints[i+1][3:]))
 
         # plan trajectory in the same way in collision detection module
-        for i in range(steps):
-            positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
-            # for ri in range(3, 6):
-            #     if positions6d[ri] < -np.pi:
-            #         positions6d[ri] = positions6d[ri] + 2 * np.pi 
-            #     elif positions6d[ri] > np.pi:
-            #         positions6d[ri] = positions6d[ri] - 2 * np.pi 
-            positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
+        for step in range(steps):
+            ratio = (step + 1) / steps
+            pos = ratio * d12 + np.asarray(waypoints[i][:3])
+            quat = quaternion.slerp_evaluate(obj_init_quat, obj_tgt_quat, ratio)
+            quat = wxyz2xyzw(quaternion.as_float_array(quat))
+            positions7d = tuple(pos) + tuple(quat)
+            # draw_coordinate(positions7d)
+            
+            # positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
+            # positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
             # draw_coordinate(positions7d)
             # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
 
@@ -342,6 +351,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             robot.grasp()
             for _ in range(10): # 1 sec
                 p.stepSimulation()
+                time.sleep(sim_timestep)
 
             img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
             imgs.append(img)

@@ -1,6 +1,7 @@
 
 import numpy as np
 import pybullet as p
+import quaternion
 
 from scipy.spatial.transform import Rotation as R
 
@@ -53,43 +54,51 @@ def get_distance7d_fn():
         return 1.0 * np.sum(diff_pos ** 2) + 2.0 * np.sum(diff_rot ** 2)
     return distance7d_fn
 
-def get_extend7d_fn(resolution = 0.005):
+
+def xyzw2wxyz(quat : np.ndarray):
+    assert len(quat) == 4, f'quaternion size must be 4, got {len(quat)}'
+    return np.asarray([quat[3], quat[0], quat[1], quat[2]])
+
+def wxyz2xyzw(quat : np.ndarray):
+    assert len(quat) == 4, f'quaternion size must be 4, got {len(quat)}'
+    return np.asarray([quat[1], quat[2], quat[3], quat[0]])
+    
+def get_extend7d_fn(resolution = 0.001):
     
     def extend7d_fn(q1, q2):
         assert len(q1) == 7 and len(q2) == 7
 
-        q1_pos = np.asarray(q1[:3])
-        q2_pos = np.asarray(q2[:3])
-        q1_rot = np.asarray(q1[3:])
-        q2_rot = np.asarray(q2[3:])
+        
 
-        d12 = q2_pos - q1_pos
+        # q1_pos = np.asarray(q1[:3])
+        # q2_pos = np.asarray(q2[:3])
+        # q1_rot = np.asarray(q1[3:])
+        # q2_rot = np.asarray(q2[3:])
 
-        r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
-        # q1_rotvec = R.from_quat(q1_rot).as_rotvec() 
-        # q2_rotvec = R.from_quat(q2_rot).as_rotvec() 
-        # r12_rotvec = np.asarray([0.0, 0.0, 0.0]) 
-        # for i in range(3):
-        #     diff = q2_rotvec[i] - q1_rotvec[i]
-        #     if np.abs(diff) > np.pi: # another way
-        #         r12_rotvec[i] = diff + 2 * np.pi if diff < 0 else diff - 2 * np.pi 
+        # d12 = q2_pos - q1_pos
+
+        # r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
 
         # r12 = np.linalg.inv(R.from_quat(q1_rot).as_matrix()) @ R.from_quat(q2_rot).as_matrix() # from R1 -> R2
         # r12_rotvec = R.from_matrix(r12).as_rotvec()
 
-        diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=2)))
+        # diff_q1_q2 = np.concatenate((d12, r12_rotvec))
+        # steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=2)))
+        d12 = np.asarray(q2[:3]) - np.asarray(q1[:3])
+        steps = int(np.ceil(np.linalg.norm(np.divide(d12, resolution), ord=2)))
 
         # generate collision check sequence
         yield q1
         for i in range(steps):
-            positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
-            # for ri in range(3, 6):
-            #     if positions6d[ri] < -np.pi:
-            #         positions6d[ri] = positions6d[ri] + 2 * np.pi 
-            #     elif positions6d[ri] > np.pi:
-            #         positions6d[ri] = positions6d[ri] - 2 * np.pi 
-            positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
+            ratio = (i + 1) / steps
+            pos = ratio * d12 + np.asarray(q1[:3])
+            obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(q1[3:]))
+            obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(q2[3:]))
+            quat = quaternion.slerp_evaluate(obj_init_quat, obj_tgt_quat, ratio)
+            quat = wxyz2xyzw(quaternion.as_float_array(quat))
+            positions7d = tuple(pos) + tuple(quat)
+            # positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
+            # positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
             yield positions7d
 
         # # testing code
