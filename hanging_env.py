@@ -4,7 +4,6 @@
 import os, inspect
 import argparse
 import json
-from tqdm import tqdm
 import time
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -18,12 +17,12 @@ import quaternion
 # for motion planners
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
 from pybullet_planning.interfaces.planner_interface.joint_motion_planning import plan_joint_motion, check_initial_end
+from pybullet_planning.interfaces.control.control import trajectory_controller
 from pybullet_planning.motion_planners.rrt_connect import birrt
 
 # for robot control
 # from pybullet_planning.interfaces.robots.joint import get_custom_limits
 from pybullet_robot_envs.envs.panda_envs.panda_env import pandaEnv
-from pybullet_planning.interfaces.control.control import trajectory_controller
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 print(currentdir)
@@ -249,8 +248,6 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     # config sample location space
     start_pos = start_conf[:3]
     target_pos = target_conf[:3]
-    # start_rotvec = R.from_quat(start_conf[3:]).as_rotvec()
-    # target_rotvec = R.from_quat(target_conf[3:]).as_rotvec()
     
     low_limit = [0, 0, 0]
     high_limit = [0, 0, 0]
@@ -307,19 +304,6 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # execution step 1 : execute RRT trajectories
     for i in range(len(waypoints) - 1):
 
-        # q1_pos = np.asarray(waypoints[i][:3])
-        # q2_pos = np.asarray(waypoints[i+1][:3])
-        # q1_rot = np.asarray(waypoints[i][3:])
-        # q2_rot = np.asarray(waypoints[i+1][3:])
-
-        # d12 = q2_pos - q1_pos
-
-        # r12_rotvec = R.from_quat(q2_rot).as_rotvec() - R.from_quat(q1_rot).as_rotvec()
-
-        # diff_q1_q2 = np.concatenate((d12, r12_rotvec))
-        # steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
-        # print(f'steps : {steps}')
-
         d12 = np.asarray(waypoints[i+1][:3]) - np.asarray(waypoints[i][:3])
         steps = int(np.ceil(np.linalg.norm(np.divide(d12, planning_resolution), ord=2)))
         obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(waypoints[i][3:]))
@@ -333,11 +317,6 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             quat = wxyz2xyzw(quaternion.as_float_array(quat))
             positions7d = tuple(pos) + tuple(quat)
             # draw_coordinate(positions7d)
-            
-            # positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
-            # positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
-            # draw_coordinate(positions7d)
-            # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
 
             gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
             gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_pose)
@@ -345,8 +324,6 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
 
             robot.apply_action(gripper_action)
             p.stepSimulation()
-            # robot_apply_action(robot, obj_id, gripper_action, gripper_action='nop', 
-            #     sim_timestep=0.05, diff_thresh=0.05, max_vel=-1, max_iter=100)
             
             robot.grasp()
             for _ in range(10): # 1 sec
@@ -448,6 +425,7 @@ def main(args):
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
+    # physics_client_id = p.connect(p.DIRECT)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
         cameraDistance=0.3,
@@ -459,17 +437,14 @@ def main(args):
     p.setPhysicsEngineParameter(numSolverIterations=150)
     sim_timestep = 1.0 / 240
     p.setTimeStep(sim_timestep)
-
-    # Set gravity for simulation
     p.setGravity(0, 0, -9.8)
-
-    # Load plane contained in pybullet_data
-    planeId = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))
 
     # ------------------- #
     # --- Setup robot --- #
     # ------------------- #
 
+    # Load plane contained in pybullet_data
+    planeId = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "plane.urdf"))
     robot = pandaEnv(physics_client_id, use_IK=1)
 
     num_joints = p.getNumJoints(robot.robot_id)
@@ -517,7 +492,7 @@ def main(args):
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=[hook_id])
 
     len_init_pose = len(json_dict['initial_pose'])
-    assert len_init_pose == 3, f'initial poses need to be 3, not {len_init_pose}'
+    assert len_init_pose <= 3, f'initial poses need to be 3, not {len_init_pose}'
     for index in range(len_init_pose):
         # object initialization
         initial_info = json_dict['initial_pose'][index]
@@ -557,6 +532,7 @@ def main(args):
         print('[Success]|{}'.format(1 if contact else 0))
         sys.stdout.flush()
 
+        # save gif
         if imgs_array is not None:
             status = 'success' if contact else 'failed'
             init_pose = ['easy', 'medium', 'hard'][index]
@@ -575,9 +551,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5.json')
-    # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-mug/Hook_60-mug_19.json')
-    parser.add_argument('--method', '-m', type=str, default='birrt')
-    parser.add_argument('--control', '-c', action='store_true', default=True)
     parser.add_argument('--id', '-id', type=str)
     args = parser.parse_args()
     main(args)
