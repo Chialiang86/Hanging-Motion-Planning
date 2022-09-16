@@ -234,7 +234,8 @@ def main(args):
     sim_timestep = 1.0 / 240.0
     p.setTimeStep(sim_timestep)
 
-    init_pose = (0.38231226801872253, -0.03931187838315964, 1.2498921155929565, 0.7112785577774048, -0.0645006000995636, 0.6992669105529785, 0.030794139951467514)
+    init_pose = (0.3424933850765228, -0.0439610630273819, 1.2541707754135132, 0.7094916105270386, -0.06566860526800156, 0.7009212970733643, 0.03191741183400154)
+    # init_pose = (0.38231226801872253, -0.03931187838315964, 1.2498921155929565, 0.7112785577774048, -0.0645006000995636, 0.6992669105529785, 0.030794139951467514)
     robot.apply_action(init_pose)
     for i in range(100):
         p.stepSimulation()
@@ -298,10 +299,10 @@ def main(args):
 
                 p.removeBody(hook_id)
 
-            # elif ord('k') in keys and keys[ord('k')] & (p.KEY_WAS_TRIGGERED): 
-            #     gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
-            #     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
-            #     print(gripper_pos + gripper_rot)
+            elif ord('k') in keys and keys[ord('k')] & (p.KEY_WAS_TRIGGERED): 
+                gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+                gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+                print(gripper_pos + gripper_rot)
 
             elif ord('a') in keys and keys[ord('a')] & (p.KEY_WAS_TRIGGERED): 
                 
