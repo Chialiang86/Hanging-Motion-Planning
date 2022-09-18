@@ -201,10 +201,11 @@ def get_collision7d_fn(physicsClientId, body, obstacles=[], attachments=[], disa
     return collision7d_fn
 
 
+
 def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud, thresh : float = 0.0):
 
-    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.003)
-    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.003)
+    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.002)
+    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.002)
     obj_points = np.asarray(obj_pcd_down.points)
     obstacle_points = np.asarray(obstacle_pcd_down.points)
     obstacle_normals = np.asarray(obstacle_pcd_down.normals)
@@ -217,11 +218,13 @@ def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointClou
     indices = indices.squeeze()
 
     obstacle_to_obj = obj_points - obstacle_points[indices]
+    cond = np.where(np.linalg.norm(obstacle_to_obj, ord=2, axis=1) < 0.05)
+    obstacle_to_obj = obstacle_to_obj[cond]
+    obstacle_normals = obstacle_normals[indices][cond]
     obstacle_to_obj = (obstacle_to_obj.T / np.linalg.norm(obstacle_to_obj, ord=2, axis=1)).T 
-    ret_obstacle_to_obj = np.sum(obstacle_to_obj * obstacle_normals[indices])
+    ret_obstacle_to_obj = np.sum(obstacle_to_obj * obstacle_normals)
 
     ratio = ret_obstacle_to_obj / obj_points.shape[0]
-    # print(f'{ratio} < {thresh} : {ratio < thresh}')
 
     return ratio < thresh
 

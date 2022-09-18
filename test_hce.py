@@ -24,8 +24,8 @@ def get_matrix_from_pos_rot(pos : list or tuple, rot : list or tuple):
 
 def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointCloud, thresh : float = 0.0):
 
-    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.003)
-    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.003)
+    obj_pcd_down = obj_pcd.voxel_down_sample(voxel_size=0.002)
+    obstacle_pcd_down = obstacle_pcd.voxel_down_sample(voxel_size=0.002)
     obj_points = np.asarray(obj_pcd_down.points)
     obstacle_points = np.asarray(obstacle_pcd_down.points)
     obstacle_normals = np.asarray(obstacle_pcd_down.normals)
@@ -38,8 +38,11 @@ def HCE(obj_pcd : o3d.geometry.PointCloud, obstacle_pcd : o3d.geometry.PointClou
     indices = indices.squeeze()
 
     obstacle_to_obj = obj_points - obstacle_points[indices]
+    cond = np.where(np.linalg.norm(obstacle_to_obj, ord=2, axis=1) < 0.05)
+    obstacle_to_obj = obstacle_to_obj[cond]
+    obstacle_normals = obstacle_normals[indices][cond]
     obstacle_to_obj = (obstacle_to_obj.T / np.linalg.norm(obstacle_to_obj, ord=2, axis=1)).T 
-    ret_obstacle_to_obj = np.sum(obstacle_to_obj * obstacle_normals[indices])
+    ret_obstacle_to_obj = np.sum(obstacle_to_obj * obstacle_normals)
 
     ratio = ret_obstacle_to_obj / obj_points.shape[0]
 
@@ -111,7 +114,7 @@ def main(args):
                         gt.append(1)
                         collision_cnt += 1
                         # collision = 1
-                        print(f'collision : {collision_cnt}')
+                        # print(f'collision : {collision_cnt}')
                     else :
                         continue
                 else :
@@ -119,7 +122,7 @@ def main(args):
                         gt.append(0)
                         uncollision_cnt += 1
                         # collision = 0
-                        print(f'no collision : {uncollision_cnt}')
+                        # print(f'no collision : {uncollision_cnt}')
                     else :
                         continue
 
@@ -171,14 +174,13 @@ def main(args):
 
     gt = np.asarray(gt)
     pred = np.asarray(pred)
+
     diff = gt - pred
-
-    pred_positive_cond = np.where(pred == 1)[0]
-    gt_positive_cond = np.where(gt == 1)[0]
-
     correct_cond = np.where(diff == 0)[0]
     accuracy = len(correct_cond) / len(diff)
+    pred_positive_cond = np.where(pred == 1)[0]
     precision = np.sum(gt[pred_positive_cond]) / len(pred_positive_cond)
+    gt_positive_cond = np.where(gt == 1)[0]
     recall = np.sum(pred[gt_positive_cond]) / len(gt_positive_cond)
 
     path = f'hce_test/hce_{args.thresh}_merged.txt'
@@ -188,6 +190,12 @@ def main(args):
         f.write(f'| precision : {precision}\n')
         f.write(f'| recall : {recall}\n')
         f.write('-------------------------\n')
+        print('-------------------------\n')
+        print(f'| threshold : {args.thresh}')
+        print(f'| accuracy : {accuracy}\n')
+        print(f'| precision : {precision}\n')
+        print(f'| recall : {recall}\n')
+        print('-------------------------\n')
         f.close()
 
 
