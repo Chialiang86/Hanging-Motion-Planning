@@ -10,6 +10,7 @@ from scipy.spatial.transform import Rotation as R
 import pybullet as p
 import pybullet_data
 import quaternion
+from PIL import Image
 
 # for motion planners
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
@@ -390,8 +391,9 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_r
     hook_transform = get_matrix_from_pos_rot(hook_pos, hook_rot)
 
     contact_hook_trajectory_7d = []
+    imgs = []
     for i in range(len(waypoints) - 1):
-        positions7d = get_dense_waypoints(waypoints[i], waypoints[i+1], resolution=0.0005)
+        positions7d = get_dense_waypoints(waypoints[i], waypoints[i+1], resolution=0.002)
 
         # plan trajectory in the same way in collision detection module
         for position7d in positions7d:
@@ -412,10 +414,13 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_r
             contact_hook_pose_7d = list(contact_hook_pos) + list(contact_hook_quat)
             contact_hook_trajectory_7d.append(contact_hook_pose_7d)
 
+            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+            imgs.append(img)
+
     
     contact_hook_trajectory_7d = np.asarray(contact_hook_trajectory_7d)
 
-    return contact_hook_trajectory_7d
+    return contact_hook_trajectory_7d, imgs
 
 def main(args):
     
@@ -466,18 +471,19 @@ def main(args):
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62.json',
-        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json',
-        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json',
+        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json',
+        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json',
 
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+
+        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
+        'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
+        'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
+        'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
+        'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
     ]
 
     # pivot_object : be used to get the keypoint trajectory as canonical trajectory
@@ -568,7 +574,7 @@ def main(args):
                 contact_pose = obj_dict['contact_pose']
                 contact_object_pose = get_matrix_from_pos_rot(contact_pose[:3], contact_pose[3:])
 
-            contact_hook_trajectory_7d = get_kpt_trajectory_from_trajectory(waypoints=waypoints, contact_relative_transform=contact_object_pose, obj_id=obj_id, hook_id=hook_id)
+            contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(waypoints=waypoints, contact_relative_transform=contact_object_pose, obj_id=obj_id, hook_id=hook_id)
             hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
             hook_pose = list(hook_pos) + list(hook_rot)
             trajectory_dict = {
@@ -576,11 +582,19 @@ def main(args):
                 'trajectory': contact_hook_trajectory_7d.tolist(),
                 'hook_pose': hook_pose
             }
-            out_fname = f'keypoint_trajectory/{hook_name}.json'
+
+            index = 1
+            while os.path.exists(f'keypoint_trajectory/{hook_name}-{index}.json') :
+                index += 1
+            out_fname = f'keypoint_trajectory/{hook_name}-{index}.json'
             with open(out_fname, 'w') as f:
                 json.dump(trajectory_dict, f, indent=4)
                 print(f'{out_fname} has been written')
-    
+            
+            imgs_array = [Image.fromarray(img) for img in imgs]
+            if imgs_array is not None:
+                gif_path = os.path.join('keypoint_trajectory', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
+                imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
 
         p.removeBody(obj_id)
         p.removeBody(hook_id)

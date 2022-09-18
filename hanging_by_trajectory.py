@@ -197,8 +197,10 @@ def main(args):
     obj_fname = args.obj
     hook_fname = args.hook
     obj_name = os.path.split(obj_fname)[1].split('.')[0]
-    hook_name = os.path.split(hook_fname)[1].split('.')[0]
-    obj_hook_pair_fname = f'data/{hook_name}-hanging_exp/{hook_name}-{obj_name}.json'
+    hook_name = os.path.split(hook_fname)[1].split('-')[0]
+    obj_hook_pair_fname = f'data/Hook_bar-hanging_exp/Hook_bar-{obj_name}.json'
+    # obj_hook_pair_fname = f'data/{hook_name}-hanging_exp/{hook_name}-{obj_name}.json'
+    print(obj_hook_pair_fname)
 
     assert os.path.exists(obj_hook_pair_fname), f'{obj_hook_pair_fname} not exists'
     assert os.path.exists(obj_fname), f'{obj_fname} not exists'
@@ -320,12 +322,18 @@ def main(args):
     contact_points = p.getContactPoints(obj_id, hook_id)
     contact = True if contact_points != () else False
 
+
     # save gif
     output_dir = 'keypoint_trajectory/gif'
+    status = 'success' if contact else 'failed'
     if imgs_array is not None:
-        status = 'success' if contact else 'failed'
         gif_path = os.path.join(output_dir, f'{hook_name}-{obj_name}_{status}.gif')
-        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+        # imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+    with open("keypoint_trajectory/result.txt", "a") as myfile:
+        print(f'{hook_name}-{obj_name}_{status}\n')
+        myfile.write(f'{hook_name}-{obj_name}_{status}\n')
+        myfile.flush()
+        myfile.close()
 
     # while True:
     #     # key callback

@@ -192,33 +192,41 @@ if [ $# -ge 1 ]; then
 
         OBJECT=(
             'keypoint_trajectory/hanging_exp_daily_11.json' \
-            'keypoint_trajectory/hanging_exp_daily_23.json' \
-            'keypoint_trajectory/hanging_exp_bag_70.json' \
-            'keypoint_trajectory/hanging_exp_headphone_20.json' \
-            'keypoint_trajectory/hanging_exp_headphone_22.json' \
-            'keypoint_trajectory/hanging_exp_mug_67.json' \
-            'keypoint_trajectory/hanging_exp_mug_115.json' \
-            'keypoint_trajectory/hanging_exp_scissor_14.json' \
-            'keypoint_trajectory/hanging_exp_scissor_19.json' \
-            'keypoint_trajectory/hanging_exp_scissor_39.json' \
-            'keypoint_trajectory/hanging_exp_scissor_48.json' \
-            'keypoint_trajectory/hanging_exp_scissor_62.json' \
-            'keypoint_trajectory/hanging_exp_wrench_27.json' \
-            'keypoint_trajectory/hanging_exp_wrench_35.json' 
+            # 'keypoint_trajectory/hanging_exp_daily_23.json' \
+            # 'keypoint_trajectory/hanging_exp_bag_70.json' \
+            # 'keypoint_trajectory/hanging_exp_headphone_20.json' \
+            # 'keypoint_trajectory/hanging_exp_headphone_22.json' \
+            # 'keypoint_trajectory/hanging_exp_mug_67.json' \
+            # 'keypoint_trajectory/hanging_exp_mug_115.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_14.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_19.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_39.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_48.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_62.json' \
+            # 'keypoint_trajectory/hanging_exp_wrench_27.json' \
+            # 'keypoint_trajectory/hanging_exp_wrench_35.json' 
 
-            'keypoint_trajectory/hanging_exp_bag_5.json' \
-            'keypoint_trajectory/hanging_exp_daily_5.json' \
-            'keypoint_trajectory/hanging_exp_mug_59.json' \
-            'keypoint_trajectory/hanging_exp_scissor_4.json' \
-            'keypoint_trajectory/hanging_exp_wrench_1.json'
+            # 'keypoint_trajectory/hanging_exp_bag_5.json' \
+            # 'keypoint_trajectory/hanging_exp_daily_5.json' \
+            # 'keypoint_trajectory/hanging_exp_mug_59.json' \
+            # 'keypoint_trajectory/hanging_exp_scissor_4.json' \
+            # 'keypoint_trajectory/hanging_exp_wrench_1.json'
         )
+        # HOOK=($(ls keypoint_trajectory/Hook_*))
         HOOK=(
-            'keypoint_trajectory/Hook_bar.json' \
-            'keypoint_trajectory/Hook_60.json' \
-            'keypoint_trajectory/Hook_skew.json' \
-            'keypoint_trajectory/Hook_90.json' \
-            'keypoint_trajectory/Hook_180.json' 
+            'keypoint_trajectory/Hook_bar-1.json' \
+            'keypoint_trajectory/Hook_60-1.json' \
+            # 'keypoint_trajectory/Hook_skew-1.json' \
+            # 'keypoint_trajectory/Hook_90-1.json' \
+            # 'keypoint_trajectory/Hook_180-1.json' \
+            # 'keypoint_trajectory/Hook_bar-2.json' \
+            # 'keypoint_trajectory/Hook_60-2.json' \
+            # 'keypoint_trajectory/Hook_skew-2.json' \
+            # 'keypoint_trajectory/Hook_90-2.json' \
+            # 'keypoint_trajectory/Hook_180-2.json' \
         )
+
+        rm "keypoint_trajectory/result.txt"
         for object in "${OBJECT[@]}"
         do
             for hook in "${HOOK[@]}"
@@ -228,6 +236,14 @@ if [ $# -ge 1 ]; then
             done
         done
     
+    elif [ $1 = 'hangpose' ]; then 
+
+        max=10
+        for i in `seq 1 $max`
+        do
+            echo "$i"
+            python3 hanging_pose_trajectory.py
+        done
     else 
         echo "nope"
     fi
