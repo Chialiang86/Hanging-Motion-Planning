@@ -313,7 +313,7 @@ def get_obj_to_cp(obj_id, hook_id):
 
     min_height_contact_point = sorted(
         contact_points, key=lambda x: x[5][2])[0][5]
-    min_height_contact_point = [min_height_contact_point[0], min_height_contact_point[1], min_height_contact_point[2] - 0.008]
+    min_height_contact_point = [min_height_contact_point[0], min_height_contact_point[1], min_height_contact_point[2] -0.008]
     obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
 
     obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
@@ -393,7 +393,7 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_r
     contact_hook_trajectory_7d = []
     imgs = []
     for i in range(len(waypoints) - 1):
-        positions7d = get_dense_waypoints(waypoints[i], waypoints[i+1], resolution=0.002)
+        positions7d = get_dense_waypoints(waypoints[i], waypoints[i+1], resolution=0.001)
 
         # plan trajectory in the same way in collision detection module
         for position7d in positions7d:
@@ -462,10 +462,8 @@ def main(args):
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_20.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_22.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115.json',
+        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json',
@@ -479,11 +477,11 @@ def main(args):
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json',
         # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json',
 
-        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
+        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
+        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
+        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
+        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
     ]
 
     # pivot_object : be used to get the keypoint trajectory as canonical trajectory

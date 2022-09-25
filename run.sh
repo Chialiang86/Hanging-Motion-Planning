@@ -35,33 +35,34 @@ if [ $# -ge 1 ]; then
     
     elif [ $1 = 'hangenv' ]; then 
         
-        max=20
+        max=1
         # INPUT='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5'
-        INPUT=( 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
+        INPUT=( 
+                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5' \
-                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
-                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4' \
-                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_bag_5' \
-                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5' \
-                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59' \
-                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_scissor_4' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_bag_5' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_mug_59' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_scissor_4' \
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_bag_5' \
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5' \
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_mug_59' \
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_scissor_4' \
-                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_wrench_1' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1' \
-                'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_wrench_1' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_wrench_1'
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1' \
+                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
+                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4' \
+                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_bag_5' \
+                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5' \
+                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59' \
+                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_scissor_4' \
+                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_bag_5' \
+                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5' \
+                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_mug_59' \
+                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_scissor_4' \
+                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_bag_5' \
+                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5' \
+                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_mug_59' \
+                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_scissor_4' \
+                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_wrench_1' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1' \
+                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_wrench_1' \
+                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_wrench_1'
+                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1' \
             )
         for input in "${INPUT[@]}"
         do
@@ -119,13 +120,11 @@ if [ $# -ge 1 ]; then
 
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_20' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_22' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115' \
+                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62' \
                 # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27' \
@@ -143,7 +142,8 @@ if [ $# -ge 1 ]; then
     
     elif [ $1 = 'render' ]; then 
         
-        INPUT=( 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
+        INPUT=( 
+                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
                 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
@@ -174,57 +174,53 @@ if [ $# -ge 1 ]; then
             python3 hanging_pose_render.py --input-json "$input.json"
         done
 
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_20' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_headphone_22' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27' \
-                'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27' \
+                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35' \
     
     elif [ $1 = 'hangtraj' ]; then 
 
         OBJECT=(
             'keypoint_trajectory/hanging_exp_daily_11.json' \
-            # 'keypoint_trajectory/hanging_exp_daily_23.json' \
-            # 'keypoint_trajectory/hanging_exp_bag_70.json' \
-            # 'keypoint_trajectory/hanging_exp_headphone_20.json' \
-            # 'keypoint_trajectory/hanging_exp_headphone_22.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_67.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_115.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_14.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_19.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_39.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_48.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_62.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_27.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_35.json' 
+            'keypoint_trajectory/hanging_exp_daily_23.json' \
+            'keypoint_trajectory/hanging_exp_bag_70.json' \
+            'keypoint_trajectory/hanging_exp_mug_67.json' \
+            'keypoint_trajectory/hanging_exp_mug_115.json' \
+            'keypoint_trajectory/hanging_exp_scissor_14.json' \
+            'keypoint_trajectory/hanging_exp_scissor_19.json' \
+            'keypoint_trajectory/hanging_exp_scissor_39.json' \
+            'keypoint_trajectory/hanging_exp_scissor_48.json' \
+            'keypoint_trajectory/hanging_exp_scissor_62.json' \
+            'keypoint_trajectory/hanging_exp_wrench_27.json' \
+            'keypoint_trajectory/hanging_exp_wrench_35.json' 
 
-            # 'keypoint_trajectory/hanging_exp_bag_5.json' \
-            # 'keypoint_trajectory/hanging_exp_daily_5.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_59.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_4.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_1.json'
+            'keypoint_trajectory/hanging_exp_bag_5.json' \
+            'keypoint_trajectory/hanging_exp_daily_5.json' \
+            'keypoint_trajectory/hanging_exp_mug_59.json' \
+            'keypoint_trajectory/hanging_exp_scissor_4.json' \
+            'keypoint_trajectory/hanging_exp_wrench_1.json'
         )
-        # HOOK=($(ls keypoint_trajectory/Hook_*))
-        HOOK=(
-            'keypoint_trajectory/Hook_bar-1.json' \
-            'keypoint_trajectory/Hook_60-1.json' \
-            # 'keypoint_trajectory/Hook_skew-1.json' \
-            # 'keypoint_trajectory/Hook_90-1.json' \
-            # 'keypoint_trajectory/Hook_180-1.json' \
-            # 'keypoint_trajectory/Hook_bar-2.json' \
-            # 'keypoint_trajectory/Hook_60-2.json' \
-            # 'keypoint_trajectory/Hook_skew-2.json' \
-            # 'keypoint_trajectory/Hook_90-2.json' \
-            # 'keypoint_trajectory/Hook_180-2.json' \
-        )
+        HOOK=($(ls keypoint_trajectory/Hook_*))
+        # HOOK=(
+        #     'keypoint_trajectory/Hook_bar-1.json' \
+        #     'keypoint_trajectory/Hook_60-1.json' \
+        #     # 'keypoint_trajectory/Hook_skew-1.json' \
+        #     # 'keypoint_trajectory/Hook_90-1.json' \
+        #     # 'keypoint_trajectory/Hook_180-1.json' \
+        #     # 'keypoint_trajectory/Hook_bar-2.json' \
+        #     # 'keypoint_trajectory/Hook_60-2.json' \
+        #     # 'keypoint_trajectory/Hook_skew-2.json' \
+        #     # 'keypoint_trajectory/Hook_90-2.json' \
+        #     # 'keypoint_trajectory/Hook_180-2.json' \
+        # )
 
         rm "keypoint_trajectory/result.txt"
         for object in "${OBJECT[@]}"
@@ -238,11 +234,26 @@ if [ $# -ge 1 ]; then
     
     elif [ $1 = 'hangpose' ]; then 
 
-        max=10
+        max=1
         for i in `seq 1 $max`
         do
             echo "$i"
             python3 hanging_pose_trajectory.py
+        done
+    
+    elif [ $1 = 'showobj' ]; then 
+
+        OBJ_DIRS=(
+            'models/hook' \
+            # 'models/geo_data/hanging_exp' \
+            'models/geo_data/wrench' \
+            'models/geo_data/scissor' \
+            'models/geo_data/mug' \
+            'models/geo_data/daily_object' \
+        )
+        for OBJ_DIR in "${OBJ_DIRS[@]}"
+        do
+            python3 show_model.py --input-dir $OBJ_DIR
         done
     else 
         echo "nope"

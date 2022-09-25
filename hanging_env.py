@@ -176,9 +176,9 @@ def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
     return refine_pose
 
 def draw_coordinate(pose : np.ndarray or tuple or list, size : float = 0.02):
-    assert (type(pose) == np.ndarray and pose.shape == (4, 4)) or (type(pose) == tuple and len(pose) == 7) or (type(pose) == list and len(pose) == 7)
+    assert (type(pose) == np.ndarray and pose.shape == (4, 4)) or len(pose) == 7
 
-    if type(pose) == tuple or type(pose) == list:
+    if len(pose) == 7:
         pose = get_matrix_from_pos_rot(pose[:3], pose[3:])
 
     origin = pose[:3, 3]
@@ -279,11 +279,16 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
 
     obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
     start_conf = obj_pos + obj_rot
-    waypoints = rrt_connect_7d(physics_client_id, obj_id, start_conf=start_conf, target_conf=target_conf, obstacles=obstacles)
+    waypoints, nodes = rrt_connect_7d(physics_client_id, obj_id, start_conf=start_conf, target_conf=target_conf, obstacles=obstacles)
     
     if waypoints is None:
         print("Oops, no solution!")
         return
+
+    # visualization all nodes
+    for node in nodes:
+        print(node.config, len(node.config), type(node.config))
+        draw_coordinate(node.config)
 
     # extract current gripper pose
     gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
@@ -531,6 +536,8 @@ def main(args):
         contact = collision_fn(obj_pose)
         print('[Success]|{}'.format(1 if contact else 0))
         sys.stdout.flush()
+        _=input()
+        p.removeAllUserDebugItems()
 
         # save gif
         if imgs_array is not None:
@@ -550,7 +557,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5.json')
-    parser.add_argument('--id', '-id', type=str)
+    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
+    parser.add_argument('--id', '-id', type=str, default='0')
     args = parser.parse_args()
     main(args)
