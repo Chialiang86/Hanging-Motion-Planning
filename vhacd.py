@@ -9,8 +9,11 @@ def main(args):
     input_dir = args.input_dir
     assert os.path.exists(input_dir), f'{input_dir} not exists'
 
-    pathes = glob.glob(f'{input_dir}/*/*_normalized.obj')
+    pathes = glob.glob(f'{input_dir}/*/base.obj')
     for path in tqdm(pathes):
+        if '_' in path:
+            continue
+        print(f'processing {path} ...')
         p.vhacd(path, path, f'{path}.txt')
 
 if __name__=="__main__":

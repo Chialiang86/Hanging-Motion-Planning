@@ -5,12 +5,13 @@ import os, inspect
 import argparse
 import json
 import time
+import quaternion
+import scipy.io as sio
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+from PIL import Image
 import pybullet as p
 import pybullet_data
-import quaternion
-from PIL import Image
 
 # for robot control
 from pybullet_robot_envs.envs.panda_envs.panda_env import pandaEnv
@@ -157,6 +158,20 @@ def refine_rotation(src_transform, tgt_transform):
 
     return tgt_transform if np.sum((src_rotvec - tgt_rotvec) ** 2) < np.sum((src_rotvec - tgt_dual_rotvec) ** 2) else tgt_dual_transform
 
+def capture_image(view_mat, proj_matrix, far, near, width=320, height=240):
+
+    img = p.getCameraImage(
+        width=width,
+        height=height,
+        viewMatrix=view_mat,
+        projectionMatrix=proj_matrix
+    )
+
+    rgbBuffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
+    depthBuffer = np.reshape(img[3], [height, width])
+    depthBuffer = far * near / (far - (far - near) * depthBuffer)
+
+    return rgbBuffer, depthBuffer
 
 def main(args):
     
@@ -167,8 +182,8 @@ def main(args):
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.3,
-        cameraYaw=120,
+        cameraDistance=0.1,
+        cameraYaw=90,
         cameraPitch=-30,
         cameraTargetPosition=[0.5, 0.0, 1.3]
     )
@@ -214,7 +229,6 @@ def main(args):
     with open(hook_fname, 'r') as f:
         hook_dict = json.load(f)
 
-
     # obj_pose_6d = obj_dict['obj_pose']
     # obj_pos = obj_pose_6d[:3]
     # obj_rot = obj_pose_6d[3:]
@@ -230,7 +244,6 @@ def main(args):
     hook_transform = get_matrix_from_pos_rot(hook_pos, hook_quat)
     p.resetBasePositionAndOrientation(hook_id, hook_pos, hook_quat)
     trajectory_hook = hook_dict['trajectory']
-
 
     # grasping
     index = 0 # medium
@@ -281,41 +294,88 @@ def main(args):
         for _ in range(10): # 1 sec
             p.stepSimulation()
             time.sleep(sim_timestep)
+    
+    # rendering
+    far = 1.
+    near = 0.01
+    fov = 90.
+    aspect_ratio = 1.
+    cameraEyePosition=[0.75, 0.1, 1.3]
+    cameraTargetPosition=[0.5, 0.1, 1.3]
+    cameraUpVector=[0.0, 0.0, 1.0]
+    view_mat = p.computeViewMatrix(
+        cameraEyePosition=cameraEyePosition,
+        cameraTargetPosition=cameraTargetPosition,
+        cameraUpVector=cameraUpVector,
+    )
+    proj_matrix = p.computeProjectionMatrixFOV(
+        fov, aspect_ratio, near, far
+    )
 
     imgs = []
+    demonstration_list = []
+
     gripper_pose = None
-    for waypoint in trajectory_hook:
-        relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
-        world_transform = hook_transform @ relative_transform
-        gripper_transform = world_transform @ kpt_to_gripper
-        gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
-        gripper_pose = list(gripper_pos) + list(gripper_rot)
+    previous_transform = np.identity(4)
+    motion_frequency = 3
+    save_cnt = 0
+    for i, waypoint in enumerate(trajectory_hook):
+        if i % motion_frequency == 0:
+            
+            relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
+            world_transform = hook_transform @ relative_transform
+            gripper_transform = world_transform @ kpt_to_gripper
+            gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
+            gripper_pose = list(gripper_pos) + list(gripper_rot)
 
-        draw_coordinate(world_transform)
+            # draw_coordinate(world_transform)
 
-        robot.apply_action(gripper_pose)
-        p.stepSimulation()
-        
-        robot.grasp()
-        for _ in range(10): # 1 sec
+            robot.apply_action(gripper_pose)
             p.stepSimulation()
+            
+            robot.grasp()
+            for _ in range(10): # 1 sec
+                p.stepSimulation()
+                time.sleep(sim_timestep)
             time.sleep(sim_timestep)
-        time.sleep(sim_timestep)
 
-        img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
-        imgs.append(img)
+            if i > 0:
+                relative_pos, relative_rot = get_pos_rot_from_matrix(np.linalg.inv(previous_transform) @ gripper_transform)
+                relative_action = list(relative_pos) + list(R.from_quat(relative_rot).as_rotvec())
+            else :
+                relative_action = [0, 0, 0, 0, 0, 0]
+
+            t = np.identity(4)
+            t[:3, 3] = relative_action[:3]
+            t[:3, :3] = R.from_rotvec(relative_action[3:]).as_matrix()
+            # draw_coordinate(previous_transform @ t)
+            previous_transform = gripper_transform
+            
+            # capture RGBD
+            rgb, depth = capture_image(view_mat, proj_matrix, far, near)
+            demonstration_list.append({
+                'rgb': rgb,
+                'depth': depth,
+                'action': relative_action
+            })
+
+            save_cnt += 1
+
+            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+            imgs.append(img)
+
     
     # execution step 2 : release gripper
     robot_apply_action(robot, obj_id, gripper_pose, gripper_action='pre_grasp', 
         sim_timestep=0.05, diff_thresh=0.01, max_vel=-1, max_iter=100)
 
-    # # execution step 3 : go to the ending pose
-    # gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
-    # gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
-    # ending_gripper_pos = np.asarray(gripper_pose[:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.2]])).reshape(3)
-    # action = tuple(ending_gripper_pos) + tuple(gripper_rot)
-    # robot_apply_action(robot, obj_id, action, gripper_action='nop', 
-    #     sim_timestep=0.05, diff_thresh=0.005, max_vel=0.3, max_iter=100)
+    # execution step 3 : go to the ending pose
+    gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+    gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
+    ending_gripper_pos = np.asarray(gripper_pose[:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.05]])).reshape(3)
+    action = tuple(ending_gripper_pos) + tuple(gripper_rot)
+    robot_apply_action(robot, obj_id, action, gripper_action='nop', 
+        sim_timestep=0.05, diff_thresh=0.005, max_vel=0.6, max_iter=100)
 
     imgs_array = [Image.fromarray(img) for img in imgs]
 
@@ -323,13 +383,37 @@ def main(args):
     contact_points = p.getContactPoints(obj_id, hook_id)
     contact = True if contact_points != () else False
 
-
     # save gif
-    output_dir = 'keypoint_trajectory/gif'
+    output_fname = 'keypoint_trajectory/gif'
     status = 'success' if contact else 'failed'
     if imgs_array is not None and status=='failed':
-        gif_path = os.path.join(output_dir, f'{hook_name}-{obj_name}_{hook_num}_{status}.gif')
+        gif_path = os.path.join(output_fname, f'{hook_name}-{obj_name}_{hook_num}_{status}.gif')
         imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+    
+    if status=='success':
+        output_dir = f'demonstration_data/{hook_name}-{hook_num}-{obj_name}'
+        os.makedirs(output_dir, exist_ok=True)
+        action_dict = {
+            'action':[],
+            'cameraEyePosition':cameraEyePosition,
+            'cameraTargetPosition':cameraTargetPosition,
+            'cameraUpVector':cameraUpVector,
+            'far': far,
+            'near': near,
+            'fov': fov,
+            'aspect_ratio': aspect_ratio,
+        }
+        for i, data in enumerate(demonstration_list):
+            rgb_fname = f'{output_dir}/{i}.jpg'
+            depth_fname = f'{output_dir}/{i}.npy'
+            Image.fromarray(data['rgb']).save(rgb_fname)
+            np.save(depth_fname, data['depth'])
+            action_dict['action'].append(data['action'])
+
+        action_fname = f'{output_dir}/action.json'
+        action_f = open(action_fname, 'w')
+        json.dump(action_dict, action_f, indent=4)
+
     with open("keypoint_trajectory/result.txt", "a") as myfile:
         print(f'{hook_name}-{obj_name}_{hook_num}_{status}\n')
         myfile.write(f'{hook_name}-{obj_name}_{hook_num}_{status}\n')

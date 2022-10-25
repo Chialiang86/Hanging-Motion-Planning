@@ -4,3 +4,7 @@ models/robot
 */__pycache__
 *.gif
 *.zip
+__pycache__
+keypoint_trajectory/
+keypoint_trajectory_/
+demonstration_data/

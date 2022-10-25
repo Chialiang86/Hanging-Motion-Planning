@@ -232,9 +232,9 @@ def main(args):
     # wall_id = p.loadURDF("models/wall/wall.urdf", wall_pos, wall_orientation)
     
     # hook initialization
-    hook_pos = json_dict['hook_pose'][:3]
-    hook_orientation = json_dict['hook_pose'][3:]
-    hook_id = p.loadURDF(json_dict['hook_path'], hook_pos, hook_orientation)
+    hook_pose = json_dict['hook_pose']
+    hook_id = p.loadURDF(json_dict['hook_path'])
+    p.resetBasePositionAndOrientation(hook_id, hook_pose[:3], hook_pose[3:])
 
     # config output path
     output_root = os.path.split(args.input_json)[0]
@@ -244,41 +244,48 @@ def main(args):
 
     # random position noise
     obj_id, center = load_obj_urdf(json_dict['obj_path'])
+    obj_pose = json_dict['contact_info'][0]['object_pose']
+    p.resetBasePositionAndOrientation(obj_id, obj_pose[:3], obj_pose[3:])
+    time.sleep(2)
+    while True:
+        # key callback
+        p.stepSimulation()
+        time.sleep(sim_timestep)
+        keys = p.getKeyboardEvents()            
+        if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
+            break
 
-    obj_hook_pair = os.path.splitext(os.path.split(input_json)[1])[0]
+    # obj_hook_pair = os.path.splitext(os.path.split(input_json)[1])[0]
 
-    len_init_pose = len(json_dict['initial_pose'])
-    assert len_init_pose == 3, f'initial poses need to be 3, not {len_init_pose}'
-    for index in range(len_init_pose):
-        # object initialization
-        initial_info = json_dict['initial_pose'][index]
-        obj_pos = initial_info['object_pose'][:3]
-        obj_rot = initial_info['object_pose'][3:]
-
-        # grasping
-        initial_info = json_dict['initial_pose'][index]
-        robot_pos = initial_info['robot_pose'][:3]
-        robot_rot = initial_info['robot_pose'][3:]
-        robot_pose = robot_pos + robot_rot
-
-        robot.apply_action(robot_pose, max_vel=-1)
-        for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-            p.stepSimulation()
-            time.sleep(sim_timestep)
-        robot.grasp(obj_id=obj_id)
-        for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-            p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
-            p.stepSimulation()
-            time.sleep(sim_timestep)
-
+    # len_init_pose = len(json_dict['initial_pose'])
+    # for index in range(len_init_pose):
         
-        init_pose = ['easy', 'medium', 'hard'][index]
-        output_path = f'visualization/{obj_hook_pair}_{init_pose}.png'
-        img_arr = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
-        img = Image.fromarray(img_arr)
-        img.save(output_path)
-        print(f'{output_path} saved')
+        # # object initialization
+        # initial_info = json_dict['initial_pose'][index]
+        # obj_pos = initial_info['object_pose'][:3]
+        # obj_rot = initial_info['object_pose'][3:]
 
+        # # grasping
+        # initial_info = json_dict['initial_pose'][index]
+        # robot_pos = initial_info['robot_pose'][:3]
+        # robot_rot = initial_info['robot_pose'][3:]
+        # robot_pose = robot_pos + robot_rot
+
+        # robot.apply_action(robot_pose, max_vel=-1)
+        # for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
+        #     p.stepSimulation()
+        #     time.sleep(sim_timestep)
+        # robot.grasp(obj_id=obj_id)
+        # for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
+        #     p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
+        #     p.stepSimulation()
+        #     time.sleep(sim_timestep)
+        
+        # output_path = f'visualization/{obj_hook_pair}_{index}.png'
+        # img_arr = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+        # img = Image.fromarray(img_arr)
+        # img.save(output_path)
+        # print(f'{output_path} saved')
         
     print('process complete...')
 

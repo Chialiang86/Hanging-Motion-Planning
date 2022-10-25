@@ -10,6 +10,7 @@ import json
 import numpy as np
 import skrobot
 import os
+from scipy.spatial.transform import Rotation as R
 import xml.etree.ElementTree as ET
 
 from tqdm import tqdm
@@ -214,21 +215,44 @@ def main(args):
     # hook_pos=[0.8, -0.2, 1.0] for hook_90
     # hook_pos=[0.8, -0.2, 1.0]
     hook_pos=[0.5, -0.1, 1.3]
+    hook_rot=[0, 0, -np.pi/2]
+    if 'Hook12/' in hook_path:
+        hook_rot=[np.pi/2, 0, -np.pi/2]
+    elif 'Hook122/' in hook_path:
+        hook_rot=[np.pi, 0, -np.pi/2]
+    elif 'Hook186/' in hook_path:
+        hook_rot=[-np.pi/2, np.pi/2, 0]
+    elif 'Hook48/' in hook_path:
+        hook_rot=[np.pi/2, -np.pi/2, 0]
     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
-    ignore_list = []
-    ignore_list = [
-                        'bag_5', 'daily_5', 'scissor_4', 'mug_59', 'wrench_1', 
-                        'bag_6', 'bag_70',
-                        'scissor_14', 'scissor_19', 'scissor_39', 'scissor_62',
-                        'daily_11', 'daily_23', 
-                        'headphone_20', 'headphone_22',
-                        'mug_67', 'mug_115', 
-                        # 'wrench_27', 
-                        'wrench_35',
+    # ignore_list = []
+    ignore_list = [ 
+                        "bag_5/", "daily_5/", "scissor_4/", "mug_59/", "wrench_1/", 
+                        "bag_6/", "bag_70/",
+                        "daily_11/", "daily_114/", "daily_115/", "daily_2/", "daily_23/",  
+                        "daily_42/", "daily_57/", "daily_63/", "daily_84/", "daily_7/", "daily_71/", "daily_72/",
+                        "daily_85/", "daily_97/", "daily_8/", "daily_106/",
+                        "mug_100/", "mug_11/", "mug_112/", "mug_113/", "mug_115/", "mug_118/", "mug_123/", "mug_126/", "mug_128/", 
+                        "mug_132/", "mug_67/", "mug_70/", "mug_80/", "mug_82/", "mug_90/", "mug_135/", "mug_199/", "mug_73/", "mug_129/",
+                        "mug_142/", "mug_146/", "mug_147/", "mug_149/", "mug_150/", "mug_159/", "mug_166/", "mug_184/",
+                        "mug_173/", "mug_181/", "mug_19/", "mug_193/", "mug_204/", "mug_205/", "mug_43/", "mug_145/", "mug_64/",
+                        "scissor_101/", "scissor_12/", "scissor_14/", "scissor_19/", "scissor_22/", "scissor_27/", "scissor_39/", 
+                        "scissor_48/", "scissor_58/", "scissor_62/", "scissor_74/", "scissor_79/", "scissor_8/", "scissor_92/", 
+                        "scissor_95/", "scissor_98/", "scissor_31/",
+                        "wrench_10/", "wrench_12/",  "wrench_17/", "wrench_35/", "wrench_25/", 
+                        "wrench_27/", "wrench_31/", "wrench_32/", "wrench_36/", "wrench_6/",
                     ]   
-    focus_list = ['scissor_39', 'wrench_27', 'mug_67']
+    # focus_list = ['scissor_39/", 'wrench_27/", 'mug_67']
+
+    mug_good_quat = [
+                0.5704888371189183,
+                -0.4522103472574786,
+                0.5152682036576006,
+                0.4522686887851561
+            ]
+    mug_good_rot = R.from_quat(mug_good_quat).as_rotvec()
 
     height_thresh = 0.8
     for obj_path in obj_paths:
@@ -239,7 +263,7 @@ def main(args):
                 cont = True
         if cont:
             continue
-
+        print(obj_path)
 
         obj_id, center = load_obj_urdf(obj_path)
         
@@ -263,7 +287,7 @@ def main(args):
             p.setGravity(0, 0, 0)
 
             if args.hook == 'Hook_bar':
-                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.4) # for hook_bar
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.25) # for hook_bar
             elif args.hook == 'Hook_180':
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.4) # for hook_bar
             elif args.hook == 'Hook_90':
@@ -272,6 +296,8 @@ def main(args):
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.35) # for hook_60
             elif args.hook == 'Hook_skew':
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.3) # for hook_60
+            else:
+                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.35) # for hook_60
 
             p.stepSimulation()
             contact_points = p.getContactPoints(obj_id, hook_id)
@@ -279,18 +305,19 @@ def main(args):
                 continue
 
             # toss to the hook by force in direction x
-            if args.hook == 'Hook_bar':
-                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
-            elif args.hook == 'Hook_180':
-                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
-            elif args.hook == 'Hook_90':
-                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
-            elif args.hook == 'Hook_60':
-                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
-            elif args.hook == 'Hook_skew':
-                p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            # if args.hook == 'Hook_bar':
+            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
+            # elif args.hook == 'Hook_180':
+            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
+            # elif args.hook == 'Hook_90':
+            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            # elif args.hook == 'Hook_60':
+            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            # elif args.hook == 'Hook_skew':
+            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            # else :
+            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
 
-            
             for _ in range(500):
                 p.stepSimulation()
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -350,6 +377,15 @@ def main(args):
             if len(contact_points) == 0:
                 continue
 
+            # special : check mug rotation
+
+            # if 'mug' in obj_path:
+            #     mug_rot = R.from_quat(rot).as_rotvec()
+            #     rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
+            #     if rot_diff > 1.0:
+            #         print('================ the rotation of mug is not good!!! ================')
+            #         continue
+
             obj_coords = skrobot.coordinates.Coordinates(
                 pos=pos,
                 rot=skrobot.coordinates.math.xyzw2wxyz(rot))
@@ -392,6 +428,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook_90')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook_bar')
     args = parser.parse_args()
     main(args)

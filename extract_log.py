@@ -45,10 +45,9 @@ def main(args):
             if success_token in line:
                 success.append(int(line.split('|')[1]))
             if result_token in line:
-                if int(line.split('|')[1].split(' ')[1]) < 4999:
-                    iteration.append(int(line.split('|')[1].split(' ')[1]))
-                    nodes.append(int(line.split('|')[2].split(' ')[1]))
-                    time.append(float(line.split('|')[3].split(' ')[1]))
+                iteration.append(int(line.split('|')[1].split(' ')[1]))
+                nodes.append(int(line.split('|')[2].split(' ')[1]))
+                time.append(float(line.split('|')[3].split(' ')[1]))
         
         if len(before_length) == 0:
             before_length = [0, 0, 0]

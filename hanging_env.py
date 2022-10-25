@@ -29,7 +29,6 @@ print(currentdir)
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
-
 def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
 
     tree = ET.parse(urdf_path)
@@ -212,7 +211,6 @@ def draw_bbox(start : list or tuple or np.ndarray,
 
 def hanging_by_ik(robot : pandaEnv, obj_id : int, target_conf: tuple or list, 
                     sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
-
     
     tgt_gripper_pos, tgt_gripper_rot = get_target_gripper_pose(robot, obj_id, target_conf[:3], target_conf[3:])
 
@@ -251,16 +249,17 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     
     low_limit = [0, 0, 0]
     high_limit = [0, 0, 0]
-    padding = [0.1, 0.1, 0.2]
+    padding_low  = [0.01, 0.01, 0.00]
+    padding_high = [0.01, 0.1, 0.05]
 
     # xlim, ylim
     for i in range(3):
         if start_pos[i] < target_pos[i]:
-            low_limit[i] = start_pos[i] - padding[i]
-            high_limit[i] = target_pos[i] + padding[i] 
+            low_limit[i] = start_pos[i] - padding_low[i]
+            high_limit[i] = target_pos[i] + padding_high[i] 
         else :
-            low_limit[i] = target_pos[i] - padding[i]
-            high_limit[i] = start_pos[i] + padding[i] 
+            low_limit[i] = target_pos[i] - padding_low[i]
+            high_limit[i] = start_pos[i] + padding_high[i] 
     
     draw_bbox(low_limit, high_limit)
 
@@ -286,9 +285,8 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
         return
 
     # visualization all nodes
-    for node in nodes:
-        print(node.config, len(node.config), type(node.config))
-        draw_coordinate(node.config)
+    # for node in nodes:
+    #     draw_coordinate(node.config)
 
     # extract current gripper pose
     gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
@@ -300,7 +298,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     # relative transform from object to gripper
     # see this stack-overflow issue : https://stackoverflow.com/questions/67001118/relative-transform
     obj2gripper_pose = np.linalg.inv(origin_obj_pose) @ origin_gripper_pose
-    planning_resolution = 0.0005
+    planning_resolution = 0.001
 
     # reset obj pose
     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
@@ -310,7 +308,9 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     for i in range(len(waypoints) - 1):
 
         d12 = np.asarray(waypoints[i+1][:3]) - np.asarray(waypoints[i][:3])
-        steps = int(np.ceil(np.linalg.norm(np.divide(d12, planning_resolution), ord=2)))
+        r12 = np.asarray(waypoints[i+1][3:]) - np.asarray(waypoints[i][3:])
+        diff_q1_q2 = np.concatenate((d12, r12))
+        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, planning_resolution), ord=2)))
         obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(waypoints[i][3:]))
         obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(waypoints[i+1][3:]))
 
@@ -321,6 +321,7 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
             quat = quaternion.slerp_evaluate(obj_init_quat, obj_tgt_quat, ratio)
             quat = wxyz2xyzw(quaternion.as_float_array(quat))
             positions7d = tuple(pos) + tuple(quat)
+            # p.resetBasePositionAndOrientation(obj_id, positions7d[:3], positions7d[3:])
             # draw_coordinate(positions7d)
 
             gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
@@ -335,8 +336,8 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
                 p.stepSimulation()
                 time.sleep(sim_timestep)
 
-            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
-            imgs.append(img)
+            # img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+            # imgs.append(img)
     
     # execution step 2 : release gripper
     robot_apply_action(robot, obj_id, waypoints[-1], gripper_action='pre_grasp', 
@@ -433,7 +434,7 @@ def main(args):
     # physics_client_id = p.connect(p.DIRECT)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.3,
+        cameraDistance=0.2,
         cameraYaw=90,
         cameraPitch=-30,
         cameraTargetPosition=[0.5, 0.0, 1.3]
@@ -497,8 +498,12 @@ def main(args):
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=[hook_id])
 
     len_init_pose = len(json_dict['initial_pose'])
-    assert len_init_pose <= 3, f'initial poses need to be 3, not {len_init_pose}'
-    for index in range(len_init_pose):
+    # assert len_init_pose <= 3, f'initial poses need to be 3, not {len_init_pose}'
+    max_cnt = len_init_pose if args.max_cnt == -1 else args.max_cnt
+    assert max_cnt > 0 and max_cnt <= len_init_pose
+
+
+    for index in range(max_cnt):
         # object initialization
         initial_info = json_dict['initial_pose'][index]
         obj_pos = initial_info['object_pose'][:3]
@@ -527,6 +532,76 @@ def main(args):
         # --- Setting inital motion --- #
         # ----------------------------- #
 
+        ####################################################
+
+        obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
+        start_conf = obj_pos + obj_rot
+
+        # extract current gripper pose
+        gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+        gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+        origin_gripper_pose = get_matrix_from_pos_rot(gripper_pos, gripper_rot)
+
+        origin_obj_pose = get_matrix_from_pos_rot(start_conf[:3], start_conf[3:])
+
+        # relative transform from object to gripper
+        # see this stack-overflow issue : https://stackoverflow.com/questions/67001118/relative-transform
+        obj2gripper_pose = np.linalg.inv(origin_obj_pose) @ origin_gripper_pose
+        planning_resolution = 0.001
+
+        d12 = np.asarray(tgt_pose[:3]) - np.asarray(start_conf[:3])
+        steps = int(np.ceil(np.linalg.norm(np.divide(d12, planning_resolution), ord=2)))
+        obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(start_conf[3:]))
+        obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(tgt_pose[3:]))
+
+        # draw_coordinate(start_conf)
+        # draw_coordinate(tgt_pose)
+        # time.sleep(3)
+
+        # imgs = []
+        # # plan trajectory in the same way in collision detection module
+        # for step in range(steps):
+        #     ratio = (step + 1) / steps
+        #     pos = ratio * d12 + np.asarray(start_conf[:3])
+        #     quat = quaternion.slerp_evaluate(obj_init_quat, obj_tgt_quat, ratio)
+        #     quat = wxyz2xyzw(quaternion.as_float_array(quat))
+        #     positions7d = tuple(pos) + tuple(quat)
+        #     # draw_coordinate(positions7d)
+
+        #     gripper_pose = get_matrix_from_pos_rot(positions7d[:3], positions7d[3:]) @ obj2gripper_pose
+        #     gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_pose)
+        #     gripper_action = np.concatenate((gripper_pos, gripper_rot))
+
+        #     robot.apply_action(gripper_action)
+        #     p.stepSimulation()
+            
+        #     robot.grasp()
+        #     for _ in range(10): # 1 sec
+        #         p.stepSimulation()
+        #         time.sleep(sim_timestep)
+
+        #     img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+        #     imgs.append(img)
+        # imgs = [Image.fromarray(img) for img in imgs]
+        
+        # obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
+        # obj_pose = obj_pos + obj_rot
+        # contact = collision_fn(obj_pose)
+        # print('[Success]|{}'.format(1 if contact else 0))
+        # # save gif
+        # if imgs is not None:
+        #     status = 'success' if contact else 'failed'
+        #     init_pose = ['easy', 'medium', 'hard'][index]
+        #     gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}_direct.gif')
+        #     imgs[0].save(gif_path, save_all=True, append_images=imgs[1:], duration=50, loop=0)
+        
+        # # execution step 2 : release gripper
+        # robot_apply_action(robot, obj_id, obj_pose, gripper_action='pre_grasp', 
+        #     sim_timestep=0.05, diff_thresh=0.01, max_vel=-1, max_iter=100)
+        # _=input()
+        # continue
+        # ####################################################
+
         # run RRT algorithm
         imgs_array = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[ table_id, hook_id], max_vel=0.1)
         
@@ -536,14 +611,13 @@ def main(args):
         contact = collision_fn(obj_pose)
         print('[Success]|{}'.format(1 if contact else 0))
         sys.stdout.flush()
-        _=input()
         p.removeAllUserDebugItems()
 
         # save gif
         if imgs_array is not None:
             status = 'success' if contact else 'failed'
-            init_pose = ['easy', 'medium', 'hard'][index]
-            gif_path = os.path.join(output_dir, f'{init_pose}_{args.id}_{status}.gif')
+            # init_pose = ['easy', 'medium', 'hard'][index]
+            gif_path = os.path.join(output_dir, f'{index}_{args.id}_{status}.gif')
             imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
         
     print('process complete...')        
@@ -559,5 +633,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
     parser.add_argument('--id', '-id', type=str, default='0')
+    parser.add_argument('--max-cnt', '-mc', type=int, default=1)
     args = parser.parse_args()
     main(args)

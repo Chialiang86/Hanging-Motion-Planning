@@ -68,8 +68,6 @@ def get_extend7d_fn(resolution = 0.001):
     def extend7d_fn(q1, q2):
         assert len(q1) == 7 and len(q2) == 7
 
-        
-
         # q1_pos = np.asarray(q1[:3])
         # q2_pos = np.asarray(q2[:3])
         # q1_rot = np.asarray(q1[3:])
@@ -84,19 +82,23 @@ def get_extend7d_fn(resolution = 0.001):
 
         # diff_q1_q2 = np.concatenate((d12, r12_rotvec))
         # steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=2)))
+
         d12 = np.asarray(q2[:3]) - np.asarray(q1[:3])
-        steps = int(np.ceil(np.linalg.norm(np.divide(d12, resolution), ord=2)))
+        r12 = np.asarray(q2[3:]) - np.asarray(q1[3:])
+        diff_q1_q2 = np.concatenate((d12, r12))
+        steps = int(np.ceil(np.linalg.norm(np.divide(diff_q1_q2, resolution), ord=2)))
+        obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(q1[3:]))
+        obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(q2[3:]))
 
         # generate collision check sequence
         yield q1
         for i in range(steps):
             ratio = (i + 1) / steps
             pos = ratio * d12 + np.asarray(q1[:3])
-            obj_init_quat = quaternion.as_quat_array(xyzw2wxyz(q1[3:]))
-            obj_tgt_quat = quaternion.as_quat_array(xyzw2wxyz(q2[3:]))
             quat = quaternion.slerp_evaluate(obj_init_quat, obj_tgt_quat, ratio)
             quat = wxyz2xyzw(quaternion.as_float_array(quat))
             positions7d = tuple(pos) + tuple(quat)
+
             # positions6d = (i + 1) / steps * diff_q1_q2 + np.concatenate((q1_pos, R.from_quat(q1_rot).as_rotvec()))
             # positions7d = tuple(positions6d[:3]) + tuple(R.from_rotvec(positions6d[3:]).as_quat())
             yield positions7d
