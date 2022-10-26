@@ -246,14 +246,15 @@ def main(args):
     obj_id, center = load_obj_urdf(json_dict['obj_path'])
     obj_pose = json_dict['contact_info'][0]['object_pose']
     p.resetBasePositionAndOrientation(obj_id, obj_pose[:3], obj_pose[3:])
+    
     time.sleep(2)
-    while True:
-        # key callback
+    for i in range(500):
         p.stepSimulation()
         time.sleep(sim_timestep)
-        keys = p.getKeyboardEvents()            
-        if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-            break
+    # while True:
+    #     keys = p.getKeyboardEvents()            
+    #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
+    #         break
 
     # obj_hook_pair = os.path.splitext(os.path.split(input_json)[1])[0]
 

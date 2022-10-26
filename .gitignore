@@ -1,4 +1,7 @@
-models/geo_data
+# models/geo_data
+*.obj
+*.ply
+*.npy
 models/robot
 *.txt
 */__pycache__

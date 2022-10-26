@@ -10,6 +10,8 @@ import json
 import numpy as np
 import skrobot
 import os
+
+from utils.bullet_utils import get_matrix_from_pos_rot, draw_coordinate
 from scipy.spatial.transform import Rotation as R
 import xml.etree.ElementTree as ET
 
@@ -224,16 +226,18 @@ def main(args):
         hook_rot=[-np.pi/2, np.pi/2, 0]
     elif 'Hook48/' in hook_path:
         hook_rot=[np.pi/2, -np.pi/2, 0]
+    # elif 'Hook_/' in hook_path:
     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
     # ignore_list = []
     ignore_list = [ 
-                        "bag_5/", "daily_5/", "scissor_4/", "mug_59/", "wrench_1/", 
+                        # "daily_5/",
+                        "bag_5/",  "scissor_4/", "mug_59/", "wrench_1/", 
                         "bag_6/", "bag_70/",
                         "daily_11/", "daily_114/", "daily_115/", "daily_2/", "daily_23/",  
                         "daily_42/", "daily_57/", "daily_63/", "daily_84/", "daily_7/", "daily_71/", "daily_72/",
-                        "daily_85/", "daily_97/", "daily_8/", "daily_106/",
+                        "daily_85/", "daily_97/", "daily_8/", "daily_106/", "daily_41/",
                         "mug_100/", "mug_11/", "mug_112/", "mug_113/", "mug_115/", "mug_118/", "mug_123/", "mug_126/", "mug_128/", 
                         "mug_132/", "mug_67/", "mug_70/", "mug_80/", "mug_82/", "mug_90/", "mug_135/", "mug_199/", "mug_73/", "mug_129/",
                         "mug_142/", "mug_146/", "mug_147/", "mug_149/", "mug_150/", "mug_159/", "mug_166/", "mug_184/",
@@ -304,18 +308,6 @@ def main(args):
             if contact_points:
                 continue
 
-            # toss to the hook by force in direction x
-            # if args.hook == 'Hook_bar':
-            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
-            # elif args.hook == 'Hook_180':
-            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_bar
-            # elif args.hook == 'Hook_90':
-            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
-            # elif args.hook == 'Hook_60':
-            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
-            # elif args.hook == 'Hook_skew':
-            #     p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
-            # else :
             p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
 
             for _ in range(500):
@@ -378,7 +370,6 @@ def main(args):
                 continue
 
             # special : check mug rotation
-
             # if 'mug' in obj_path:
             #     mug_rot = R.from_quat(rot).as_rotvec()
             #     rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
@@ -386,27 +377,38 @@ def main(args):
             #         print('================ the rotation of mug is not good!!! ================')
             #         continue
 
-            obj_coords = skrobot.coordinates.Coordinates(
-                pos=pos,
-                rot=skrobot.coordinates.math.xyzw2wxyz(rot))
+            hook_transform = get_matrix_from_pos_rot(hook_pos, p.getQuaternionFromEuler(hook_rot))
+            obj_transform = get_matrix_from_pos_rot(pos, rot)
 
-            min_height_contact_point = sorted(
-                contact_points, key=lambda x: x[5][2])[0][5]
+            # relative homogeneous contact point
+            contact_point = list(sorted(contact_points, key=lambda x: x[5][2])[0][5])
+            contact_point.append(1.0)
+            contact_point_homo = np.array(contact_point)
+            contact_point_hook = np.linalg.inv(hook_transform) @ contact_point_homo
+            contact_point_obj = np.linalg.inv(obj_transform) @ contact_point_homo
 
-            contact_point = skrobot.coordinates.Coordinates(
-                pos=min_height_contact_point,
-                rot=skrobot.coordinates.math.rotation_matrix_from_axis(
-                    [0, -1, 0], [0, 0, -1]))
+            # contact_point_homo_hook = hook_transform @ contact_point_hook
+            # contact_point_homo_obj = obj_transform @ contact_point_obj
+            # contact_point_pose_hook = list(contact_point_homo_hook[:3]) + [0, 0, 0, 1]
+            # contact_point_pose_obj = list(contact_point_homo_obj[:3]) + [0, 0, 0, 1]
+            # draw_coordinate(contact_point_pose_hook)
+            # draw_coordinate(contact_point_pose_obj)
 
-            contact_point_obj = obj_coords.inverse_transformation().transform(
-                contact_point).translate(center, 'world')
-
-            pose = np.concatenate(
-                [contact_point_obj.T()[:3, 3][None, :],
-                 contact_point_obj.T()[:3, :3]]).tolist()
+            ok = True
+            while True:
+                p.stepSimulation()
+                keys = p.getKeyboardEvents()            
+                if ord('y') in keys and keys[ord('y')] and p.KEY_WAS_TRIGGERED: 
+                    break
+                if ord('n') in keys and keys[ord('n')] and p.KEY_WAS_TRIGGERED: 
+                    ok = False
+                    break
+            if ok == False:
+                continue
                 
             contact_info = {
-                'contact_pose': pose,
+                'contact_point_hook': contact_point_hook.tolist(),
+                'contact_point_obj': contact_point_obj.tolist(),
                 'object_pose': list(pos + rot)
             }
             contact_cnt+=1
@@ -420,6 +422,7 @@ def main(args):
                 print(f'{result_path} saved')
         else :
             print(f'no pose : {obj_path}')
+    
 
 
 if __name__ == '__main__':

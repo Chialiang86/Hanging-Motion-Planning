@@ -38,10 +38,25 @@ if [ $# -ge 1 ]; then
     elif [ $1 = 'hangsim' ]; then 
         
         INPUT=(
-            # 'Hook1' 'Hook11' 'Hook12' 'Hook122' 'Hook124' 'Hook136' 'Hook145' 'Hook15' 'Hook17' 'Hook186' 'Hook2' 'Hook209'  'Hook22' 'Hook23' 
-            # 'Hook35' 'Hook40' 'Hook42' 'Hook44' 'Hook47' 'Hook48' 'Hook57'  
-            'Hook84' \
-            # 'Hook_180' 'Hook_90' 'Hook_60' 'Hook_bar' 'Hook_long' 'Hook_skew' 
+            # 'Hook1' 
+            # 'Hook12' 
+            # 'Hook122' 
+            # 'Hook124' 
+            # 'Hook136' 
+            # 'Hook145' 
+            # 'Hook15' 
+            # 'Hook186' 
+            # 'Hook2' 
+            # 'Hook209' 
+            # 'Hook23' 
+            # 'Hook35' 
+            # 'Hook40' 
+            # 'Hook42' 
+            # 'Hook44' 
+            # 'Hook47' 
+            # 'Hook57' 
+            # 'Hook84' 
+            # 'Hook_180' 'Hook_60' 'Hook_90' 'Hook_bar' 'Hook_skew' 
         )
         for input in "${INPUT[@]}"
         do
@@ -52,22 +67,27 @@ if [ $# -ge 1 ]; then
         INPUT=(
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json' \
-            1.2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json' \
-            1.5'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106.json' \
+            #1.2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_114.json' \
-            0.8'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_115.json' \
-            ?'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_118.json' \
+            #0.8
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_115.json' \
+            # ?'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_118.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_11.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_2.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json' \
-            0.9'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json' \
+            #1.0
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_72.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_7.json' \
-            0.8'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_84.json' \
+            #0.8
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_84.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_85.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_8.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_97.json' \
@@ -78,11 +98,13 @@ if [ $# -ge 1 ]; then
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_118.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_11.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_123.json' \
-            1.2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_126.json' \
+            #1.2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_126.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_128.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_129.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_132.json' \
-            1.2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_135.json' \
+            #1.2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_135.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_142.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_145.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_146.json' \
@@ -104,38 +126,65 @@ if [ $# -ge 1 ]; then
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_73.json' \
-            *1.2 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80.json' \
+            #1.2 
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_82.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_90.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_101.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_12.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_101.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_12.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10.json' \
-            3'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12.json' \
-            ?'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_16.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17.json' \
-            3'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json' \
-            3'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25.json' \
-            2.5'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json' \
-            3'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31.json' \
-            3'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32.json' \
-            2'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json' \
-            1.5'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36.json'
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98.json' \
+            #1.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10.json' \
+            #3
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12.json' \
+            # ?'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_16.json' \
+            #3
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17.json' \
+            #3
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json' \
+            #3
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25.json' \
+            #2.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json' \
+            #3
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31.json' \
+            #2.5
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json' \
+            #2
+            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36.json'
         )
 
         for input in "${INPUT[@]}"

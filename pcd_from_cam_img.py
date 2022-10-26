@@ -213,7 +213,7 @@ def main(args):
     pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
     pcd_ori.scale(scale, [0., 0., 0.,])
     
-    o3d.visualization.draw_geometries([origin, pcd_merged], point_show_normal=False)
+    # o3d.visualization.draw_geometries([origin, pcd_merged], point_show_normal=False)
 
     if len(debug_cam_param) == 1:
       output_path = os.path.splitext(urdl_file)[0] + '_single.ply'
