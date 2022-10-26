@@ -176,7 +176,7 @@ def main(args):
     physics_client_id = p.connect(p.GUI)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.5,
+        cameraDistance=0.2,
         cameraYaw=120,
         cameraPitch=0,
         cameraTargetPosition=[0.7, 0.0, 1.3]
@@ -229,8 +229,8 @@ def main(args):
     # print(tgt_pose)
 
     # add json key
-    if 'initial_pose' not in json_dict.keys():
-        json_dict['initial_pose'] = []
+    # if 'initial_pose' not in json_dict.keys():
+    json_dict['initial_pose'] = []
 
     # grasping
     # robot.apply_action(contact_info['object_pose'])
@@ -304,7 +304,7 @@ def main(args):
                 while cnt < max_cnt:
                     # for new obj pose
                     obj_pos_new = np.asarray(obj_pos) + np.random.uniform(low=pos_low_limit, high=pos_high_limit)
-                    obj_rot_new = R.from_quat(gripper_rot).as_rotvec() + np.random.uniform(low=rot_low_limit, high=rot_high_limit)
+                    obj_rot_new = R.from_quat(obj_rot).as_rotvec() + np.random.uniform(low=rot_low_limit, high=rot_high_limit)
                     obj_rot_new = R.from_rotvec(obj_rot_new).as_quat()
                     obj_pose_new = list(obj_pos_new) + list(obj_rot_new)
                     draw_coordinate(obj_pose_new)
@@ -363,7 +363,6 @@ def main(args):
 
         p.stepSimulation()
         time.sleep(sim_timestep)
-    
     print(f'process completed.')
 
 if __name__ == '__main__':

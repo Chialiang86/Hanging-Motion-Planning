@@ -293,14 +293,14 @@ if [ $# -ge 1 ]; then
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
 
-                "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
-                "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
-                "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
-                "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
-                "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
-                "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
-                "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
-                "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
+                # "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
+                # "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
+                # "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
+                # "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
+                # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
+                # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
+                # ddd"data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
                 "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
                 "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
                 "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
@@ -615,7 +615,8 @@ if [ $# -ge 1 ]; then
             # "keypoint_trajectory/hanging_exp_wrench_35.json" \
             # "keypoint_trajectory/hanging_exp_wrench_36.json" \
         )
-        HOOK=($(ls keypoint_trajectory/Hook_90*) $(ls keypoint_trajectory/Hook_180*))
+        # HOOK=($(ls keypoint_trajectory/Hook_90*) $(ls keypoint_trajectory/Hook_180*))
+        HOOK=()
 
         rm "keypoint_trajectory/result.txt"
         for hook in "${HOOK[@]}"

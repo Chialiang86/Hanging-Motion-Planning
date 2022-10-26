@@ -262,7 +262,7 @@ def main(args):
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.3,
+        cameraDistance=0.2,
         cameraYaw=90,
         cameraPitch=-30,
         cameraTargetPosition=[0.5, 0.0, 1.3]
@@ -290,11 +290,11 @@ def main(args):
 
     input_jsons = [
         # for trajectory
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
+        'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
+        'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
+        'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
+        'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
         "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
         "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
         "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
@@ -374,6 +374,7 @@ def main(args):
             obj_init_pos = initial_info['object_pose'][:3]
             obj_init_rot = initial_info['object_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
+            draw_coordinate(obj_init_pos + obj_init_rot)
 
             # run RRT algorithm
             waypoints = None

@@ -171,7 +171,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
-    extend7d_fn = get_extend7d_fn(resolution=0.0005)
+    extend7d_fn = get_extend7d_fn(resolution=0.002)
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
@@ -349,40 +349,95 @@ def main(args):
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     input_jsons = [
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_11.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json',
-        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json',
-
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json',
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json',
-
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_114.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_115.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_11.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_2.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_72.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_7.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_84.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_85.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_8.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_97.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_100.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_112.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_113.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115.json",
+        # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_118.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_11.json" ,
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_123.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_126.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_128.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_129.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_132.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_135.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_142.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_145.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_146.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_147.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_149.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_150.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_159.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_166.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_173.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_181.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_184.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_193.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_199.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_204.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_205.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_43.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_64.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_73.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_82.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_90.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_101.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_12.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35.json",
+        "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36.json",
     ]
 
     # extract args
     # input_json = args.input_json
-
-    # while True:
-    #     # key callback
-    #     keys = p.getKeyboardEvents()            
-    #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
-    #         break
 
     for input_json in input_jsons:
 
@@ -410,7 +465,7 @@ def main(args):
         obj_id, hook_id, tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
 
         # object position initialization
-        obj_init_pos = list(np.asarray(tgt_pose[:3]) + np.array([0.0, 0.2, 0.0]))
+        obj_init_pos = list(np.asarray(tgt_pose[:3]) + np.array([0.0, 0.15, 0.0]))
         obj_init_rot = tgt_pose[3:]
         p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
 

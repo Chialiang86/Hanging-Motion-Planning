@@ -77,7 +77,7 @@ def main(args):
 
     hook_dirs = glob.glob(f'{input_dir}/*')
     for hook_dir in hook_dirs:
-        first_json = glob.glob(f'{hook_dir}/*.json')[0]
+        first_json = glob.glob(f'{hook_dir}/*exp_daily_5.json')[0]
         print(f'processing {first_json} ...')
 
         f_json = open(first_json, 'r')
