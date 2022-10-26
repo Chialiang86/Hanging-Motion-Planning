@@ -144,6 +144,7 @@ def main(args):
     # [225, -120, 0.3],
   ]
 
+  # TODO: adjust camera intrinsic
   width, height, viewMat, projMat, cameraUp, camForward, horizon, vertical, _, _, dist, camTarget = p.getDebugVisualizerCamera()
   # fov = 2 * math.atan(1 / projMat[0])
   fx = fy = (0.5 * height) * (projMat[0]) # (height / 2) * (1 / tan(FOV/2))

@@ -38,25 +38,25 @@ if [ $# -ge 1 ]; then
     elif [ $1 = 'hangsim' ]; then 
         
         INPUT=(
-            # 'Hook1' 
-            # 'Hook12' 
-            # 'Hook122' 
-            # 'Hook124' 
-            # 'Hook136' 
-            # 'Hook145' 
-            # 'Hook15' 
-            # 'Hook186' 
-            # 'Hook2' 
-            # 'Hook209' 
-            # 'Hook23' 
-            # 'Hook35' 
-            # 'Hook40' 
-            # 'Hook42' 
-            # 'Hook44' 
-            # 'Hook47' 
-            # 'Hook57' 
-            # 'Hook84' 
-            # 'Hook_180' 'Hook_60' 'Hook_90' 'Hook_bar' 'Hook_skew' 
+            'Hook1' 
+            'Hook12' 
+            'Hook122' 
+            'Hook124' 
+            'Hook136' 
+            'Hook145' 
+            'Hook15' 
+            'Hook186' 
+            'Hook2' 
+            'Hook209' 
+            'Hook23' 
+            'Hook35' 
+            'Hook40' 
+            'Hook42' 
+            'Hook44' 
+            'Hook47' 
+            'Hook57' 
+            'Hook84' 
+            'Hook_180' 'Hook_60' 'Hook_90' 'Hook_bar' 'Hook_skew' 
         )
         for input in "${INPUT[@]}"
         do
@@ -293,9 +293,13 @@ if [ $# -ge 1 ]; then
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
 
+                "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
+                "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
+                "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
+                "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
+                "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
                 "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
                 "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
-                "data/Hook11-hanging_exp/Hook11-hanging_exp_daily_5" \
                 "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
                 "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
                 "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
@@ -321,7 +325,7 @@ if [ $# -ge 1 ]; then
         if [ $# -eq 2 ]; then 
             CNT=$2
         else 
-            CNT=100
+            CNT=1000
         fi
 
         for input in "${INPUT[@]}"

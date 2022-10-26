@@ -7,8 +7,9 @@ import argparse
 import glob
 import time
 import json
+from matplotlib.pyplot import draw
 import numpy as np
-import skrobot
+from sklearn.cluster import DBSCAN
 import os
 
 from utils.bullet_utils import get_matrix_from_pos_rot, draw_coordinate
@@ -144,7 +145,38 @@ def update_debug_param(robot : pandaEnv):
                 p.addUserDebugParameter(joint_name.decode("utf-8"), joint_info[8], joint_info[9], joint_poses[i]))
     
     return param_ids    
+
+def extract_contact_point(candidate_pts : np.ndarray, eps=0.002, min_samples=2):
+
+    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(candidate_pts)
+    clustering_labels = clustering.labels_
+
+    # compute cluster height
+    cluster_means_z = []
+    for i in range(np.max(clustering_labels) + 1):
+        cond = np.where(clustering_labels == i)
+        cluster_pts = candidate_pts[cond]
+        
+        cluster_mean_z = np.mean(cluster_pts, axis=0)[2]
+        cluster_means_z.append(cluster_mean_z)
     
+    # no clustering
+    if len(cluster_means_z) == 0:
+        return list(sorted(candidate_pts, key=lambda x: x[2])[0])
+
+    cluster_means_z = np.asarray(cluster_means_z)
+    
+    # get the highest cluster
+    highest_cluster_id = np.argsort(-cluster_means_z)[0]
+    
+    # the lowest point in the highest cluster
+    cond = np.where(clustering_labels == highest_cluster_id)
+    highest_pts = candidate_pts[cond]
+    lphc_id = np.argsort(-highest_pts[:, 1])[0]
+    lphc = highest_pts[lphc_id]
+
+    return lphc
+
 def main(args):
 
     # ----------------------- #
@@ -226,8 +258,8 @@ def main(args):
         hook_rot=[-np.pi/2, np.pi/2, 0]
     elif 'Hook48/' in hook_path:
         hook_rot=[np.pi/2, -np.pi/2, 0]
-    # elif 'Hook_/' in hook_path:
-    hook_rot=[np.pi/2, 0, np.pi]
+    elif 'Hook_' in hook_path:
+        hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
     # ignore_list = []
@@ -260,6 +292,8 @@ def main(args):
 
     height_thresh = 0.8
     for obj_path in obj_paths:
+
+        # ignore some files if needed
         cont = False
         for ignore_item in ignore_list:
             if ignore_item in obj_path:
@@ -267,29 +301,39 @@ def main(args):
                 cont = True
         if cont:
             continue
-        print(obj_path)
 
+        # config object hook info
         obj_id, center = load_obj_urdf(obj_path)
-        
         obj_name = args.obj + '_' + obj_path.split('/')[-2]
         hook_name = args.hook
+
+        # config output json dict and filename
         result_path = os.path.join(args.output_dir, f'{args.hook}-{args.obj}', f'{hook_name}-{obj_name}.json')
-        result_json = {
-            'hook_path': hook_path,
-            'obj_path': obj_path,
-            'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
-            'contact_info': []
-        }
-        print(f'processing {result_path} ...')
+        if os.path.exists(result_path):
+            f = open(result_path, 'r')
+            result_json = json.load(f)
+            result_json['contact_info'] = [] # clear
+            f.close()
+        else:
+            result_json = {
+                'hook_path': hook_path,
+                'obj_path': obj_path,
+                'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
+                'contact_info': []
+            }
+
+        print(f'processing {result_path} -> {obj_path}...')
         contact_cnt = 0
         try_num = 0
 
+        # forward simulation loop
         while contact_cnt < max_contact :# and try_num < max_iter:
             try_num += 1
             failed = False
 
             p.setGravity(0, 0, 0)
 
+            # sample inital object pose
             if args.hook == 'Hook_bar':
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.25) # for hook_bar
             elif args.hook == 'Hook_180':
@@ -305,10 +349,12 @@ def main(args):
 
             p.stepSimulation()
             contact_points = p.getContactPoints(obj_id, hook_id)
+            # collision on hooks
             if contact_points:
                 continue
-
-            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1]) # for hook_90
+            
+            # tossing force
+            p.resetBaseVelocity(obj_id, [0.0, -0.2, -0.1])
 
             for _ in range(500):
                 p.stepSimulation()
@@ -318,7 +364,8 @@ def main(args):
                     break
             if failed:
                 continue
-
+            
+            # direct force
             p.resetBaseVelocity(obj_id, [0, 0, 0])
             p.setGravity(0, 0, gravity)
             for _ in range(1000):
@@ -334,7 +381,8 @@ def main(args):
             contact_points = p.getContactPoints(obj_id, hook_id)
             if len(contact_points) == 0:
                 continue
-
+            
+            # left force
             p.setGravity(2, 0, -5)
             for _ in range(1000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -345,6 +393,7 @@ def main(args):
             if failed:
                 continue
 
+            # right force
             p.setGravity(-2, 0, -5)
             for _ in range(1000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -353,7 +402,8 @@ def main(args):
                 p.stepSimulation()
             if failed:
                 continue
-
+            
+            # make the object stable on the hook
             p.setGravity(0, 0, gravity)
             for _ in range(20000):
                 pos, rot = p.getBasePositionAndOrientation(obj_id)
@@ -364,9 +414,10 @@ def main(args):
                 p.stepSimulation()
             if failed:
                 continue
-
+            
+            # check contact
             contact_points = p.getContactPoints(obj_id, hook_id)
-            if len(contact_points) == 0:
+            if len(contact_points) < 3:
                 continue
 
             # special : check mug rotation
@@ -376,24 +427,33 @@ def main(args):
             #     if rot_diff > 1.0:
             #         print('================ the rotation of mug is not good!!! ================')
             #         continue
+            
+            # add candidate contact points
+            p.removeAllUserDebugItems()
+            candidate_pts = []
+            for contact_point in contact_points:
+                candidate_pts.append(contact_point[5])
+            candidate_pts = np.asarray(candidate_pts)
+            
+            # relative homogeneous contact point
+            contact_point = extract_contact_point(candidate_pts, eps=0.01, min_samples=3)
+            contact_point_homo = np.concatenate((contact_point, [1]))
 
+            # relative transform (hook, object)
             hook_transform = get_matrix_from_pos_rot(hook_pos, p.getQuaternionFromEuler(hook_rot))
             obj_transform = get_matrix_from_pos_rot(pos, rot)
-
-            # relative homogeneous contact point
-            contact_point = list(sorted(contact_points, key=lambda x: x[5][2])[0][5])
-            contact_point.append(1.0)
-            contact_point_homo = np.array(contact_point)
             contact_point_hook = np.linalg.inv(hook_transform) @ contact_point_homo
             contact_point_obj = np.linalg.inv(obj_transform) @ contact_point_homo
 
-            # contact_point_homo_hook = hook_transform @ contact_point_hook
-            # contact_point_homo_obj = obj_transform @ contact_point_obj
-            # contact_point_pose_hook = list(contact_point_homo_hook[:3]) + [0, 0, 0, 1]
-            # contact_point_pose_obj = list(contact_point_homo_obj[:3]) + [0, 0, 0, 1]
-            # draw_coordinate(contact_point_pose_hook)
-            # draw_coordinate(contact_point_pose_obj)
+            # draw contact point
+            contact_point_homo_hook = hook_transform @ contact_point_hook
+            contact_point_homo_obj = obj_transform @ contact_point_obj
+            contact_point_pose_hook = list(contact_point_homo_hook[:3]) + [0, 0, 0, 1]
+            contact_point_pose_obj = list(contact_point_homo_obj[:3]) + [0, 0, 0, 1]
+            draw_coordinate(contact_point_pose_hook)
+            draw_coordinate(contact_point_pose_obj)
 
+            # check result by human
             ok = True
             while True:
                 p.stepSimulation()
@@ -405,21 +465,22 @@ def main(args):
                     break
             if ok == False:
                 continue
-                
+            
+            # write to json dict
             contact_info = {
                 'contact_point_hook': contact_point_hook.tolist(),
                 'contact_point_obj': contact_point_obj.tolist(),
                 'object_pose': list(pos + rot)
             }
             contact_cnt+=1
-            print(f'{contact_cnt} : {contact_info}')
-
             result_json['contact_info'].append(contact_info)
+
         p.removeBody(obj_id)
         if len(result_json['contact_info']) > 0:
             with open(result_path, 'w') as f:
                 json.dump(result_json, f, indent=4)
                 print(f'{result_path} saved')
+                f.close()
         else :
             print(f'no pose : {obj_path}')
     

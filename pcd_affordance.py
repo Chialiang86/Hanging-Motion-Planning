@@ -47,8 +47,8 @@ def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, st
     points = np.asarray(pcd.points)
     points_diff = np.linalg.norm(points - center, axis=1, ord=2)
     points_gaussian = np.exp(-0.5 * (points_diff / std) ** 2)
-    # points_gaussian = 255 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
-    points_gaussian = 0 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
+    points_gaussian = 255 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
+    # points_gaussian = 0 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
     colors = cv2.applyColorMap(points_gaussian.astype(np.uint8), colormap=cv2.COLORMAP_JET).squeeze()
     colors = colors[:,::-1]
     pcd.colors = o3d.utility.Vector3dVector(colors)
@@ -78,6 +78,7 @@ def main(args):
     hook_dirs = glob.glob(f'{input_dir}/*')
     for hook_dir in hook_dirs:
         first_json = glob.glob(f'{hook_dir}/*.json')[0]
+        print(f'processing {first_json} ...')
 
         f_json = open(first_json, 'r')
         json_dict = json.load(f_json)
@@ -95,23 +96,16 @@ def main(args):
         origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
 
         # obj pose
-        obj_pose_7d = json_dict['contact_info'][0]['object_pose']
-        objs_trans = get_matrix_from_pos_rot(obj_pose_7d[:3], obj_pose_7d[3:])
-        # kpt relative to obj
-        contact_pose_info = np.asarray(json_dict['contact_info'][0]['contact_pose'])
-        obj_kpt_relative_trans = np.identity(4)
-        obj_kpt_relative_trans[:3, 3] = contact_pose_info[0, :]
-        obj_kpt_relative_trans[:3, 3] -= center
-        obj_kpt_relative_trans[:3, :3] = contact_pose_info[1:, :]
-
+        contact_pos = json_dict['contact_info'][0]['contact_point_hook']
+        contact_trans = get_matrix_from_pos_rot(contact_pos[:3], [0, 0, 0, 1])
+        contact_trans_world = hook_trans @ contact_trans
         # GT target pose 
-        kpt_world = objs_trans @ obj_kpt_relative_trans
-        kpt_pos_world = kpt_world[:3, 3]
+        kpt_pos_world = contact_trans_world[:3, 3]
 
         render_affordance_map(hook_pcd, kpt_pos_world, std)
         o3d.visualization.draw_geometries([hook_pcd])
 
-        draw_coordinate(kpt_world)
+        draw_coordinate(contact_trans_world)
 
         # while True:
         #     # key callback

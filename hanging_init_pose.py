@@ -287,8 +287,8 @@ def main(args):
 
                 # for novel poses
                 deg2rad = np.pi / 180
-                pos_low_limit = np.array( [-0.2,  0.0, -0.15])
-                pos_high_limit = np.array([ 0.1,  0.3,  0.15])
+                pos_low_limit = np.array( [-0.05,  0.0, -0.05])
+                pos_high_limit = np.array([ 0.05,  0.3,  0.15])
                 rot_low_limit = np.array( [-5 * deg2rad, -5 * deg2rad, -5 * deg2rad])
                 rot_high_limit = np.array([ 5 * deg2rad,  5 * deg2rad,  5 * deg2rad])
                 
@@ -369,6 +369,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json')
-    parser.add_argument('--max-cnt', '-mc', type=int, default=200)
+    parser.add_argument('--max-cnt', '-mc', type=int, default=1000)
     args = parser.parse_args()
     main(args)
