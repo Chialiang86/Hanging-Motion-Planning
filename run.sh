@@ -23,7 +23,7 @@ if [ $# -ge 1 ]; then
         # INPUT=('models/hook')
         for input in "${INPUT[@]}"
         do
-            python3 vhacd.py --input-dir $input
+            python3 utils/vhacd.py --input-dir $input
         done
 
     elif [ $1 = 'obj2urdf' ]; then 
@@ -80,7 +80,7 @@ if [ $# -ge 1 ]; then
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_2.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42.json' \
-            # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json' \
+            'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json' \
             #1.0
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json' \
             # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71.json' \
@@ -301,24 +301,27 @@ if [ $# -ge 1 ]; then
                 # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
                 # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
                 # ddd"data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
-                "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
-                "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
-                "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
-                "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5" \
-                "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5" \
-                "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5" \
-                "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5" \
-                "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5" \
-                "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5" \
-                "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5" \
-                "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5" \
-                "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5" \
-                "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5" \
-                "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5" \
-                "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5" \
-                "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5" \
-                "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5" \
-                "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5" \
+                # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
+                # "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
+                # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
+                # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5" \
+                # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5" \
+                # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5" \
+                # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5" \
+                # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5" \
+                # "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5" \
+                # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5" \
+                # "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5" \
+                # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5" \
+                # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5" \
+                # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5" \
+                # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5" \
+                # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5" \
+                # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5" \
+                # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5" \
+                
+                
+                "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19" \
             )
 
         # the number of init poses
@@ -640,7 +643,7 @@ if [ $# -ge 1 ]; then
         )
         for OBJ_DIR in "${OBJ_DIRS[@]}"
         do
-            python3 show_model.py --input-dir $OBJ_DIR
+            python3 utils/show_model.py --input-dir $OBJ_DIR
         done
     
     elif [ $1 = 'grep' ]; then 

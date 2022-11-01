@@ -67,8 +67,8 @@ def update_debug_param(robot : pandaEnv):
 
 def robot_key_callback(robot : pandaEnv, keys : dict, object_id : int=None):
 
-    move_offset = 0.002
-    rot_offset = 0.005
+    move_offset = 0.005
+    rot_offset = 0.01
     ret = None
 
     # move up
@@ -205,7 +205,7 @@ def main(args):
     # --- Load other objects --- #
     # -------------------------- #
 
-    table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
+    table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.1])
 
     # wall
     wall_pos = [0.7, -0.3, 0.8]
@@ -225,6 +225,12 @@ def main(args):
     tgt_obj_rot = contact_info['object_pose'][3:]
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
+
+    # standing_pos = [0.5, 0.0, 0.77] # only for mug_70
+    # standing_rot = R.from_rotvec([np.pi / 2, 0, 0]).as_quat()
+    # standing_transform = get_matrix_from_pos_rot(standing_pos, standing_rot)
+    # p.resetBasePositionAndOrientation(obj_id_target, standing_pos, standing_rot)
+
     # tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
     # print(tgt_pose)
 
@@ -268,7 +274,11 @@ def main(args):
     # max_cnt = 3
 
     while True:
-        
+
+        # gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+        # gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+        # print(gripper_pos + gripper_rot)
+
         # key callback
         keys = p.getKeyboardEvents()
         if keys != {} :

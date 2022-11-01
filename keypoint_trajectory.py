@@ -295,28 +295,24 @@ def main(args):
         'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
         'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
         'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
         "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
+        "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
         "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
         "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
         "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
         "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
+        "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
+        "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
         "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
-        "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5.json",
+        "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
         "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
+        "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
+        "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
         "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
         "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
         "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
         "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
-        "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
-        "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
-        "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
-        "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
-        "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
-        "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
-        "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
-        "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5.json",
-        "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5.json",
-        "data/Hook11-hanging_exp/Hook11-hanging_exp_daily_5.json",
     ]
 
     for input_json in input_jsons:
@@ -385,7 +381,7 @@ def main(args):
 
             # write trajectory relative to hook to file
             contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(waypoints=waypoints, contact_relative_transform=contact_object_pose, obj_id=obj_id, hook_id=hook_id)
-            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.05)
+            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.08)
 
             # # visualize trajectory
             # hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
