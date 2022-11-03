@@ -2,8 +2,8 @@ import os, glob
 import argparse
 import copy
 import torch
-import pytorch3d
 import numpy as np
+import xml.etree.ElementTree as ET
 from skimage import measure
 from PIL import Image
 from tqdm.notebook import tqdm
@@ -11,9 +11,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy.spatial.distance as dist
+# from pytorch3d.utils import ico_sphere
 from pytorch3d.io import load_obj, save_obj
 from pytorch3d.structures import Meshes
-# from pytorch3d.utils import ico_sphere
 from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.ops.marching_cubes import marching_cubes_naive
 from pytorch3d.loss import (
@@ -22,6 +22,8 @@ from pytorch3d.loss import (
     mesh_laplacian_smoothing, 
     mesh_normal_consistency,
 )
+
+import pybullet as p
 
 def my_chamfer_distance(pts_src : torch.Tensor, pts_tgt : torch.Tensor):
 
@@ -66,7 +68,7 @@ def plot_pcds(points, title="", save=False):
     plt.show()
 
 
-def deform_mesh_random(tgt_mesh : Meshes, device=torch.device("cuda:0"), max_scale=0.15):
+def deform_mesh_random(tgt_mesh : Meshes, device=torch.device("cuda:0"), max_scale=0.2):
 
     # We will learn to deform the source mesh by offsetting its vertices
     # The shape of the deform parameters is equal to the total number of vertices in tgt_mesh
@@ -79,26 +81,17 @@ def deform_mesh_random(tgt_mesh : Meshes, device=torch.device("cuda:0"), max_sca
 
     return new_tgt_mesh
 
-def deform_mesh_to_tgt(src_mesh : Meshes, tgt_mesh : Meshes, device=torch.device("cuda:0")):
+def deform_mesh_to_tgt(src_mesh : Meshes, tgt_mesh : Meshes, device=torch.device("cuda:0"),
+                    Niter : int=50, w_chamfer : float=1.0,  w_edge :float=0.01, w_normal : float=0.01, w_laplacian : float=0.1):
 
     # We initialize the source shape to be a sphere of radius 1
-    print(f'there are {src_mesh.verts_list()[0].shape} vertices \
-            and {src_mesh.faces_list()[0].shape} faces')
+    print(f'there are {src_mesh.verts_packed().shape} vertices \
+            and {src_mesh.faces_packed().shape} faces')
 
     # The optimizer
     deform_verts = torch.full(src_mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
     optimizer = torch.optim.SGD([deform_verts], lr=1.0, momentum=0.9)
 
-    # Number of optimization steps
-    Niter = 200
-    # Weight for the chamfer loss
-    w_chamfer = 10.0 
-    # Weight for mesh edge loss
-    w_edge = 1.0 
-    # Weight for mesh normal consistency
-    w_normal = 0.01 
-    # Weight for mesh laplacian smoothing
-    w_laplacian = 0.1 
     # Plot period for the losses
     loop = tqdm(range(Niter))
 
@@ -137,22 +130,33 @@ def deform_mesh_to_tgt(src_mesh : Meshes, tgt_mesh : Meshes, device=torch.device
         edge_losses.append(float(loss_edge.detach().cpu()))
         normal_losses.append(float(loss_normal.detach().cpu()))
         laplacian_losses.append(float(loss_laplacian.detach().cpu()))
-            
+
+        # if i == Niter - 1:
+        #     plot_pointcloud(new_src_mesh)
+
         # Optimization step
         loss.backward()
         optimizer.step()
 
-
     return new_src_mesh
+
+def write_vhacd_and_urdf(center : torch.tensor or np.ndarray or list or tuple, 
+                        obj_concave_path : str, obj_convex_path : str, 
+                        src_urdf_path : str, tgt_urdf_path : str):
+
+    p.vhacd(obj_concave_path, obj_convex_path, f'{obj_concave_path}.txt')
+    tree = ET.parse(src_urdf_path)
+    root = tree.getroot()
+    center = ''.join(str(i) + ' ' for i in center).strip()
+    root[0].find('inertial').find('origin').attrib['xyz'] = center
+    tree.write(tgt_urdf_path, encoding='utf-8', xml_declaration=True)
 
 def main(args):
 
     input_dir = args.input_dir
-    output_dir = args.output_dir
     gen_num = args.gen_num
     
     assert os.path.exists(input_dir), f'{input_dir} not exists'
-    assert os.path.exists(output_dir), f'{output_dir} not exists'
 
     # Set the device
     if torch.cuda.is_available():
@@ -162,21 +166,56 @@ def main(args):
         print("WARNING: CPU only, this will be slow!")
 
     # list mesh files
-    obj_files = glob.glob(f'{input_dir}/*/concave.obj')
+    obj_files = glob.glob(f'{input_dir}/*/base.obj')
     print(obj_files)
+
+
+    ############################
+    # config some hyper params #
+    ############################
+    # Random noise for mesh vertices
+    random_noise_factor = 0.1
+    # Number of optimization steps
+    Niter = 50
+    # Loss weights
+    w_chamfer = 1.0 
+    w_edge = 0.01
+    w_normal = 0.01
+    w_laplacian = 0.05
+    # Scale factor min/max
+    scale_min = 0.8
+    scale_max = 1.2
+
+    scales_3d = []
+    for x in np.arange(scale_min, scale_max + 0.01, 0.2):
+        for y in np.arange(scale_min, scale_max + 0.01, 0.2):
+            for z in np.arange(scale_min, scale_max + 0.01, 0.2):
+                scale_3d = [x, y, z]
+                scales_3d.append(scale_3d)
+    gen_num = len(scales_3d)
 
     for obj_file in obj_files:
 
         print(f'processing {obj_file} ...')
+        obj_id = obj_file.split('/')[-2]
+
+        # avoid re-processing
+        if len(obj_id.split('#')) > 1:
+            continue
         
         # We read the target 3D model using load_obj
         verts_template, faces_template, aux = load_obj(obj_file)
+
+        # find output dir start index
+        start_index = 0
+        while os.path.exists(f'{input_dir}/{obj_id}#{start_index}'):
+            start_index += 1
         
-        obj_id = obj_file.split('/')[-2]
         gen_cnt = 0
         while gen_cnt < gen_num:
-
-            print(f'generating {obj_file}-{gen_cnt} ...')
+            
+            output_index = start_index + gen_cnt
+            print(f'generating {obj_file}#{output_index} ...')
             verts, faces = copy.deepcopy(verts_template), copy.deepcopy(faces_template)
 
             # verts is a FloatTensor of shape (V, 3) where V is the number of vertices in the mesh
@@ -193,12 +232,41 @@ def main(args):
             scale = max(verts.abs().max(0)[0])
             verts = verts / scale
 
+            # Construct target dir
+            output_dir = f'{input_dir}/{obj_id}#{output_index}'
+            os.makedirs(output_dir, exist_ok=True)
+
             # We construct a Meshes structure for the target mesh
             tgt_mesh = Meshes(verts=[verts], faces=[faces_idx])
-            deformed_tgt_mesh = deform_mesh_random(tgt_mesh, device=device)
-            deformed_tgt_mesh = deform_mesh_to_tgt(deformed_tgt_mesh, tgt_mesh, device=device)
+            deformed_tgt_mesh = deform_mesh_random(tgt_mesh, device=device, max_scale=random_noise_factor)
+            # tgt_obj_path = f'{output_dir}/base_before.obj'
+            # verts = deformed_tgt_mesh.verts_packed()
+            # verts = (verts * scale) + center
+            # faces=deformed_tgt_mesh.faces_packed()
+            # save_obj(tgt_obj_path, verts=verts, faces=faces)
+            deformed_tgt_mesh = deform_mesh_to_tgt(deformed_tgt_mesh, tgt_mesh, device=device,
+                                    Niter=Niter, w_chamfer=w_chamfer, w_edge=w_edge, w_normal=w_normal, w_laplacian=w_laplacian)
 
-            # # run marching cube
+            # save target mesh
+            tgt_obj_concave_path = f'{output_dir}/base.obj'
+            tgt_obj_convex_path = f'{output_dir}/base.obj'
+            src_urdf_convex_path = f'{input_dir}/{obj_id}/base.urdf'
+            tgt_urdf_convex_path = f'{output_dir}/base.urdf'
+            verts = deformed_tgt_mesh.verts_packed()
+            verts = (verts * scale * torch.tensor(scales_3d[gen_cnt]).to(device)) + center
+            # verts = (verts * scale * torch.FloatTensor(1, 3).uniform_(scale_min, scale_max).to(device)) + center
+            faces=deformed_tgt_mesh.faces_packed()
+            save_obj(tgt_obj_concave_path, verts=verts, faces=faces)
+
+            # vhacd and urdf
+            write_vhacd_and_urdf(torch.mean(verts, 0).cpu().detach().numpy(), 
+                                    tgt_obj_concave_path, tgt_obj_convex_path, 
+                                    src_urdf_convex_path, tgt_urdf_convex_path)
+            print(f'{tgt_obj_convex_path} and {tgt_urdf_convex_path} has been written')
+            
+            gen_cnt += 1
+
+            # # run marching cube (backup)
             # volume_resolution = 32
             # voxel_size = 1 / volume_resolution
             # points = sample_points_from_meshes(deformed_tgt_mesh, 5000).squeeze()
@@ -211,23 +279,11 @@ def main(args):
             # print('marching ...')
             # verts, faces = marching_cubes_naive(volumes.unsqueeze(0))
             # print('marched ...')
-
-            # # save target mesh
-            tgt_obj_path = f'{output_dir}/{obj_id}/concave-{gen_cnt}.obj'
-            verts = deformed_tgt_mesh.verts_packed()
-            verts = (verts * scale) + center
-            faces=deformed_tgt_mesh.faces_packed()
-            
-            # save_obj(tgt_obj_path, verts=deformed_tgt_mesh.verts_packed(), faces=deformed_tgt_mesh.faces_packed())
-            save_obj(tgt_obj_path, verts=verts, faces=faces)
-
-            gen_cnt += 1
         
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-dir', '-id', type=str, default='models/hook')
     parser.add_argument('--gen-num', '-gn', type=int, default=1)
-    parser.add_argument('--output-dir', '-od', type=str, default='models/hook')
     args = parser.parse_args()
     main(args)

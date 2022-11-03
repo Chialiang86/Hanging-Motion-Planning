@@ -250,13 +250,13 @@ def main(args):
     # hook_pos=[0.8, -0.2, 1.0]
     hook_pos=[0.5, -0.1, 1.3]
     hook_rot=[0, 0, -np.pi/2]
-    if 'Hook12/' in hook_path:
+    if 'Hook12/' in hook_path or 'Hook12-' in hook_path:
         hook_rot=[np.pi/2, 0, -np.pi/2]
-    elif 'Hook122/' in hook_path:
+    elif 'Hook122/' in hook_path or 'Hook122-' in hook_path:
         hook_rot=[np.pi, 0, -np.pi/2]
-    elif 'Hook186/' in hook_path:
+    elif 'Hook186/' in hook_path or 'Hook186-' in hook_path:
         hook_rot=[-np.pi/2, np.pi/2, 0]
-    elif 'Hook48/' in hook_path:
+    elif 'Hook48/' in hook_path or 'Hook48-' in hook_path:
         hook_rot=[np.pi/2, -np.pi/2, 0]
     elif 'Hook_' in hook_path:
         hook_rot=[np.pi/2, 0, np.pi]
@@ -264,13 +264,14 @@ def main(args):
     
     # ignore_list = []
     ignore_list = [ 
-        "daily_5/",
-        "bag_5/",  "scissor_4/", "mug_59/", "wrench_1/", 
+        # "daily_5/",
+        "bag_5/",  
+        "scissor_4/", "mug_59/", "wrench_1/", 
         "bag_6/", "bag_70/",
         "daily_11/", "daily_114/", "daily_115/", "daily_2/", "daily_23/",  
         "daily_42/", "daily_57/", "daily_63/", "daily_84/", "daily_7/", "daily_71/", "daily_72/",
         "daily_85/", "daily_97/", "daily_8/", "daily_106/", "daily_41/",
-        # "mug_118/",
+        "mug_118/",
         "mug_100/", "mug_11/", "mug_112/", "mug_113/", "mug_115/",  "mug_123/", "mug_126/", "mug_128/", 
         "mug_132/", "mug_67/", "mug_70/", "mug_80/", "mug_82/", "mug_90/", "mug_135/", "mug_199/", "mug_73/", "mug_129/",
         "mug_142/", "mug_146/", "mug_147/", "mug_149/", "mug_150/", "mug_159/", "mug_166/", "mug_184/",
@@ -319,7 +320,6 @@ def main(args):
             result_json = {
                 'hook_path': hook_path,
                 'obj_path': obj_path,
-                'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
                 'contact_info': []
             }
 
@@ -422,13 +422,13 @@ def main(args):
                 continue
 
             # special : check mug rotation
-            # if 'mug' in obj_path:
-            #     mug_rot = R.from_quat(rot).as_rotvec()
-            #     rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
-            #     print(rot_diff)
-            #     if rot_diff > 1.0:
-            #         print('================ the rotation of mug is not good!!! ================')
-            #         continue
+            if 'mug' in obj_path:
+                mug_rot = R.from_quat(rot).as_rotvec()
+                rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
+                print(rot_diff)
+                if rot_diff > 1.0:
+                    print('================ the rotation of mug is not good!!! ================')
+                    continue
             
             # add candidate contact points
             p.removeAllUserDebugItems()
@@ -472,9 +472,10 @@ def main(args):
             
             # write to json dict
             contact_info = {
+                'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
                 'contact_point_hook': contact_point_hook.tolist(),
+                'obj_pose': list(pos + rot),
                 'contact_point_obj': contact_point_obj.tolist(),
-                'object_pose': list(pos + rot)
             }
             contact_cnt+=1
             result_json['contact_info'].append(contact_info)
@@ -496,6 +497,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook_bar')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook47-19')
     args = parser.parse_args()
     main(args)

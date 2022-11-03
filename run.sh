@@ -636,14 +636,30 @@ if [ $# -ge 1 ]; then
         OBJ_DIRS=(
             'models/hook' \
             # 'models/geo_data/hanging_exp' \
-            'models/geo_data/wrench' \
-            'models/geo_data/scissor' \
-            'models/geo_data/mug' \
-            'models/geo_data/daily_object' \
+            # 'models/geo_data/wrench' \
+            # 'models/geo_data/scissor' \
+            # 'models/geo_data/mug' \
+            # 'models/geo_data/daily_object' \
         )
         for OBJ_DIR in "${OBJ_DIRS[@]}"
         do
-            python3 utils/show_model.py --input-dir $OBJ_DIR
+            python3 visualization/show_model.py --input-dir $OBJ_DIR
+        done
+    
+    elif [ $1 = 'showpcd' ]; then 
+
+        OBJ_DIRS=(
+            'models/test' \
+            # 'models/hook' \
+            # 'models/geo_data/hanging_exp' \
+            # 'models/geo_data/wrench' \
+            # 'models/geo_data/scissor' \
+            # 'models/geo_data/mug' \
+            # 'models/geo_data/daily_object' \
+        )
+        for OBJ_DIR in "${OBJ_DIRS[@]}"
+        do
+            python3 visualization/show_pcd.py --input-dir $OBJ_DIR
         done
     
     elif [ $1 = 'grep' ]; then 

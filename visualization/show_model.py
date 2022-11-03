@@ -36,7 +36,7 @@ def main(args):
     os.makedirs(out_dir, exist_ok=True)
 
     # frames for visualization
-    obj_files = glob.glob(f'{input_dir}/*/concave-0.obj')
+    obj_files = glob.glob(f'{input_dir}/*/base.obj')
     frames = 36
     rotate_per_frame = (2 * np.pi) / frames
 

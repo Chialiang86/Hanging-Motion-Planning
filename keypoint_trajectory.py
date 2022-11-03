@@ -2,7 +2,7 @@
 # This software may be modified and distributed under the terms of the
 # LGPL-2.1+ license. See the accompanying LICENSE file for details.
 from tqdm import tqdm
-import os, inspect
+import os, inspect, glob
 import argparse
 import json
 import time
@@ -290,30 +290,33 @@ def main(args):
 
     input_jsons = [
         # for trajectory
-        'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
-        "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
-        "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
-        "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
-        "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
-        "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
-        "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
-        "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
-        "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
-        "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
-        "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
-        "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
-        "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
-        "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
-        "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
-        "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
-        "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
-        "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
-        "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
+        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
+        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
+        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
+        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
+        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
+        # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
+        # "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
+        # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
+        # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
+        # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
+        # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
+        # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
+        # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
+        # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
+        # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
+        # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
+        # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
+        # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
+        # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
+        # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
+        # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
+        # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
     ]
+
+    input_jsons = glob.glob('data/*/*-hanging_exp_daily_5.json')
+    
 
     for input_json in input_jsons:
 
@@ -367,8 +370,8 @@ def main(args):
         for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
             if max_cnt != -1 and index >= max_cnt:
                 break
-            obj_init_pos = initial_info['object_pose'][:3]
-            obj_init_rot = initial_info['object_pose'][3:]
+            obj_init_pos = initial_info['obj_pose'][:3]
+            obj_init_rot = initial_info['obj_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
             draw_coordinate(obj_init_pos + obj_init_rot)
 

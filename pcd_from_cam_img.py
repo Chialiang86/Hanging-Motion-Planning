@@ -3,13 +3,13 @@ import os
 import time
 import argparse
 import pybullet as p
-import math
 import numpy as np
 import pybullet_data
 import scipy.io as sio
 import open3d as o3d
-
 import xml.etree.ElementTree as ET
+
+from PIL import Image
 from scipy.spatial.transform import Rotation as R
 
 def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
@@ -132,6 +132,7 @@ def adjust_normals(pcd : o3d.geometry.PointCloud()):
 def main(args):
 
   input_dir = args.input_dir
+  file_token = args.file_token
   if not os.path.exists(input_dir):
     print(f'{input_dir} not exists')
     return 
@@ -139,96 +140,123 @@ def main(args):
   p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
-  debug_cam_param = [
-    [45, -120, 0.3],
-    # [225, -120, 0.3],
-  ]
+  p.resetDebugVisualizerCamera(
+      cameraDistance=0.3,
+      cameraYaw=120,
+      cameraPitch=-30,
+      cameraTargetPosition=[0.0, 0.0, 0.0]
+  )
+  p.resetSimulation()
+  p.setPhysicsEngineParameter(numSolverIterations=150)
+  sim_timestep = 1.0 / 240
+  p.setTimeStep(sim_timestep)
+  p.setGravity(0, 0, -9.8)
 
-  # TODO: adjust camera intrinsic
-  width, height, viewMat, projMat, cameraUp, camForward, horizon, vertical, _, _, dist, camTarget = p.getDebugVisualizerCamera()
-  # fov = 2 * math.atan(1 / projMat[0])
-  fx = fy = (0.5 * height) * (projMat[0]) # (height / 2) * (1 / tan(FOV/2))
+  pcd_cam_param = {
+    'cameraEyePosition': [-0.24, 0.16, 0.0],
+    'cameraTargetPosition': [0.0, 0.0, 0.0],
+    'cameraUpVector': [0.0, 0.0, 1.0],
+  }
+
+  rgb_cam_param = {
+    'cameraEyePosition': [-0.12, 0.08, 0.0],
+    'cameraTargetPosition': [0.0, 0.0, 0.0],
+    'cameraUpVector': [0.0, 0.0, 1.0],
+  }
+
+  # intrinsic matrix
+  width, height = 640, 480
+  fx = fy = 605
   cx = 0.5 * width
   cy = 0.5 * height
-  intrinsic = np.identity(3)
-  intrinsic[0, 0] = fx
-  intrinsic[1, 1] = fy 
-  intrinsic[0, 2] = cx 
-  intrinsic[1, 2] = cy
+  intrinsic = np.array([
+    [fx, 0., cx],
+    [0., fy, cy],
+    [0., 0., 1.]
+  ])
 
-  far = 1000.
-  near = 0.01
+  # config camera params : https://www.intelrealsense.com/depth-camera-d435/
+  # D435 serial_num=141722071222, fx=605, fy=605, cx=323, cy=240
+  # fov = 2 * atan(480/605) ~= 1.34139295 rad ~= 76.8561560146
+  far = 10.
+  near = .11
+  fov = 2 * np.arctan(height / fy) * 180.0 / np.pi
   depth_threshold = 2.0
-  deg2euler = 1 / 180 * np.pi
+
+  pcd_view_matrix = p.computeViewMatrix(
+                  cameraEyePosition=pcd_cam_param['cameraEyePosition'],
+                  cameraTargetPosition=pcd_cam_param['cameraTargetPosition'],
+                  cameraUpVector=pcd_cam_param['cameraUpVector']
+                )
+
+  rgb_view_matrix = p.computeViewMatrix(
+                  cameraEyePosition=rgb_cam_param['cameraEyePosition'],
+                  cameraTargetPosition=rgb_cam_param['cameraTargetPosition'],
+                  cameraUpVector=rgb_cam_param['cameraUpVector']
+                )
+  
+  projection_matrix = p.computeProjectionMatrixFOV(
+                        fov=fov,
+                        aspect=1.0,
+                        nearVal=near,
+                        farVal=far
+                      )
   
   origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-  urdl_files = glob.glob(f'{input_dir}/*/base.urdf')
+  urdl_files = glob.glob(f'{input_dir}/*/{file_token}.urdf')
+  urdl_files.sort()
   for urdl_file in urdl_files:
-    print(f'processing {urdl_file}')
 
-    pcds = []
-    # obj_id = p.loadURDF(urdl_file, [0, 0, 0])
+    if len(urdl_file.split('#')) > 1:
+      serial_num = int(urdl_file.split('/')[-2].split('#')[1])
+      if serial_num < 40:
+        continue
+    print(f'processing {urdl_file}')
     obj_id, center, scale = load_obj_urdf(urdl_file, [0, 0, 0])
 
-    for (yaw, pitch, cameraDistance) in debug_cam_param:
 
-      # reset_camera(yaw, pitch, cameraDistance)
-      print((yaw, pitch, cameraDistance))
-      p.resetDebugVisualizerCamera(
-          cameraDistance=cameraDistance,
-          cameraYaw=yaw,
-          cameraPitch=pitch,
-          cameraTargetPosition=[0.0, 0.0, 0.0]
-      )
+    # reset_camera(yaw, pitch, cameraDistance)
 
-      time.sleep(0.1)
+    time.sleep(0.05)
+    img = p.getCameraImage(width, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
+    rgb_buffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
+    depth_buffer = np.reshape(img[3], [height, width])
 
-      img = p.getCameraImage(width, height, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-      rgbBuffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
-      depthBuffer = np.reshape(img[3], [height, width])
+    # get real depth
+    depth_buffer = far * near / (far - (far - near) * depth_buffer)
 
-      # get real depth
-      depthBuffer = far * near / (far - (far - near) * depthBuffer)
+    # adjustment
+    extrinsic_trans = np.identity(4)
+    extrinsic_trans[:3, 3] = np.asarray(pcd_cam_param['cameraTargetPosition']) - \
+                             np.asarray(pcd_cam_param['cameraEyePosition'])
+    pcd = create_rgbd(rgb_buffer, depth_buffer, intrinsic, extrinsic_trans, dscale=1, depth_threshold=depth_threshold)
 
-      # adjustment
-      extrinsic_trans = np.identity(4)
-      extrinsic_trans[:3, 3] = [0, 0, -cameraDistance]
-      pcd = create_rgbd(rgbBuffer, depthBuffer, intrinsic, extrinsic_trans, dscale=1, depth_threshold=depth_threshold)
-      pcd = pcd_adjustment(pcd, pitch, yaw)
-      pcds.append(pcd)
-      # o3d.visualization.draw_geometries([pcd, origin], point_show_normal=False)
-
-    # merge N point clouds
-    pcd_merged = o3d.geometry.PointCloud()
-    assert len(pcds) > 0
-    points = np.asarray(pcds[0].points)
-    for i in range(1, len(pcds)):
-      points = np.vstack((points, np.asarray(pcds[i].points)))
-    pcd_merged.points = o3d.utility.Vector3dVector(points)
-
-    pcd_merged.estimate_normals(
-        search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.03, max_nn=30))
-
-    # pcd.transform(pose)
-    mesh_file = os.path.splitext(urdl_file)[0] + '.obj'
-    pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
-    pcd_ori.scale(scale, [0., 0., 0.,])
+    # mesh_file = os.path.splitext(urdl_file)[0] + '.obj'
+    # pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
+    # pcd_ori.scale(scale, [0., 0., 0.,])
     
+    # save ply
     # o3d.visualization.draw_geometries([origin, pcd_merged], point_show_normal=False)
+    output_ply_path = os.path.splitext(urdl_file)[0] + '.ply'
+    o3d.io.write_point_cloud(output_ply_path, pcd)
 
-    if len(debug_cam_param) == 1:
-      output_path = os.path.splitext(urdl_file)[0] + '_single.ply'
-    else :
-      output_path = os.path.splitext(urdl_file)[0] + '_merged.ply'
+    img = p.getCameraImage(height, height, viewMatrix=rgb_view_matrix, projectionMatrix=projection_matrix)
+    rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
 
-    o3d.io.write_point_cloud(output_path, pcd_merged)
-    print(f'{output_path} saved')
+    # save image
+    # output_jpg_path = os.path.splitext(urdl_file)[0] + '.jpg'
+    sub_dir = urdl_file.split('/')[-2]
+    output_jpg_path = f'models/hook/All_img/{sub_dir}.jpg'
+    pil_img = Image.fromarray(rgb_buffer)
+    pil_img.save(output_jpg_path)
+
+    print(f'{output_ply_path} and {output_jpg_path} saved')
     p.removeBody(obj_id)
-
 
 if __name__=="__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument('--input-dir', '-id', type=str, default='models/geo_data/hanging_exp')
+  parser.add_argument('--file-token', '-ft', type=str, default='base')
   args = parser.parse_args()
 
   main(args)
