@@ -38,8 +38,8 @@ def get_obj_hook_pose(physics_client_id, json_dict : dict):
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
     contact_index = 0
     contact_info = json_dict['contact_info'][contact_index]
-    tgt_obj_pos = contact_info['object_pose'][:3]
-    tgt_obj_rot = contact_info['object_pose'][3:]
+    tgt_obj_pos = contact_info['obj_pose'][:3]
+    tgt_obj_rot = contact_info['obj_pose'][3:]
     obj_id_target = p.loadURDF(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id])
@@ -256,7 +256,9 @@ def main(args):
     # --- Setup simulation --- #
     # ------------------------ #
 
-    out_postfix = args.out_postfix
+    time_stamp = time.localtime()
+    time_mon_day = '{:02d}{:02d}'.format(time_stamp.tm_mon, time_stamp.tm_mday)
+    out_postfix = time_mon_day if args.out_postfix == '' else args.out_postfix
     max_cnt = args.max_cnt
 
     # Create pybullet GUI
@@ -316,7 +318,6 @@ def main(args):
     ]
 
     input_jsons = glob.glob('data/*/*-hanging_exp_daily_5.json')
-    
 
     for input_json in input_jsons:
 
@@ -327,12 +328,13 @@ def main(args):
         hook_name = pair.split('-')[0]
         obj_name = pair.split('-')[1]
 
+        print(f'processing {input_json}')
         if not os.path.exists(input_json):
             print(f'{input_json} not exists')
 
-        json_dict = None
-        with open(input_json, 'r') as f:
-            json_dict = json.load(f)
+        f_json =  open(input_json, 'r')
+        json_dict = json.load(f_json)
+        f_json.close()
 
         if 'initial_pose' not in json_dict.keys():
             print(f'please get the refined hanging poses and write to {input_json}')
@@ -349,6 +351,7 @@ def main(args):
 
         # dir name
         dir_name = f'keypoint_trajectory_{out_postfix}'
+        os.makedirs(dir_name, exist_ok=True)
 
         # input keypoint pose relative to object
         in_fname = f'{dir_name}/{obj_name}.json'
@@ -370,8 +373,8 @@ def main(args):
         for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
             if max_cnt != -1 and index >= max_cnt:
                 break
-            obj_init_pos = initial_info['obj_pose'][:3]
-            obj_init_rot = initial_info['obj_pose'][3:]
+            obj_init_pos = initial_info['object_pose'][:3]
+            obj_init_rot = initial_info['object_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
             draw_coordinate(obj_init_pos + obj_init_rot)
 
@@ -422,6 +425,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out-postfix', '-op', type=str, default='')
-    parser.add_argument('--max-cnt', '-mc', type=int, default='-1')
+    parser.add_argument('--max-cnt', '-mc', type=int, default='20')
     args = parser.parse_args()
     main(args)

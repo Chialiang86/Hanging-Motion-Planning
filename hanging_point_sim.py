@@ -264,7 +264,7 @@ def main(args):
     
     # ignore_list = []
     ignore_list = [ 
-        # "daily_5/",
+        "daily_5/",
         "bag_5/",  
         "scissor_4/", "mug_59/", "wrench_1/", 
         "bag_6/", "bag_70/",
@@ -272,10 +272,11 @@ def main(args):
         "daily_42/", "daily_57/", "daily_63/", "daily_84/", "daily_7/", "daily_71/", "daily_72/",
         "daily_85/", "daily_97/", "daily_8/", "daily_106/", "daily_41/",
         "mug_118/",
+        # "mug_19/", 
         "mug_100/", "mug_11/", "mug_112/", "mug_113/", "mug_115/",  "mug_123/", "mug_126/", "mug_128/", 
         "mug_132/", "mug_67/", "mug_70/", "mug_80/", "mug_82/", "mug_90/", "mug_135/", "mug_199/", "mug_73/", "mug_129/",
         "mug_142/", "mug_146/", "mug_147/", "mug_149/", "mug_150/", "mug_159/", "mug_166/", "mug_184/",
-        "mug_173/", "mug_181/", "mug_19/", "mug_193/", "mug_204/", "mug_205/", "mug_43/", "mug_145/", "mug_64/",
+        "mug_173/", "mug_181/", "mug_193/", "mug_204/", "mug_205/", "mug_43/", "mug_145/", "mug_64/",
         "scissor_101/", "scissor_12/", "scissor_14/", "scissor_19/", "scissor_22/", "scissor_27/", "scissor_39/", 
         "scissor_48/", "scissor_58/", "scissor_62/", "scissor_74/", "scissor_79/", "scissor_8/", "scissor_92/", 
         "scissor_95/", "scissor_98/", "scissor_31/",
@@ -320,8 +321,10 @@ def main(args):
             result_json = {
                 'hook_path': hook_path,
                 'obj_path': obj_path,
+                'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
                 'contact_info': []
             }
+
 
         print(f'processing {result_path} -> {obj_path}...')
         contact_cnt = 0
@@ -472,7 +475,6 @@ def main(args):
             
             # write to json dict
             contact_info = {
-                'hook_pose': hook_pos + list(p.getQuaternionFromEuler(hook_rot)),
                 'contact_point_hook': contact_point_hook.tolist(),
                 'obj_pose': list(pos + rot),
                 'contact_point_obj': contact_point_obj.tolist(),
@@ -497,6 +499,6 @@ if __name__ == '__main__':
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')
-    parser.add_argument('--hook', '-ho', type=str, default='Hook47-19')
+    parser.add_argument('--hook', '-ho', type=str, default='Hook_180')
     args = parser.parse_args()
     main(args)

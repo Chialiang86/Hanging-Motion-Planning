@@ -209,7 +209,7 @@ def main(args):
 
     if len(urdl_file.split('#')) > 1:
       serial_num = int(urdl_file.split('/')[-2].split('#')[1])
-      if serial_num < 40:
+      if serial_num < 0:
         continue
     print(f'processing {urdl_file}')
     obj_id, center, scale = load_obj_urdf(urdl_file, [0, 0, 0])

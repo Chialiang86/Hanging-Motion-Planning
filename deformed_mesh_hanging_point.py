@@ -158,20 +158,26 @@ def main(args):
                 # config io path info
                 object_dir = object_urdf_file.split('/')[-3]
                 object_name = object_urdf_file.split('/')[-2]
+                full_object_name = object_dir + '_' + object_name
                 # pivot directory
                 pivot_dir = f'{output_root}/{pivot_hook_name}-{object_dir}'
                 assert os.path.exists(pivot_dir), f'{pivot_dir} not exists'
                 # config generated hook output directory
                 output_dir = f'{output_root}/{generated_hook_name}-{object_dir}'
                 os.makedirs(output_dir, exist_ok=True)
+                # config generated_hook-obj_name.json
+                output_json = f'{output_dir}/{generated_hook_name}-{full_object_name}.json'
+                # if os.path.exists(output_json):
+                #     print(f'ignore {output_json}')
+                #     continue
 
                 # object pose and hook pose
-                full_object_name = object_dir + '_' + object_name
                 pivot_json = f'{pivot_dir}/{pivot_hook_name}-{full_object_name}.json'
                 f_pivot = open(pivot_json, 'r')
                 pivot_dict = json.load(f_pivot)
+                assert 'hook_path' in pivot_dict.keys()
                 hook_pose = pivot_dict['hook_pose']
-                obj_pose = pivot_dict['contact_info'][0]['object_pose']
+                obj_pose = pivot_dict['contact_info'][0]['obj_pose']
 
                 # generated_hook
                 generated_hook_id = p.loadURDF(generated_hook_urdf_file, hook_pose[:3], hook_pose[3:])
@@ -270,8 +276,6 @@ def main(args):
                     'contact_info': [contact_info]
                 }
                     
-                # config generated_hook-obj_name.json
-                output_json = f'{output_dir}/{generated_hook_name}-{full_object_name}.json'
                 f_out = open(output_json, 'w')
                 json.dump(result_json, f_out, indent=4)
                 print(f'processing {output_json} ...')
