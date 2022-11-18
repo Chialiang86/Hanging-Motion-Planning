@@ -168,9 +168,12 @@ def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
     obj_pos, obj_rot = p.getBasePositionAndOrientation(body)
     original_pose = np.asarray(obj_pos + obj_rot)
     refine_pose = original_pose
-    while collision7d_fn(tuple(refine_pose)):
+    max_iter = 100000
+    i = 0
+    while i < max_iter and collision7d_fn(tuple(refine_pose)):
         refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
         refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
+        i += 1
         # print(refine_pose)
     return refine_pose
 

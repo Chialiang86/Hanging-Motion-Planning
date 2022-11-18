@@ -86,10 +86,17 @@ def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
 
     original_pose = np.asarray(obj_pos + obj_rot)
     refine_pose = original_pose
-    while collision7d_fn(tuple(refine_pose)):
+    max_iter = 100000
+    i = 0
+    while i < max_iter and collision7d_fn(tuple(refine_pose)):
         refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
         refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
         # print(refine_pose)
+        i += 1
+    if i == max_iter:
+        print(f'connot find refined pose')
+        return None
+    print(f'successfully find refined pose')
     return refine_pose
 
 def draw_coordinate(pose : np.ndarray or tuple or list, size : float = 0.1):
@@ -169,7 +176,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
         else :
             low_limit[i] = target_pos[i] - padding[i]
             high_limit[i] = start_pos[i] + padding[i]
-    draw_bbox(low_limit, high_limit) 
+    # draw_bbox(low_limit, high_limit) 
     
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
@@ -177,7 +184,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
-        return None
+        return None, None
 
     return birrt(start_conf, target_conf, distance7d_fn, sample7d_fn, extend7d_fn, collision_fn, **kwargs)
 
@@ -258,11 +265,15 @@ def main(args):
 
     time_stamp = time.localtime()
     time_mon_day = '{:02d}{:02d}'.format(time_stamp.tm_mon, time_stamp.tm_mday)
-    out_postfix = time_mon_day if args.out_postfix == '' else args.out_postfix
+    dir_postfix = time_mon_day if args.dir_postfix == '' else args.dir_postfix
     max_cnt = args.max_cnt
 
+    # dir name
+    dir_name = f'keypoint_trajectory_{dir_postfix}'
+    assert os.path.exists(dir_name), f'{dir_name} not exists'
+
     # Create pybullet GUI
-    physics_client_id = p.connect(p.GUI)
+    physics_client_id = p.connect(p.DIRECT)
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
         cameraYaw=90,
@@ -318,19 +329,34 @@ def main(args):
     ]
 
     input_jsons = glob.glob('data/*/*-hanging_exp_daily_5.json')
+    input_jsons.sort()
+    input_jsons = input_jsons[::-1]
+
+    ignore_list = [
+        'Hook_bar', 'Hook_skew', 'Hook_90', 'Hook_60', 'Hook_180', 'Hook_84'
+    ]
 
     for input_json in input_jsons:
 
-        time.sleep(2)
+        ignore = False
+        for ignore_item in ignore_list:
+            if ignore_item in input_json:
+                print(f'ignore {input_json}')
+                ignore = True
+        if ignore:
+            continue
+
+        # time.sleep(2)
         p.removeAllUserDebugItems()
         
         pair = os.path.splitext(input_json)[0].split('/')[-1]
         hook_name = pair.split('-')[0]
         obj_name = pair.split('-')[1]
+        in_fname = f'{dir_name}/{obj_name}.json'
 
         print(f'processing {input_json}')
-        if not os.path.exists(input_json):
-            print(f'{input_json} not exists')
+        assert os.path.exists(input_json), f'{input_json} not exists'
+        assert os.path.exists(in_fname), f'{in_fname} not exists'
 
         f_json =  open(input_json, 'r')
         json_dict = json.load(f_json)
@@ -349,12 +375,13 @@ def main(args):
         # get the information that needed in rrt
         obj_id, hook_id, tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
 
-        # dir name
-        dir_name = f'keypoint_trajectory_{out_postfix}'
-        os.makedirs(dir_name, exist_ok=True)
-
+        if tgt_pose is None:
+            print(f'ignore {input_json} due to unreliable initial pose')
+            p.removeBody(obj_id)
+            p.removeBody(hook_id)
+            continue
+        
         # input keypoint pose relative to object
-        in_fname = f'{dir_name}/{obj_name}.json'
         with open(in_fname, 'r') as f:
             obj_dict = json.load(f)
             contact_pose = obj_dict['contact_pose']
@@ -370,9 +397,12 @@ def main(args):
         }
 
         # object position initialization
-        for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
+        # for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
+        for index in tqdm(range(max_cnt)):
             if max_cnt != -1 and index >= max_cnt:
                 break
+
+            initial_info = json_dict['initial_pose'][0] # use initial pose
             obj_init_pos = initial_info['object_pose'][:3]
             obj_init_rot = initial_info['object_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
@@ -383,6 +413,8 @@ def main(args):
             while waypoints is None:
                 waypoints = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[table_id, hook_id], max_vel=0.1)
             if waypoints is None:
+                p.removeBody(obj_id)
+                p.removeBody(hook_id)
                 continue
 
             # write trajectory relative to hook to file
@@ -424,7 +456,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--out-postfix', '-op', type=str, default='')
+    parser.add_argument('--dir-postfix', '-dp', type=str, default='')
     parser.add_argument('--max-cnt', '-mc', type=int, default='20')
     args = parser.parse_args()
     main(args)
