@@ -209,14 +209,16 @@ def main(args):
     p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     # load model
-    obj_fname = args.obj
-    hook_fname = args.hook
+
+    root = f'keypoint_trajectory_{args.dir_postfix}'
+    demonstration_dir = f'demonstration_data_{args.dir_postfix}'
+    obj_fname = f'{root}/{args.obj}'
+    hook_fname = f'{root}/{args.hook}'
     obj_name = os.path.split(obj_fname)[1].split('.')[0]
-    hook_name = os.path.split(hook_fname)[1].split('-')[0]
-    hook_num = os.path.split(hook_fname)[1].split('.')[0].split('-')[-1]
+    hook_name = os.path.split(hook_fname)[1].split('.')[0]
+    # TODO : need to add postfix to data/ ?
     obj_hook_pair_fname = f'data/Hook_bar-hanging_exp/Hook_bar-{obj_name}.json'
-    # obj_hook_pair_fname = f'data/{hook_name}-hanging_exp/{hook_name}-{obj_name}.json'
-    print(obj_hook_pair_fname)
+    print(f'hook_name: {hook_name}, obj_name: {obj_name}, obj_hook_pair_fname: {obj_hook_pair_fname}')
 
     assert os.path.exists(obj_hook_pair_fname), f'{obj_hook_pair_fname} not exists'
     assert os.path.exists(obj_fname), f'{obj_fname} not exists'
@@ -228,6 +230,9 @@ def main(args):
         obj_dict = json.load(f)
     with open(hook_fname, 'r') as f:
         hook_dict = json.load(f)
+    
+    if not os.path.exists(demonstration_dir):
+        os.mkdir(demonstration_dir)
 
     # obj_pose_6d = obj_dict['obj_pose']
     # obj_pos = obj_pose_6d[:3]
@@ -243,7 +248,7 @@ def main(args):
     hook_quat = hook_pose_6d[3:]
     hook_transform = get_matrix_from_pos_rot(hook_pos, hook_quat)
     p.resetBasePositionAndOrientation(hook_id, hook_pos, hook_quat)
-    trajectory_hook = hook_dict['trajectory']
+    trajectories_hook = hook_dict['trajectory']
 
     # grasping
     index = 0 # medium
@@ -257,44 +262,6 @@ def main(args):
     robot_pose = robot_pos + robot_rot
     robot_transform = get_matrix_from_pos_rot(robot_pos, robot_rot)
 
-    robot.apply_action(robot_pose, max_vel=-1)
-    for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-        p.stepSimulation()
-        time.sleep(sim_timestep)
-    robot.grasp(obj_id=obj_id)
-    for _ in range(int(1.0 / sim_timestep) * 2): # 1 sec
-        p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
-        p.stepSimulation()
-        time.sleep(sim_timestep)
-
-    obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
-    kpt_transform_world = obj_transform @ obj_contact_relative_transform
-
-    first_waypoint = trajectory_hook[0]
-    relative_kpt_transform = get_matrix_from_pos_rot(first_waypoint[:3], first_waypoint[3:])
-    first_kpt_transform_world = hook_transform @ relative_kpt_transform
-
-    kpt_transform_world = refine_rotation(first_kpt_transform_world, kpt_transform_world)
-
-    kpt_to_gripper = np.linalg.inv(kpt_transform_world) @ robot_transform
-    first_gripper_transform = first_kpt_transform_world @ kpt_to_gripper
-
-    first_gripper_pos, first_gripper_rot = get_pos_rot_from_matrix(first_gripper_transform)
-    first_gripper_pose = list(first_gripper_pos) + list(first_gripper_rot)
-
-    # draw_coordinate(kpt_transform_world)
-    # draw_coordinate(first_kpt_transform_world)
-
-    trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose)
-    for waypoint in trajectory_start:
-        robot.apply_action(waypoint)
-        p.stepSimulation()
-        
-        robot.grasp()
-        for _ in range(10): # 1 sec
-            p.stepSimulation()
-            time.sleep(sim_timestep)
-    
     # rendering
     far = 1.
     near = 0.01
@@ -312,113 +279,151 @@ def main(args):
         fov, aspect_ratio, near, far
     )
 
-    imgs = []
-    demonstration_list = []
+    for traj_i in range(len(trajectories_hook)):
+        
+        robot.reset()
 
-    gripper_pose = None
-    previous_transform = np.identity(4)
-    motion_frequency = 3
-    save_cnt = 0
-    for i, waypoint in enumerate(trajectory_hook):
-        if i % motion_frequency == 0:
-            
-            relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
-            world_transform = hook_transform @ relative_transform
-            gripper_transform = world_transform @ kpt_to_gripper
-            gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
-            gripper_pose = list(gripper_pos) + list(gripper_rot)
-
-            # draw_coordinate(world_transform)
-
-            robot.apply_action(gripper_pose)
+        robot.apply_action(robot_pose, max_vel=-1)
+        for _ in range(int(1.0 / sim_timestep * 0.5)): # 1 sec
             p.stepSimulation()
-            
+            time.sleep(sim_timestep)
+        robot.grasp(obj_id=obj_id)
+        for _ in range(int(1.0 / sim_timestep * 0.25)): 
+            p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
+            p.stepSimulation()
+            time.sleep(sim_timestep)
+
+        obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
+        kpt_transform_world = obj_transform @ obj_contact_relative_transform
+        
+        trajectory_hook = trajectories_hook[traj_i]
+        first_waypoint = trajectory_hook[0]
+        relative_kpt_transform = get_matrix_from_pos_rot(first_waypoint[:3], first_waypoint[3:])
+        first_kpt_transform_world = hook_transform @ relative_kpt_transform
+
+        kpt_transform_world = refine_rotation(first_kpt_transform_world, kpt_transform_world)
+
+        kpt_to_gripper = np.linalg.inv(kpt_transform_world) @ robot_transform
+        first_gripper_transform = first_kpt_transform_world @ kpt_to_gripper
+
+        first_gripper_pos, first_gripper_rot = get_pos_rot_from_matrix(first_gripper_transform)
+        first_gripper_pose = list(first_gripper_pos) + list(first_gripper_rot)
+
+        # draw_coordinate(kpt_transform_world)
+        # draw_coordinate(first_kpt_transform_world)
+
+        trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose)
+        for waypoint in trajectory_start:
+            robot.apply_action(waypoint)
+            p.stepSimulation()
             robot.grasp()
             for _ in range(10): # 1 sec
                 p.stepSimulation()
                 time.sleep(sim_timestep)
-            time.sleep(sim_timestep)
+        
+        imgs = []
+        demonstration_list = []
 
-            if i > 0:
-                relative_pos, relative_rot = get_pos_rot_from_matrix(np.linalg.inv(previous_transform) @ gripper_transform)
-                relative_action = list(relative_pos) + list(R.from_quat(relative_rot).as_rotvec())
-            else :
-                relative_action = [0, 0, 0, 0, 0, 0]
+        gripper_pose = None
+        previous_transform = np.identity(4)
+        motion_frequency = 3
+        for i, waypoint in enumerate(trajectory_hook):
+            if i % motion_frequency == 0:
+                
+                relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
+                world_transform = hook_transform @ relative_transform
+                gripper_transform = world_transform @ kpt_to_gripper
+                gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
+                gripper_pose = list(gripper_pos) + list(gripper_rot)
 
-            t = np.identity(4)
-            t[:3, 3] = relative_action[:3]
-            t[:3, :3] = R.from_rotvec(relative_action[3:]).as_matrix()
-            # draw_coordinate(previous_transform @ t)
-            previous_transform = gripper_transform
-            
-            # capture RGBD
-            rgb, depth = capture_image(view_mat, proj_matrix, far, near)
-            demonstration_list.append({
-                'rgb': rgb,
-                'depth': depth,
-                'action': relative_action
-            })
+                # draw_coordinate(world_transform)
 
-            save_cnt += 1
+                robot.apply_action(gripper_pose)
+                p.stepSimulation()
+                
+                robot.grasp()
+                for _ in range(10): # 1 sec
+                    p.stepSimulation()
+                    time.sleep(sim_timestep)
+                time.sleep(sim_timestep)
 
-            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
-            imgs.append(img)
+                if i > 0:
+                    relative_pos, relative_rot = get_pos_rot_from_matrix(np.linalg.inv(previous_transform) @ gripper_transform)
+                    relative_action = list(relative_pos) + list(R.from_quat(relative_rot).as_rotvec())
+                else :
+                    relative_action = [0, 0, 0, 0, 0, 0]
 
-    
-    # execution step 2 : release gripper
-    robot_apply_action(robot, obj_id, gripper_pose, gripper_action='pre_grasp', 
-        sim_timestep=0.05, diff_thresh=0.01, max_vel=-1, max_iter=100)
+                t = np.identity(4)
+                t[:3, 3] = relative_action[:3]
+                t[:3, :3] = R.from_rotvec(relative_action[3:]).as_matrix()
+                # draw_coordinate(previous_transform @ t)
+                previous_transform = gripper_transform
+                
+                # capture RGBD
+                rgb, depth = capture_image(view_mat, proj_matrix, far, near)
+                demonstration_list.append({
+                    'rgb': rgb,
+                    'depth': depth,
+                    'action': relative_action
+                })
 
-    # execution step 3 : go to the ending pose
-    gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
-    gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
-    ending_gripper_pos = np.asarray(gripper_pose[:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.05]])).reshape(3)
-    action = tuple(ending_gripper_pos) + tuple(gripper_rot)
-    robot_apply_action(robot, obj_id, action, gripper_action='nop', 
-        sim_timestep=0.05, diff_thresh=0.005, max_vel=0.6, max_iter=100)
+                img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+                imgs.append(img)
 
-    imgs_array = [Image.fromarray(img) for img in imgs]
+        # execution step 2 : release gripper
+        robot_apply_action(robot, obj_id, gripper_pose, gripper_action='pre_grasp', 
+            sim_timestep=0.05, diff_thresh=0.01, max_vel=-1, max_iter=100)
 
-    contact = False
-    contact_points = p.getContactPoints(obj_id, hook_id)
-    contact = True if contact_points != () else False
+        # execution step 3 : go to the ending pose
+        gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+        gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
+        ending_gripper_pos = np.asarray(gripper_pose[:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.05]])).reshape(3)
+        action = tuple(ending_gripper_pos) + tuple(gripper_rot)
+        robot_apply_action(robot, obj_id, action, gripper_action='nop', 
+            sim_timestep=0.05, diff_thresh=0.005, max_vel=-1, max_iter=100)
 
-    # save gif
-    output_fname = 'keypoint_trajectory/gif'
-    status = 'success' if contact else 'failed'
-    if imgs_array is not None and status=='failed':
-        gif_path = os.path.join(output_fname, f'{hook_name}-{obj_name}_{hook_num}_{status}.gif')
-        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
-    
-    if status=='success':
-        output_dir = f'demonstration_data/{hook_name}-{hook_num}-{obj_name}'
-        os.makedirs(output_dir, exist_ok=True)
-        action_dict = {
-            'action':[],
-            'cameraEyePosition':cameraEyePosition,
-            'cameraTargetPosition':cameraTargetPosition,
-            'cameraUpVector':cameraUpVector,
-            'far': far,
-            'near': near,
-            'fov': fov,
-            'aspect_ratio': aspect_ratio,
-        }
-        for i, data in enumerate(demonstration_list):
-            rgb_fname = f'{output_dir}/{i}.jpg'
-            depth_fname = f'{output_dir}/{i}.npy'
-            Image.fromarray(data['rgb']).save(rgb_fname)
-            np.save(depth_fname, data['depth'])
-            action_dict['action'].append(data['action'])
+        imgs_array = [Image.fromarray(img) for img in imgs]
 
-        action_fname = f'{output_dir}/action.json'
-        action_f = open(action_fname, 'w')
-        json.dump(action_dict, action_f, indent=4)
+        contact = False
+        contact_points = p.getContactPoints(obj_id, hook_id)
+        contact = True if contact_points != () else False
 
-    with open("keypoint_trajectory/result.txt", "a") as myfile:
-        print(f'{hook_name}-{obj_name}_{hook_num}_{status}\n')
-        myfile.write(f'{hook_name}-{obj_name}_{hook_num}_{status}\n')
-        myfile.flush()
-        myfile.close()
+        # save gif
+        output_fname = f'{root}/gif'
+        status = 'success' if contact else 'failed'
+        if imgs_array is not None and status=='failed':
+            gif_path = os.path.join(output_fname, f'{hook_name}-{obj_name}_{traj_i}_{status}.gif')
+            imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+        
+        if status=='success':
+            output_dir = f'{demonstration_dir}/{hook_name}-{traj_i}-{obj_name}'
+            os.makedirs(output_dir, exist_ok=True)
+            action_dict = {
+                'action':[],
+                'cameraEyePosition':cameraEyePosition,
+                'cameraTargetPosition':cameraTargetPosition,
+                'cameraUpVector':cameraUpVector,
+                'far': far,
+                'near': near,
+                'fov': fov,
+                'aspect_ratio': aspect_ratio,
+            }
+            for i, data in enumerate(demonstration_list):
+                rgb_fname = f'{output_dir}/{i}.jpg'
+                depth_fname = f'{output_dir}/{i}.npy'
+                Image.fromarray(data['rgb']).save(rgb_fname)
+                np.save(depth_fname, data['depth'])
+                action_dict['action'].append(data['action'])
+
+            action_fname = f'{output_dir}/action.json'
+            action_f = open(action_fname, 'w')
+            json.dump(action_dict, action_f, indent=4)
+
+        with open(f"{root}/result.txt", "a") as myfile:
+            print(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
+            myfile.write(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
+            myfile.flush()
+            myfile.close()
 
     # while True:
     #     # key callback
@@ -428,7 +433,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--obj', '--obj', type=str, default='keypoint_trajectory/hanging_exp_wrench_1.json')
-    parser.add_argument('--hook', '--hook', type=str, default='keypoint_trajectory/Hook_90.json')
+    parser.add_argument('--dir-postfix', '-dp', type=str, default='1118-1')
+    parser.add_argument('--obj', '--obj', type=str, default='hanging_exp_daily_5.json')
+    parser.add_argument('--hook', '--hook', type=str, default='Hook57#9_aug.json')
     args = parser.parse_args()
     main(args)

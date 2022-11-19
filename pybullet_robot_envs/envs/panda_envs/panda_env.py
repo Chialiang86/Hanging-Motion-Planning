@@ -46,11 +46,7 @@ class pandaEnv:
         self._num_dof = 7
         self._joint_name_to_ids = {}
         self.robot_id = None
-
-        self.seed()
-        self.reset()
-
-    def reset(self):
+        
         # Load robot model
         flags = p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES | p.URDF_USE_INERTIA_FROM_FILE | p.URDF_USE_SELF_COLLISION
         self.robot_id = p.loadURDF(os.path.join(franka_panda.get_data_path(), "panda_model.urdf"),
@@ -58,6 +54,11 @@ class pandaEnv:
                                    physicsClientId=self._physics_client_id)
 
         assert self.robot_id is not None, "Failed to load the panda model"
+
+        self.seed()
+        self.reset()
+
+    def reset(self):
 
         # reset joints to home position
         num_joints = p.getNumJoints(self.robot_id, physicsClientId=self._physics_client_id)

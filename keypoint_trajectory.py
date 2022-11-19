@@ -333,7 +333,7 @@ def main(args):
     input_jsons = input_jsons[::-1]
 
     ignore_list = [
-        'Hook_bar', 'Hook_skew', 'Hook_90', 'Hook_60', 'Hook_180', 'Hook_84'
+        'Hook_bar', 'Hook_skew', 'Hook_90', 'Hook_60', 'Hook_180', 'Hook84'
     ]
 
     for input_json in input_jsons:

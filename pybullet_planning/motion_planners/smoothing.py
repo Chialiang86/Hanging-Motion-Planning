@@ -144,7 +144,9 @@ def smooth_path(path, extend_fn, collision_fn, distance_fn=None, cost_fn=None, s
             cost = new_cost
             last_time = time.time()
 
-    return remove_redundant(waypoints)
+    waypoints = remove_redundant(waypoints)
+    print('[After Smoothness]|Length {}'.format(len(waypoints)))
+    return waypoints
     # ! this final refined is not guaranteed to be collision-free!
     # return refine_waypoints(waypoints, extend_fn)
 #smooth_path = smooth_path_old
