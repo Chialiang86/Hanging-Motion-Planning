@@ -2,6 +2,7 @@ import glob
 import os
 import time
 import argparse
+from  tqdm import tqdm
 import pybullet as p
 import numpy as np
 import pybullet_data
@@ -125,6 +126,7 @@ def create_rgbd(rgb, depth, intr, extr, dscale, depth_threshold=2.0):
     y = z * y_ratio
 
     cond = np.where(z < depth_threshold)
+    print(f'There are {len(cond[0])} points in point clouds')
     x = x[cond]
     y = y[cond]
     z = z[cond]
@@ -194,6 +196,8 @@ def main(args):
   if not os.path.exists(input_dir):
     print(f'{input_dir} not exists')
     return 
+  if not os.path.exists(f'{input_dir}/report'):
+    os.mkdir(f'{input_dir}/report')
 
   p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -234,22 +238,31 @@ def main(args):
   cameraUpVector =  [0.0, 0.0, 1.0]
   pcd_view_matrix, pcd_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
 
-  cameraEyePosition = [-0.12, 0.08, 0.0]
+  # cameraEyePosition = [-0.12, 0.08, 0.0]
+  # cameraTargetPosition = [0.0, 0.0, 0.0]
+  # cameraUpVector =  [0.0, 0.0, 1.0]
+  cameraEyePosition = [0.0, 0.36, -0.24]
   cameraTargetPosition = [0.0, 0.0, 0.0]
-  cameraUpVector =  [0.0, 0.0, 1.0]
+  cameraUpVector =  [1.0, 0.0, 0.0]
   rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
 
   origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-  urdl_files = glob.glob(f'{input_dir}/*/{file_token}.urdf')
-  urdl_files.sort()
-  for urdl_file in urdl_files:
+  # urdf_files = glob.glob(f'{input_dir}/*/{file_token}.urdf')
+  urdf_files = glob.glob(f'{input_dir}/*/base.urdf')
+  urdf_files.sort()
+  for urdf_file in tqdm(urdf_files):
+    print(urdf_file)
 
-    # if len(urdl_file.split('#')) > 1:
-    #   serial_num = int(urdl_file.split('/')[-2].split('#')[1])
-    #   if serial_num < 0:
-    #     continue
-    print(f'processing {urdl_file}')
-    obj_id, center, scale = load_obj_urdf(urdl_file, [0, 0, 0])
+    # if len(urdf_file.split('#')) > 1:
+    #   continue
+    # if 'scissor' not in urdf_file:
+    #   continue
+      # serial_num = int(urdf_file.split('/')[-2].split('#')[1])
+      # if serial_num < 0:
+      #   continue
+    print(f'processing {urdf_file}')
+    obj_id, center, scale = load_obj_urdf(urdf_file, [0, 0, 0])
+    # obj_id = p.loadURDF(urdf_file)
 
     # reset_camera(yaw, pitch, cameraDistance)
 
@@ -264,30 +277,45 @@ def main(args):
     # adjustment
     pcd = create_rgbd(rgb_buffer, depth_buffer, intrinsic, pcd_extrinsic, dscale=1, depth_threshold=depth_threshold)
 
-    mesh_file = os.path.splitext(urdl_file)[0] + '.obj'
+    mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
     pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
     pcd_ori.scale(scale, [0., 0., 0.,])
     
     # save ply
     # o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
-    output_ply_path = os.path.splitext(urdl_file)[0] + '.ply'
+    output_ply_path = os.path.splitext(urdf_file)[0] + '.ply'
     o3d.io.write_point_cloud(output_ply_path, pcd)
 
     img = p.getCameraImage(height, height, viewMatrix=rgb_view_matrix, projectionMatrix=projection_matrix)
     rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
 
-    # save image
-    # output_jpg_path = os.path.splitext(urdl_file)[0] + '.jpg'
-    sub_dir = urdl_file.split('/')[-2]
-    output_jpg_path = f'models/hook/All_img/{sub_dir}.jpg'
-    pil_img = Image.fromarray(rgb_buffer)
-    pil_img.save(output_jpg_path)
+    # # save image
+    # # output_jpg_path = os.path.splitext(urdf_file)[0] + '.jpg'
+    # sub_dir = urdf_file.split('/')[-2]
+    # # output_jpg_path = f'{input_dir}/All_img/{sub_dir}.jpg'
+    # output_jpg_path = f'{input_dir}/report/{sub_dir}.jpg'
+    # pil_img = Image.fromarray(rgb_buffer)
+    # pil_img.save(output_jpg_path)
 
-    print(f'{output_ply_path} and {output_jpg_path} saved')
+    # print(f'{output_ply_path} and {output_jpg_path} saved')
     p.removeBody(obj_id)
+
+start_msg = \
+'''
+======================================================================================
+this script will create point cloud of the given objects using virtual RGBD camera 
+and wirte them to the object folder [root]/[obj_name]/base.urdf
+
+dependency :
+- [root]/[obj_name]/base.urdf
+======================================================================================
+'''
+
+print(start_msg)
 
 if __name__=="__main__":
   parser = argparse.ArgumentParser()
+  parser.add_argument('--input-root', '-ir', type=str, default='data')
   parser.add_argument('--input-dir', '-id', type=str, default='models/hook')
   parser.add_argument('--file-token', '-ft', type=str, default='base')
   args = parser.parse_args()

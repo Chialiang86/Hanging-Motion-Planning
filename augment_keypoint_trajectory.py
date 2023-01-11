@@ -58,7 +58,7 @@ def augment_next_waypoint(waypoint : list or np.ndarray,
                                 direction_vec : list or np.ndarray,
                                 length : float,
                                 aug_num : int=10,
-                                # add to normalized vector
+                                # in degree
                                 noise_pos : float=0.2,
                                 # in degree
                                 noise_rot : float=1) -> np.ndarray:
@@ -71,18 +71,24 @@ def augment_next_waypoint(waypoint : list or np.ndarray,
 
     deg_to_rad = np.pi / 180.0
 
-    pos_low_limit  = np.full((3,), -noise_pos)
-    pos_high_limit = np.full((3,),  noise_pos)
+    pos_low_limit  = np.full((3,), -noise_pos * deg_to_rad)
+    pos_high_limit = np.full((3,),  noise_pos * deg_to_rad)
     rot_low_limit  = np.full((3,), -noise_rot * deg_to_rad)
     rot_high_limit = np.full((3,),  noise_rot * deg_to_rad)
 
-    step_direction_vec = direction_vec + np.random.uniform(pos_low_limit, pos_high_limit, (aug_num, 3))
-    step_direction_vec /= np.linalg.norm(step_direction_vec, ord=2)
+    step_direction_vec = np.zeros((3, aug_num))
+    random_rot = R.from_rotvec(np.random.uniform(pos_low_limit, pos_high_limit, (aug_num, 3))).as_matrix()
+    for i in range(aug_num):
+        step_direction_vec[:, i] = (random_rot[i] @ direction_vec.reshape(3, 1)).reshape(3,)
+    step_direction_vec = step_direction_vec.T
+    # step_direction_vec = direction_vec + np.random.uniform(pos_low_limit, pos_high_limit, (aug_num, 3))
+    # step_direction_vec /= np.linalg.norm(step_direction_vec, axis=1, ord=2)
+
     step_pos = base_pos + length * step_direction_vec
     step_rotvec = base_rotvec + np.random.uniform(rot_low_limit, rot_high_limit, (aug_num, 3)) \
                     if (base_rotvec <  np.pi - noise_rot * deg_to_rad).all() and \
                        (base_rotvec > -np.pi + noise_rot * deg_to_rad).all() \
-                    else base_rotvec
+                    else np.full((aug_num, 3),base_rotvec)
     step_quat = R.from_rotvec(step_rotvec).as_quat()
     step_pose = np.hstack((step_pos, step_quat))
 
@@ -136,7 +142,7 @@ def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : in
     with_thresh_cnt = 0.0
     color = np.random.rand(1, 3)
     color = np.repeat(color, 3, axis=0)
-    for waypoint in src_traj:
+    for i, waypoint in enumerate(src_traj):
 
         relative_trans = get_matrix_from_pose(waypoint)
         world_trans = hook_trans @ relative_trans
@@ -201,7 +207,7 @@ def smooth_augment_path(src_traj : list,
 def augment_trajectory_7d(src_traj : list or np.ndarray, 
                             physicsClientId : int, obj_id : int, hook_id : int, contact_trans : list or np.ndarray,
                             aug_num : int=10, 
-                            noise_pos : float=0.2, # add to normalized vector
+                            noise_pos : float=0.2, # multiply randome rot
                             noise_rot : float=1, # in degree
                             down_sample_frequency : int=5):
 
@@ -233,6 +239,7 @@ def augment_trajectory_7d(src_traj : list or np.ndarray,
                                         aug_num=aug_num, noise_pos=noise_pos, noise_rot=noise_rot)
         aug_trajs_rev[:, i+1, :] = next_waypoint
 
+    # reverse
     aug_trajs = np.flip(aug_trajs_rev, axis=1)
 
     # get dense waypoints using the same resolution as src_traj
@@ -248,11 +255,41 @@ def augment_trajectory_7d(src_traj : list or np.ndarray,
     
     return aug_dense_trajs
 
-def main(args):
-    
+def interpolate_two_trajectories_7d(src_traj1 : list or np.ndarray, src_traj2 : list or np.ndarray, interpolate_num : int=3):
 
-    dir_postfix = args.dir_postfix
-    input_dir = f'keypoint_trajectory_{dir_postfix}'
+    if type(src_traj1) == list:
+        src_traj1 = np.asarray(src_traj1)
+    if type(src_traj2) == list:
+        src_traj2 = np.asarray(src_traj2)
+
+    assert src_traj1.shape[1] == 7 and src_traj2.shape[1] == 7, f'waypoint must be in 7d, but got {src_traj1.shape[1]} and  {src_traj2.shape[1]}'
+
+    trajectory_length = len(src_traj1) if len(src_traj1) < len(src_traj2) else len(src_traj2)
+    delta = 1e-10
+    interpolate_ratio = np.arange(1 / (interpolate_num + 1), 1 - delta, 1 / (interpolate_num + 1))
+    
+    interpolated_trajectories = [[] for _ in range(interpolate_num + 2)] # add traj1 and traj2
+
+    for wpt_id in range(trajectory_length):
+        quat1 = quaternion.as_quat_array(xyzw2wxyz(src_traj1[wpt_id,3:]))
+        quat2 = quaternion.as_quat_array(xyzw2wxyz(src_traj2[wpt_id,3:]))
+        for traj_id, iratio in enumerate(interpolate_ratio):
+            pos = iratio * src_traj1[wpt_id,:3] + (1 - iratio) * src_traj2[wpt_id, :3] 
+            quat = quaternion.slerp_evaluate(quat1, quat2, iratio)
+            quat = wxyz2xyzw(quaternion.as_float_array(quat))
+            waypoint_7d = list(pos) + list(quat)
+            interpolated_trajectories[1 + traj_id].append(waypoint_7d) # ignore the first and the last (first for src_traj1, last for src_traj1)
+
+    interpolated_trajectories[0] = src_traj1.tolist()
+    interpolated_trajectories[-1] = src_traj2.tolist()
+    
+    return interpolated_trajectories
+
+def main(args):
+
+    assert os.path.exists(args.input_root), f'{args.input_root} not exists'
+
+    input_dir = f'{args.input_root}/{args.input_dir}'
     assert os.path.exists(input_dir), f'{input_dir} not exists'
 
     all_trajectory_files = glob.glob(f'{input_dir}/Hook*.json')
@@ -297,6 +334,13 @@ def main(args):
         trajectory_json = json.load(f)
         f.close()
 
+        # output file
+        path = f'{os.path.splitext(trajectory_file)[0]}_aug.json'
+        # if os.path.exists(path):
+        #     continue
+            
+        print(f'processing {path} ...')
+
         hook_urdf = trajectory_json['file']
         hook_pose = trajectory_json['hook_pose']
         hook_id = p.loadURDF(hook_urdf, hook_pose[:3], hook_pose[3:])
@@ -308,23 +352,35 @@ def main(args):
             'hook_pose': trajectory_json['hook_pose'],
         }
 
-        for i, trajectory in enumerate(trajectory_json['trajectory']):
-            print(f'processing trajectory[{i}] ...')
-            color = np.random.rand(1, 3)
-            color = np.repeat(color, 3, axis=0)
-            
-            aug_trajs = augment_trajectory_7d(trajectory, physicsClientId, obj_id, hook_id, contact_trans,
-                                                aug_num=aug_num, noise_pos=0.8, noise_rot=1, 
-                                                down_sample_frequency=10)
-            
-            for aug_traj in aug_trajs:
-                aug_trajectory_json['trajectory'].append(list(aug_traj))
-            
-            p.removeAllUserDebugItems()
+        trajectories = trajectory_json['trajectory']
+        trajectory_num = len(trajectories)
+        interpolate_num = 5
+
+        # C(trajectory_num, 2) * (interpolate_num + 2) * aug_num
+        max_trajectories = int((trajectory_num * (trajectory_num - 1) / 2) * (interpolate_num + 2) * aug_num)
+        tmp_trajectories = 0
+        for i in range(trajectory_num - 1):
+            for j in range(i + 1, trajectory_num):
+
+                interpolated_trajectories = interpolate_two_trajectories_7d(trajectories[i], trajectories[j], interpolate_num=interpolate_num)
+
+                for trajectory in interpolated_trajectories:
+                
+                    color = np.random.rand(1, 3)
+                    color = np.repeat(color, 3, axis=0)
+                    
+                    aug_trajs = augment_trajectory_7d(trajectory, physicsClientId, obj_id, hook_id, contact_trans,
+                                                        aug_num=aug_num, noise_pos=3, noise_rot=3, 
+                                                        down_sample_frequency=10)
+                    
+                    for aug_traj in aug_trajs:
+                        tmp_trajectories += 1
+                        print(f'progress: {tmp_trajectories}/{max_trajectories}')
+                        aug_trajectory_json['trajectory'].append(list(aug_traj))
+                    
+                p.removeAllUserDebugItems()
 
     
-        # write to file
-        path = f'{os.path.splitext(trajectory_file)[0]}_aug.json'
         f = open(path, 'w')
         json.dump(aug_trajectory_json, f, indent=4)
         f.close()
@@ -338,11 +394,25 @@ def main(args):
     #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
     #         break
 
+start_msg = \
+'''
+======================================================================================
+this script will augment new trajectories using the existing trajectories in
+[input_root]/[input_dir]/[hook_name].json and write them to the same folder
+
+dependency :
+- hook folder that contains /[hook_name]/base.urdf
+- existing folder containing [input_root]/[input_dir]/[hook_name].json
+======================================================================================
+'''
+
+print(start_msg)
 if __name__=="__main__":
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir-postfix', '-dp', type=str, default='1104')
-    parser.add_argument('--aug-num', '-an', type=int, default=10)
+    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
+    parser.add_argument('--input-dir', '-id', type=str, default='keypoint_trajectory_1118-10')
+    parser.add_argument('--aug-num', '-an', type=int, default=3)
     args = parser.parse_args()
     
     main(args)

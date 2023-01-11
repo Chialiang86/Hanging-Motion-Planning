@@ -45,6 +45,7 @@ def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
 
 def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, std : float=0.01):
     points = np.asarray(pcd.points)
+    print(f'there are {points.shape[0]} in point cloud')
     points_diff = np.linalg.norm(points - center, axis=1, ord=2)
     points_gaussian = np.exp(-0.5 * (points_diff / std) ** 2)
     points_gaussian = 255 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
@@ -56,8 +57,9 @@ def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, st
 def main(args):
 
     # extract file info
-    input_dir = args.input_dir
+    input_dir = f'{args.input_root}/{args.input_dir}'
     std = args.std
+    assert os.path.exists(args.input_root), f'{args.input_root} not exists'
     assert os.path.exists(input_dir), f'{input_dir} not exists'
 
     # Create pybullet GUI
@@ -76,6 +78,7 @@ def main(args):
     p.setTimeStep(sim_timestep)
 
     hook_dirs = glob.glob(f'{input_dir}/*')
+    # hook_dirs.sort()
     for hook_dir in hook_dirs:
         first_json = glob.glob(f'{hook_dir}/*exp_daily_5.json')[0]
         print(f'processing {first_json} ...')
@@ -90,7 +93,13 @@ def main(args):
         hook_urdf = json_dict['hook_path']
         hook_id, center, scale = load_obj_urdf(hook_urdf, hook_pose_7d[:3], hook_pose_7d[3:])
         # hook ply
-        ply_path = os.path.split(hook_urdf)[0] + '/base_single.ply'
+        ply_path = os.path.split(hook_urdf)[0] + '/base.ply'
+        if not os.path.exists(ply_path):
+          print(f'{ply_path} is not been written')
+          p.removeBody(hook_id)
+          p.removeAllUserDebugItems()
+          continue
+
         hook_pcd = o3d.io.read_point_cloud(ply_path)
         hook_pcd.transform(hook_trans)
         origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
@@ -115,9 +124,24 @@ def main(args):
         p.removeBody(hook_id)
         p.removeAllUserDebugItems()
 
+start_msg = \
+'''
+======================================================================================
+this script will create the affordance maps from the given object files in [root]/[objct_name]/base.urdf 
+and the contact points information in [data_root]/[data_dir]/[hook_name-obj_name]/[hook_name-obj_name].urdf 
+then save the affordace maps into the same folder
+
+dependency :
+- [root]/[obj_name]/base.urdf
+- [data_root]/[data_dir]/[hook_name-obj_name]/[hook_name-obj_name].urdf
+======================================================================================
+'''
+
+print(start_msg)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--input-root', '-ir', type=str, default='data')
     parser.add_argument('--input-dir', '-id', type=str, default='data')
     parser.add_argument('--std', '-std', type=float, default=0.01)
     args = parser.parse_args()

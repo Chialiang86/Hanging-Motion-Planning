@@ -174,6 +174,51 @@ def capture_image(view_mat, proj_matrix, far, near, width=320, height=240):
     return rgbBuffer, depthBuffer
 
 def main(args):
+
+    time_stamp = time.localtime()
+    time_mon_day = '{:02d}{:02d}'.format(time_stamp.tm_mon, time_stamp.tm_mday)
+
+    data_dir = f'{args.data_root}/{args.data_dir}'
+    kpt_trajectory_dir = f'{args.input_root}/{args.input_dir}' if args.input_dir != '' else f'{args.input_root}/{time_mon_day}'
+
+    assert os.path.exists(data_dir), f'{data_dir} not exists'
+    assert os.path.exists(kpt_trajectory_dir), f'{kpt_trajectory_dir} not exists'
+    assert os.path.exists(args.output_root), f'{args.output_root} not exists'
+    
+    # load model
+    obj_fname = f'{kpt_trajectory_dir}/{args.obj}'
+    hook_fname = f'{kpt_trajectory_dir}/{args.hook}'
+    obj_name = os.path.split(obj_fname)[1].split('.')[0]
+    hook_name = os.path.split(hook_fname)[1].split('.')[0]
+    # TODO : need to add postfix to data/ ?
+    obj_hook_pair_fname = f'{data_dir}/Hook_bar-hanging_exp/Hook_bar-{obj_name}.json'
+    print(f'hook_name: {hook_name}, obj_name: {obj_name}, obj_hook_pair_fname: {obj_hook_pair_fname}')
+
+    # if 'Hook_90' not in hook_fname:
+    #     return
+
+    assert os.path.exists(obj_hook_pair_fname), f'{obj_hook_pair_fname} not exists'
+    assert os.path.exists(obj_fname), f'{obj_fname} not exists'
+    assert os.path.exists(hook_fname), f'{hook_fname} not exists'
+
+    with open(obj_hook_pair_fname, 'r') as f:
+        obj_hook_pair_dict = json.load(f)
+    with open(obj_fname, 'r') as f:
+        obj_dict = json.load(f)
+    with open(hook_fname, 'r') as f:
+        hook_dict = json.load(f)
+    
+    demonstration_dir = f'{args.output_root}/{args.output_dir}' if args.output_dir != '' else f'{args.output_root}/{time_mon_day}'
+    if not os.path.exists(demonstration_dir):
+        os.mkdir(demonstration_dir)
+
+    # assert some attributes exist in the given json files
+    assert 'initial_pose' in obj_hook_pair_dict.keys(), \
+        f'"initial_pose" not in obj_hook_pair_dict!, please run hanging_init_pose.py'
+    assert 'contact_pose' in obj_dict.keys() and 'file' in obj_dict.keys(), \
+        f'"contact_pose" or "file" not in obj_dict!, please run keypoint_pose.py'
+    assert 'hook_pose' in hook_dict.keys() and 'file' in hook_dict.keys() and 'trajectory' in hook_dict.keys(), \
+        f'"hook_pose" or "file" or "trajectory" not in hook_dict!, please run keypoint_trajectory.py'
     
     # ------------------------ #
     # --- Setup simulation --- #
@@ -181,9 +226,10 @@ def main(args):
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.1,
-        cameraYaw=90,
+        cameraDistance=0.2,
+        cameraYaw=120,
         cameraPitch=-30,
         cameraTargetPosition=[0.5, 0.0, 1.3]
     )
@@ -208,32 +254,6 @@ def main(args):
 
     p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
-    # load model
-
-    root = f'keypoint_trajectory_{args.dir_postfix}'
-    demonstration_dir = f'demonstration_data_{args.dir_postfix}'
-    obj_fname = f'{root}/{args.obj}'
-    hook_fname = f'{root}/{args.hook}'
-    obj_name = os.path.split(obj_fname)[1].split('.')[0]
-    hook_name = os.path.split(hook_fname)[1].split('.')[0]
-    # TODO : need to add postfix to data/ ?
-    obj_hook_pair_fname = f'data/Hook_bar-hanging_exp/Hook_bar-{obj_name}.json'
-    print(f'hook_name: {hook_name}, obj_name: {obj_name}, obj_hook_pair_fname: {obj_hook_pair_fname}')
-
-    assert os.path.exists(obj_hook_pair_fname), f'{obj_hook_pair_fname} not exists'
-    assert os.path.exists(obj_fname), f'{obj_fname} not exists'
-    assert os.path.exists(hook_fname), f'{hook_fname} not exists'
-
-    with open(obj_hook_pair_fname, 'r') as f:
-        obj_hook_pair_dict = json.load(f)
-    with open(obj_fname, 'r') as f:
-        obj_dict = json.load(f)
-    with open(hook_fname, 'r') as f:
-        hook_dict = json.load(f)
-    
-    if not os.path.exists(demonstration_dir):
-        os.mkdir(demonstration_dir)
-
     # obj_pose_6d = obj_dict['obj_pose']
     # obj_pos = obj_pose_6d[:3]
     # obj_rot = obj_pose_6d[3:]
@@ -255,10 +275,12 @@ def main(args):
     initial_info = obj_hook_pair_dict['initial_pose'][index] # medium
     obj_pos = initial_info['object_pose'][:3]
     obj_rot = initial_info['object_pose'][3:]
+    obj_pos = list(np.array(obj_pos) + np.array([0, 0, 0.05]))
 
     initial_info = obj_hook_pair_dict['initial_pose'][index] # medium
     robot_pos = initial_info['robot_pose'][:3]
     robot_rot = initial_info['robot_pose'][3:]
+    robot_pos = list(np.array(robot_pos) + np.array([0, 0, 0.05]))
     robot_pose = robot_pos + robot_rot
     robot_transform = get_matrix_from_pos_rot(robot_pos, robot_rot)
 
@@ -309,10 +331,9 @@ def main(args):
         first_gripper_pos, first_gripper_rot = get_pos_rot_from_matrix(first_gripper_transform)
         first_gripper_pose = list(first_gripper_pos) + list(first_gripper_rot)
 
-        # draw_coordinate(kpt_transform_world)
-        # draw_coordinate(first_kpt_transform_world)
+        draw_coordinate(first_kpt_transform_world)
 
-        trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose)
+        trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose, resolution=0.003)
         for waypoint in trajectory_start:
             robot.apply_action(waypoint)
             p.stepSimulation()
@@ -326,7 +347,7 @@ def main(args):
 
         gripper_pose = None
         previous_transform = np.identity(4)
-        motion_frequency = 3
+        motion_frequency = 3 # down sample
         for i, waypoint in enumerate(trajectory_hook):
             if i % motion_frequency == 0:
                 
@@ -336,7 +357,7 @@ def main(args):
                 gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
                 gripper_pose = list(gripper_pos) + list(gripper_rot)
 
-                # draw_coordinate(world_transform)
+                draw_coordinate(world_transform)
 
                 robot.apply_action(gripper_pose)
                 p.stepSimulation()
@@ -382,6 +403,8 @@ def main(args):
         robot_apply_action(robot, obj_id, action, gripper_action='nop', 
             sim_timestep=0.05, diff_thresh=0.005, max_vel=-1, max_iter=100)
 
+        p.removeAllUserDebugItems()
+
         imgs_array = [Image.fromarray(img) for img in imgs]
 
         contact = False
@@ -389,38 +412,43 @@ def main(args):
         contact = True if contact_points != () else False
 
         # save gif
-        output_fname = f'{root}/gif'
-        status = 'success' if contact else 'failed'
-        if imgs_array is not None and status=='failed':
-            gif_path = os.path.join(output_fname, f'{hook_name}-{obj_name}_{traj_i}_{status}.gif')
+        if args.save_gif:
+            output_gif_dir = f'{demonstration_dir}/gif'
+            os.makedirs(output_gif_dir, exist_ok=True)
+            status = 'success' if contact else 'failed'
+            # if imgs_array is not None and status=='failed':
+            gif_path = os.path.join(output_gif_dir, f'{hook_name}-{obj_name}_{traj_i}_{status}.gif')
             imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
         
-        if status=='success':
-            output_dir = f'{demonstration_dir}/{hook_name}-{traj_i}-{obj_name}'
-            os.makedirs(output_dir, exist_ok=True)
-            action_dict = {
-                'action':[],
-                'cameraEyePosition':cameraEyePosition,
-                'cameraTargetPosition':cameraTargetPosition,
-                'cameraUpVector':cameraUpVector,
-                'far': far,
-                'near': near,
-                'fov': fov,
-                'aspect_ratio': aspect_ratio,
-            }
-            for i, data in enumerate(demonstration_list):
-                rgb_fname = f'{output_dir}/{i}.jpg'
-                depth_fname = f'{output_dir}/{i}.npy'
-                Image.fromarray(data['rgb']).save(rgb_fname)
-                np.save(depth_fname, data['depth'])
-                action_dict['action'].append(data['action'])
+        # save demonstration
+        if args.save_demo:
+            if status=='success':
+                output_dir = f'{demonstration_dir}/{hook_name}-{traj_i}-{obj_name}'
+                os.makedirs(output_dir, exist_ok=True)
+                action_dict = {
+                    'action':[],
+                    'cameraEyePosition':cameraEyePosition,
+                    'cameraTargetPosition':cameraTargetPosition,
+                    'cameraUpVector':cameraUpVector,
+                    'far': far,
+                    'near': near,
+                    'fov': fov,
+                    'aspect_ratio': aspect_ratio,
+                }
+                for i, data in enumerate(demonstration_list):
+                    rgb_fname = f'{output_dir}/{i}.jpg'
+                    depth_fname = f'{output_dir}/{i}.npy'
+                    Image.fromarray(data['rgb']).save(rgb_fname)
+                    np.save(depth_fname, data['depth'])
+                    action_dict['action'].append(data['action'])
 
-            action_fname = f'{output_dir}/action.json'
-            action_f = open(action_fname, 'w')
-            json.dump(action_dict, action_f, indent=4)
+                action_fname = f'{output_dir}/action.json'
+                action_f = open(action_fname, 'w')
+                json.dump(action_dict, action_f, indent=4)
 
-        with open(f"{root}/result.txt", "a") as myfile:
-            print(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
+        # save status
+        with open(f"{demonstration_dir}/result.txt", "a") as myfile:
+            print(f'{hook_name}-{obj_name}_{traj_i}_{status}')
             myfile.write(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
             myfile.flush()
             myfile.close()
@@ -431,10 +459,39 @@ def main(args):
     #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
     #         break
 
+start_msg = \
+'''
+======================================================================================
+this script will execute the hanging process using the collected keypoint trajectories
+in 
+- [input_root]/[input_dir]/[hook_name].json 
+- [input_root]/[input_dir]/[object_name].json
+
+dependency :
+- object folder that contains /[object_name]/base.urdf
+- hook folder that contains /[hook_name]/base.urdf
+- the keypoint pose of objects in [input_root]/[input_dir]/[obj_name].json
+- the keypoint trajectories of hooks in [input_root]/[input_dir]/[hook_name].json
+- the folder that cantain initial pose of objects in 
+  [data_root]/[data_dir]/[hook_name-object_set]/[hook_name-object_name].json
+note :
+- you can run this script using ./run.sh hangtraj
+======================================================================================
+'''
+
+print(start_msg)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir-postfix', '-dp', type=str, default='1118-1')
-    parser.add_argument('--obj', '--obj', type=str, default='hanging_exp_daily_5.json')
-    parser.add_argument('--hook', '--hook', type=str, default='Hook57#9_aug.json')
+    parser.add_argument('--data-root', '-dr', type=str, default='data')
+    parser.add_argument('--data-dir', '-dd', type=str, default='data')
+    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
+    parser.add_argument('--input-dir', '-id', type=str, default='')
+    parser.add_argument('--obj', '-obj', type=str, default='hanging_exp_daily_5.json')
+    parser.add_argument('--hook', '-hook', type=str, default='')
+    parser.add_argument('--output-root', '-or', type=str, default='demonstration_data')
+    parser.add_argument('--output-dir', '-od', type=str, default='')
+    parser.add_argument('--save-demo', '-sd', action="store_true")
+    parser.add_argument('--save-gif', '-sg', action="store_true")
     args = parser.parse_args()
     main(args)

@@ -160,7 +160,8 @@ def main(args):
 
     # extract args
     max_cnt = args.max_cnt
-    input_json = args.input_json
+    input_root = args.input_root
+    input_json = os.path.join(input_root, args.input_json)
     if not os.path.exists(input_json):
         print(f'{input_json} not exists')
 
@@ -375,8 +376,38 @@ def main(args):
         time.sleep(sim_timestep)
     print(f'process completed.')
 
+# start message
+start_msg = \
+'''
+======================================================================================
+this script will automatically output [max-cnt] starting poses of the gripper and the object
+using one initial pose in json file by controlling the robot
+the result will be saved into the same json file 
+[keyboard shortcut]
+- A: switch param control mode and keyboard control mode
+- Z: rotate the gripper
+- C: rotate the gripper
+- X: move the gripper along +X axis (front)
+- D: move the gripper along -X axis (back)
+- left : move the robot along -Y axis (left)
+- right: move the robot along +Y axis (right)
+- down : move the robot along -Z axis (down)
+- up   : move the robot along +Z axis (up)
+
+dependency :
+- hook folder that contains /[hook_name]/base.urdf
+- root directory of the contact points output
+- the directory of the contact points output contains [output_root]/[hook_name-object_name]/[hook_name-object_name].json
+note :
+- you can run it using ./run.sh initpose [max_cnt=1000] (with predefined [hook_name-object_name])
+======================================================================================
+'''
+
+print(start_msg)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--input-root', '-ir', type=str, default='data')
     parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json')
     parser.add_argument('--max-cnt', '-mc', type=int, default=1000)
     args = parser.parse_args()

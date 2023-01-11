@@ -258,6 +258,8 @@ def shorten_kpt_trajectory(kpt_trajectory : np.ndarray, length=0.05):
     return kpt_trajectory[tmp_index:]
 
 def main(args):
+
+    assert os.path.exists(args.input_root), f'{args.input_root} not exists'
     
     # ------------------------ #
     # --- Setup simulation --- #
@@ -265,11 +267,11 @@ def main(args):
 
     time_stamp = time.localtime()
     time_mon_day = '{:02d}{:02d}'.format(time_stamp.tm_mon, time_stamp.tm_mday)
-    dir_postfix = time_mon_day if args.dir_postfix == '' else args.dir_postfix
+    input_dir = f'keypoint_trajectory_{time_mon_day}' if args.input_dir == '' else args.input_dir
     max_cnt = args.max_cnt
 
     # dir name
-    dir_name = f'keypoint_trajectory_{dir_postfix}'
+    dir_name = f'{args.input_root}/{input_dir}' if input_dir != '' else 'keypoint_trajectory'
     assert os.path.exists(dir_name), f'{dir_name} not exists'
 
     # Create pybullet GUI
@@ -453,10 +455,26 @@ def main(args):
     #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
     #         break
 
+start_msg = \
+'''
+======================================================================================
+this script will collect the keypoint trajectory of each hook-object pair
+and the result will be saved into the same folder as input
+
+dependency :
+- object folder that contains /[object_name]/base.urdf
+- hook folder that contains /[hook_name]/base.urdf
+- the keypoint pose of objects in []
+======================================================================================
+'''
+
+print(start_msg)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir-postfix', '-dp', type=str, default='')
+    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
+    parser.add_argument('--input-dir', '-id', type=str, default='')
     parser.add_argument('--max-cnt', '-mc', type=int, default='20')
     args = parser.parse_args()
     main(args)

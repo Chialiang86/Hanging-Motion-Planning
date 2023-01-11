@@ -314,6 +314,8 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_r
     return contact_hook_trajectory_7d, imgs
 
 def main(args):
+
+    assert os.path.exists(args.output_root), f'{args.output_root} not exists'
     
     # ------------------------ #
     # --- Setup simulation --- #
@@ -485,7 +487,11 @@ def main(args):
         }
 
         # dir name
-        out_fname = f'keypoint_trajectory_{args.out_postfix}/{obj_name}.json'
+        out_fname = ''
+        if args.output_dir == '':
+            out_fname = f'{args.output_root}/keypoint_trajectory_{args.output_dir}/{obj_name}.json'
+        else :
+            out_fname = f'{args.output_root}/{args.output_dir}/{obj_name}.json'
         with open(out_fname, 'w') as f:
             json.dump(obj_dict, f, indent=4)
             print(f'{out_fname} has been written')
@@ -510,11 +516,26 @@ def main(args):
     #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
     #         break
 
+start_msg = \
+'''
+======================================================================================
+this script will output the keypoint pose of a predefined objects into
+[output_root]/[output_dir]/[obj_name].json
+
+dependency :
+- hook folder that contains [hook_root]/[hook_name]/base.urdf
+- object folder that contains [hook_root]/[object_name]/base.urdf
+- the source folder that contain [data_root]/[pivot_root]/[hook_name-object_name]/[hook_name-object_name].json
+======================================================================================
+'''
+
+print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json')
     # parser.add_argument('--id', '-id', type=str)
-    parser.add_argument('--out-postfix', '-op', type=str, default='')
+    parser.add_argument('--output-root', '-or', type=str, default='keypoint_trajectory')
+    parser.add_argument('--output-dir', '-od', type=str, default='')
     args = parser.parse_args()
     main(args)

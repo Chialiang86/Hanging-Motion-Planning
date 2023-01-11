@@ -154,7 +154,7 @@ def write_vhacd_and_urdf(center : torch.tensor or np.ndarray or list or tuple,
 def main(args):
 
     input_dir = args.input_dir
-    gen_num = args.gen_num
+    # gen_num = args.gen_num
     
     assert os.path.exists(input_dir), f'{input_dir} not exists'
 
@@ -174,7 +174,7 @@ def main(args):
     # config some hyper params #
     ############################
     # Random noise for mesh vertices
-    random_noise_factor = 0.1
+    random_noise_factor = 0.05
     # Number of optimization steps
     Niter = 50
     # Loss weights
@@ -227,36 +227,38 @@ def main(args):
             # We scale normalize and center the target mesh to fit in a sphere of radius 1 centered at (0,0,0). 
             # (scale, center) will be used to bring the predicted mesh to its original center and scale
             # Note that normalizing the target mesh, speeds up the optimization but is not necessary!
-            # center = verts.mean(0)
-            # verts = verts - center
-            # scale = max(verts.abs().max(0)[0])
-            # verts = verts / scale
+            center = verts.mean(0)
+            verts = verts - center
+            scale = max(verts.abs().max(0)[0])
+            verts = verts / scale
 
             # Construct target dir
             output_dir = f'{input_dir}/{obj_id}#{output_index}'
             os.makedirs(output_dir, exist_ok=True)
 
-            # # We construct a Meshes structure for the target mesh
-            # tgt_mesh = Meshes(verts=[verts], faces=[faces_idx])
-            # deformed_tgt_mesh = deform_mesh_random(tgt_mesh, device=device, max_scale=random_noise_factor)
-            # # tgt_obj_path = f'{output_dir}/base_before.obj'
-            # # verts = deformed_tgt_mesh.verts_packed()
-            # # verts = (verts * scale) + center
-            # # faces=deformed_tgt_mesh.faces_packed()
-            # # save_obj(tgt_obj_path, verts=verts, faces=faces)
-            # deformed_tgt_mesh = deform_mesh_to_tgt(deformed_tgt_mesh, tgt_mesh, device=device,
-            #                         Niter=Niter, w_chamfer=w_chamfer, w_edge=w_edge, w_normal=w_normal, w_laplacian=w_laplacian)
+            # We construct a Meshes structure for the target mesh
+            template_mesh = Meshes(verts=[verts], faces=[faces_idx])
+            deformed_template_mesh = deform_mesh_random(template_mesh, device=device, max_scale=random_noise_factor)
+            # tgt_obj_path = f'{output_dir}/base_before.obj'
+            # verts = deformed_tgt_mesh.verts_packed()
+            # verts = (verts * scale) + center
+            # faces=deformed_tgt_mesh.faces_packed()
+            # save_obj(tgt_obj_path, verts=verts, faces=faces)
+            deformed_tgt_mesh = deform_mesh_to_tgt(deformed_template_mesh, template_mesh, device=device,
+                                    Niter=Niter, w_chamfer=w_chamfer, w_edge=w_edge, w_normal=w_normal, w_laplacian=w_laplacian)
 
             # save target mesh
             tgt_obj_concave_path = f'{output_dir}/base.obj'
             tgt_obj_convex_path = f'{output_dir}/base.obj'
             src_urdf_convex_path = f'{input_dir}/{obj_id}/base.urdf'
             tgt_urdf_convex_path = f'{output_dir}/base.urdf'
-            # verts = deformed_tgt_mesh.verts_packed()
-            # verts = (verts * scale * torch.tensor(scales_3d[gen_cnt]).to(device)) + center
-            verts = (verts * torch.tensor(scales_3d[gen_cnt]).to(device))
-            # # verts = (verts * scale * torch.FloatTensor(1, 3).uniform_(scale_min, scale_max).to(device)) + center
-            # faces=deformed_tgt_mesh.faces_packed()
+
+
+            verts = deformed_tgt_mesh.verts_packed()
+            verts = (verts * scale + center) * torch.tensor(scales_3d[gen_cnt]).to(device)
+            # verts = (verts * torch.tensor(scales_3d[gen_cnt]).to(device))
+            # verts = (verts * scale * torch.FloatTensor(1, 3).uniform_(scale_min, scale_max).to(device)) + center
+            faces=deformed_tgt_mesh.faces_packed()
             save_obj(tgt_obj_concave_path, verts=verts, faces=faces_idx)
 
             # vhacd and urdf
@@ -281,10 +283,21 @@ def main(args):
             # verts, faces = marching_cubes_naive(volumes.unsqueeze(0))
             # print('marched ...')
         
+start_msg = \
+'''
+======================================================================================
+this script will augment new object by mesh deformation and 3D scaling and the result
+will be saved into the same root object folder, naming rule: [object_dir]/[obj_id]#[output_index]'
+
+dependency :
+- object folder that contains /[object_name]/base.urdf
+======================================================================================
+'''
+
+print(start_msg)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-dir', '-id', type=str, default='models/hook')
-    parser.add_argument('--gen-num', '-gn', type=int, default=1)
     args = parser.parse_args()
     main(args)

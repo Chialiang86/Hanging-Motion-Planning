@@ -78,11 +78,16 @@ def extract_contact_point(candidate_pts : np.ndarray, eps=0.002, min_samples=2):
 def main(args):
     hook_dir = args.hook_dir
     object_dir = args.object_dir
-    output_root = args.output_root
+    data_root = args.data_root
+    pivot_root = os.path.join(data_root, args.pivot_root)
+    output_root = os.path.join(data_root, args.output_root)
 
     assert os.path.exists(hook_dir), f'{hook_dir} not exists'
     assert os.path.exists(object_dir), f'{object_dir} not exists'
-    assert os.path.exists(output_root), f'{output_root} not exists'
+    assert os.path.exists(pivot_root), f'{pivot_root} not exists'
+
+    if not os.path.exists(output_root):
+        os.mkdir(output_root)
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
@@ -160,16 +165,16 @@ def main(args):
                 object_name = object_urdf_file.split('/')[-2]
                 full_object_name = object_dir + '_' + object_name
                 # pivot directory
-                pivot_dir = f'{output_root}/{pivot_hook_name}-{object_dir}'
+                pivot_dir = f'{pivot_root}/{pivot_hook_name}-{object_dir}'
                 assert os.path.exists(pivot_dir), f'{pivot_dir} not exists'
                 # config generated hook output directory
                 output_dir = f'{output_root}/{generated_hook_name}-{object_dir}'
                 os.makedirs(output_dir, exist_ok=True)
                 # config generated_hook-obj_name.json
                 output_json = f'{output_dir}/{generated_hook_name}-{full_object_name}.json'
-                # if os.path.exists(output_json):
-                #     print(f'ignore {output_json}')
-                #     continue
+                if os.path.exists(output_json):
+                    print(f'ignore {output_json}')
+                    continue
 
                 # object pose and hook pose
                 pivot_json = f'{pivot_dir}/{pivot_hook_name}-{full_object_name}.json'
@@ -286,10 +291,28 @@ def main(args):
             cnt += 1
             generated_hook_urdf_file = '{}#{}/base.urdf'.format(os.path.split(pivot_hook_urdf_file)[0], cnt)
 
+
+start_msg = \
+'''
+======================================================================================
+this script will generate contact points for the generated new objects in 
+[data_root]/[output_root]/[hook_name#id-object_name]/[hook_name#id-object_name].json
+
+dependency :
+- hook folder that contains [hook_root]/[hook_name]/base.urdf
+- object folder that contains [hook_root]/[object_name]/base.urdf
+- the source folder that contain [data_root]/[pivot_root]/[hook_name-object_name]/[hook_name-object_name].json
+======================================================================================
+'''
+
+print(start_msg)
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--hook-dir', '-hd', type=str, default='models/hook')
+    parser.add_argument('--hook-dir', '-hd', type=str, default='models/hook_1120')
     parser.add_argument('--object-dir', '-od', type=str, default='models/geo_data/hanging_exp')
-    parser.add_argument('--output-root', '-or', type=str, default='data')
+    parser.add_argument('--data-root', '-dr', type=str, default='data')
+    parser.add_argument('--pivot-root', '-pr', type=str, default='data')
+    parser.add_argument('--output-root', '-or', type=str, default='data_1120')
     args = parser.parse_args()
     main(args)

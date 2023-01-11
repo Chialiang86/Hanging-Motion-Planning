@@ -183,6 +183,9 @@ def main(args):
     # --- config io paths --- #
     # ----------------------- #
 
+    # check output root exists
+    assert os.path.exists(args.output_root), f'{args.output_root} not exists'
+
     hook_dir = os.path.join(args.hook_root, args.hook)
     if not os.path.exists(hook_dir):
         print(f'{hook_dir} not exists')
@@ -193,11 +196,11 @@ def main(args):
         print(f'{obj_dir} not exists')
         return
 
-    if not os.path.exists(args.output_dir):
-        os.mkdir(args.output_dir)
-    if not os.path.exists(os.path.join(args.output_dir, f'{args.hook}-{args.obj}')):
-        os.mkdir(os.path.join(args.output_dir, f'{args.hook}-{args.obj}'))
-
+    output_dir = os.path.join(args.output_root, args.output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    if not os.path.exists(os.path.join(output_dir, f'{args.hook}-{args.obj}')):
+        os.mkdir(os.path.join(output_dir, f'{args.hook}-{args.obj}'))
     
     hook_path = os.path.join(hook_dir, 'base.urdf')
     obj_paths = glob.glob(f'{obj_dir}/*/base.urdf')
@@ -311,7 +314,7 @@ def main(args):
         hook_name = args.hook
 
         # config output json dict and filename
-        result_path = os.path.join(args.output_dir, f'{args.hook}-{args.obj}', f'{hook_name}-{obj_name}.json')
+        result_path = os.path.join(output_dir, f'{args.hook}-{args.obj}', f'{hook_name}-{obj_name}.json')
         if os.path.exists(result_path):
             f = open(result_path, 'r')
             result_json = json.load(f)
@@ -491,11 +494,26 @@ def main(args):
         else :
             print(f'no pose : {obj_path}')
     
+# start message
+start_msg = \
+'''
+======================================================================================
+this script will collect contact points of a object and a hook by forward simulation
+dependency :
+- object folder that contains /[object_name]/base.urdf
+- hook folder that contains /[hook_name]/base.urdf
+- root directory of the contact points output
+note :
+- you can run it using ./run.sh hangsim (with predefined hook_id)
+======================================================================================
+'''
 
+print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-dir', '-or', type=str, default='data')
+    parser.add_argument('--output-root', '-or', type=str, default='data')
+    parser.add_argument('--output-dir', '-od', type=str, default='data_1205')
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')

@@ -333,7 +333,7 @@ if [ $# -ge 1 ]; then
 
         for input in "${INPUT[@]}"
         do
-            python3 hanging_init_pose.py --input-json "$input.json" --max-cnt $CNT
+            python3 hanging_init_pose.py --input-json "data/$input.json" --max-cnt $CNT
         done
     
     elif [ $1 = 'render' ]; then 
@@ -512,114 +512,13 @@ if [ $# -ge 1 ]; then
     elif [ $1 = 'hangtraj' ]; then 
 
         OBJECT=(
-            # 'keypoint_trajectory/hanging_exp_daily_11.json' \
-            # 'keypoint_trajectory/hanging_exp_daily_23.json' \
-            # 'keypoint_trajectory/hanging_exp_bag_70.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_67.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_115.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_14.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_19.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_39.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_48.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_62.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_27.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_35.json' 
-
-            'keypoint_trajectory/hanging_exp_bag_5.json' \
-            # 'keypoint_trajectory/hanging_exp_daily_5.json' \
-            # 'keypoint_trajectory/hanging_exp_mug_59.json' \
-            # 'keypoint_trajectory/hanging_exp_scissor_4.json' \
-            # 'keypoint_trajectory/hanging_exp_wrench_1.json'
-
-            # "keypoint_trajectory/hanging_exp_bag_5.json" \
-            # "keypoint_trajectory/hanging_exp_bag_6.json" \
-            # "keypoint_trajectory/hanging_exp_bag_70.json" \
-            # "keypoint_trajectory/hanging_exp_daily_106.json" \
-            # "keypoint_trajectory/hanging_exp_daily_114.json" \
-            # "keypoint_trajectory/hanging_exp_daily_115.json" \
-            # "keypoint_trajectory/hanging_exp_daily_118.json" \
-            # "keypoint_trajectory/hanging_exp_daily_11.json" \
-            # "keypoint_trajectory/hanging_exp_daily_23.json" \
-            # "keypoint_trajectory/hanging_exp_daily_2.json" \
-            # "keypoint_trajectory/hanging_exp_daily_41.json" \
-            # "keypoint_trajectory/hanging_exp_daily_42.json" \
-            # "keypoint_trajectory/hanging_exp_daily_5.json" \
-            # "keypoint_trajectory/hanging_exp_daily_63.json" \
-            # "keypoint_trajectory/hanging_exp_daily_71.json" \
-            # "keypoint_trajectory/hanging_exp_daily_72.json" \
-            # "keypoint_trajectory/hanging_exp_daily_7.json" \
-            # "keypoint_trajectory/hanging_exp_daily_84.json" \
-            # "keypoint_trajectory/hanging_exp_daily_85.json" \
-            # "keypoint_trajectory/hanging_exp_daily_8.json" \
-            # "keypoint_trajectory/hanging_exp_daily_97.json" \
-            # "keypoint_trajectory/hanging_exp_mug_100.json" \
-            # "keypoint_trajectory/hanging_exp_mug_112.json" \
-            # "keypoint_trajectory/hanging_exp_mug_113.json" \
-            # "keypoint_trajectory/hanging_exp_mug_115.json" \
-            # "keypoint_trajectory/hanging_exp_mug_118.json" \
-            # "keypoint_trajectory/hanging_exp_mug_11.json" \
-            # "keypoint_trajectory/hanging_exp_mug_123.json" \
-            # "keypoint_trajectory/hanging_exp_mug_126.json" \
-            # "keypoint_trajectory/hanging_exp_mug_128.json" \
-            # "keypoint_trajectory/hanging_exp_mug_129.json" \
-            # "keypoint_trajectory/hanging_exp_mug_132.json" \
-            # "keypoint_trajectory/hanging_exp_mug_135.json" \
-            # "keypoint_trajectory/hanging_exp_mug_142.json" \
-            # "keypoint_trajectory/hanging_exp_mug_145.json" \
-            # "keypoint_trajectory/hanging_exp_mug_146.json" \
-            # "keypoint_trajectory/hanging_exp_mug_147.json" \
-            # "keypoint_trajectory/hanging_exp_mug_149.json" \
-            # "keypoint_trajectory/hanging_exp_mug_150.json" \
-            # "keypoint_trajectory/hanging_exp_mug_159.json" \
-            # "keypoint_trajectory/hanging_exp_mug_166.json" \
-            # "keypoint_trajectory/hanging_exp_mug_173.json" \
-            # "keypoint_trajectory/hanging_exp_mug_181.json" \
-            # "keypoint_trajectory/hanging_exp_mug_184.json" \
-            # "keypoint_trajectory/hanging_exp_mug_193.json" \
-            # "keypoint_trajectory/hanging_exp_mug_199.json" \
-            # "keypoint_trajectory/hanging_exp_mug_19.json" \
-            # "keypoint_trajectory/hanging_exp_mug_204.json" \
-            # "keypoint_trajectory/hanging_exp_mug_205.json" \
-            # "keypoint_trajectory/hanging_exp_mug_43.json" \
-            # "keypoint_trajectory/hanging_exp_mug_59.json" \
-            # "keypoint_trajectory/hanging_exp_mug_64.json" \
-            # "keypoint_trajectory/hanging_exp_mug_67.json" \
-            # "keypoint_trajectory/hanging_exp_mug_70.json" \
-            # "keypoint_trajectory/hanging_exp_mug_73.json" \
-            # "keypoint_trajectory/hanging_exp_mug_80.json" \
-            # "keypoint_trajectory/hanging_exp_mug_82.json" \
-            # "keypoint_trajectory/hanging_exp_mug_90.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_101.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_12.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_14.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_19.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_22.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_27.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_31.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_39.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_48.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_4.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_58.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_62.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_74.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_79.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_8.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_92.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_95.json" \
-            # "keypoint_trajectory/hanging_exp_scissor_98.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_10.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_12.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_17.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_1.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_25.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_27.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_31.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_32.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_35.json" \
-            # "keypoint_trajectory/hanging_exp_wrench_36.json" \
+            # 'hanging_exp_bag_5.json' \
+            'hanging_exp_daily_5.json' \
+            # 'hanging_exp_mug_59.json' \
+            # 'hanging_exp_scissor_4.json' \
+            # 'hanging_exp_wrench_1.json'
         )
-        # HOOK=($(ls keypoint_trajectory/Hook_90*) $(ls keypoint_trajectory/Hook_180*))
-        HOOK=()
+        HOOK=($(ls keypoint_trajectory/keypoint_trajectory_1104/Hook_90* | sed 's|.*/||'))
 
         rm "keypoint_trajectory/result.txt"
         for hook in "${HOOK[@]}"
@@ -627,7 +526,7 @@ if [ $# -ge 1 ]; then
             for object in "${OBJECT[@]}"
             do
                 echo "pair : $object $hook"
-                python3 hanging_by_trajectory.py --obj $object --hook $hook
+                python3 hanging_by_trajectory.py -dd data -id keypoint_trajectory_1104 -sg -od 1104 -obj $object -hook $hook
             done
         done
     

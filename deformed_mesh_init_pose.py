@@ -1,8 +1,10 @@
 import os, json, argparse, glob
 
 def main(args):
-    input_dir = args.input_dir
-    assert os.path.exists(input_dir), f'{input_dir} not exists'
+    
+    input_root = args.input_root
+    input_dir = os.path.join(input_root, args.input_dir)
+    assert os.path.exists(input_root), f'{input_dir} not exists'
 
     all_json_dirs = os.listdir(f'{input_dir}/')
     pivot_json_dirs = []
@@ -76,8 +78,24 @@ def main(args):
             generated_dir = f'{input_dir}/{hook_name}#{cnt}-{object_dir}'
 
 
+start_msg = \
+'''
+======================================================================================
+this script will generate initial pose for the generated new objects in 
+[data_root]/[output_root]/[hook_name#id-object_name]/[hook_name#id-object_name].json
+
+dependency :
+- hook folder that contains [hook_root]/[hook_name]/base.urdf
+- object folder that contains [hook_root]/[object_name]/base.urdf
+- the source folder that contain [data_root]/[pivot_root]/[hook_name-object_name]/[hook_name-object_name].json
+======================================================================================
+'''
+
+print(start_msg)
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--input-root', '-ir', type=str, default='data')
     parser.add_argument('--input-dir', '-id', type=str, default='data')
     args = parser.parse_args()
     main(args)
