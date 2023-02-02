@@ -4,15 +4,14 @@ import numpy as np
 import pybullet as p
 from tqdm import tqdm
 
-
 from utils.bullet_utils import draw_coordinate, get_matrix_from_pos_rot, get_pos_rot_from_matrix
 
 def main(args):
 
-    assert os.path.exists(args.input_root), f'{args.input_root} not exists' 
+    assert os.path.exists(args.kptraj_root), f'{args.kptraj_root} not exists' 
 
-    input_dir = f'{args.input_root}/{args.input_dir}' if args.input_dir != '' else f'{args.input_root}/keypoint_trajectory'
-    assert os.path.exists(input_dir), f'{input_dir} not exists'
+    kptraj_dir = f'{args.kptraj_root}/{args.kptraj_dir}' if args.kptraj_dir != '' else f'{args.kptraj_root}/keypoint_trajectory'
+    assert os.path.exists(kptraj_dir), f'{kptraj_dir} not exists'
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
@@ -36,7 +35,16 @@ def main(args):
         # 'Hook122.json', 'Hook12.json', 'Hook42.json'
     ]
 
-    kpt_trajectory_jsons = glob.glob(f'{input_dir}/Hook*.json')
+    object_json = f'{kptraj_dir}/hanging_exp_daily_5.json'
+    object_dict = json.load(open(object_json, 'r'))
+    object_urdf = object_dict['file']
+    object_contact_pose = object_dict['contact_pose']
+
+    object_contact_trans = get_matrix_from_pos_rot(object_contact_pose[:3], object_contact_pose[3:])
+
+    obj_id = p.loadURDF(object_urdf)
+
+    kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/Hook_60*.json')
     kpt_trajectory_jsons.sort()
 
     for i, kpt_trajectory_json in enumerate(kpt_trajectory_jsons):
@@ -48,17 +56,15 @@ def main(args):
         if cont:
             continue
 
-
         with open(kpt_trajectory_json, 'r') as f:
             kpt_trajectory_dict = json.load(f)
             hook_urdf = kpt_trajectory_dict['file']
             hook_pos = kpt_trajectory_dict['hook_pose'][:3]
             hook_orientation = kpt_trajectory_dict['hook_pose'][3:]
-            hook_id = p.loadURDF(hook_urdf)
-            p.resetBasePositionAndOrientation(hook_id, hook_pos, hook_orientation)
+            hook_id = p.loadURDF(hook_urdf, hook_pos, hook_orientation)
             hook_transform = get_matrix_from_pos_rot(hook_pos, hook_orientation)
 
-            print('processing {}'.format(kpt_trajectory_dict['file']))
+            print('processing {}'.format(kpt_trajectory_json))
             for trajectory_id, trajectory in tqdm(enumerate(kpt_trajectory_dict['trajectory'])):
                 # print(f'rendering {trajectory_id}, num of waypoints = {len(trajectory)}')
                 if trajectory_id >= 50:
@@ -72,12 +78,14 @@ def main(args):
                     relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
                     kpt_transform = hook_transform @ relative_transform
 
+                    object_trans = kpt_transform @ np.linalg.inv(object_contact_trans)
+                    object_pos, object_rot = get_pos_rot_from_matrix(object_trans)
+                    p.resetBasePositionAndOrientation(obj_id, object_pos, object_rot)
+
                     draw_coordinate(kpt_transform, size=0.001, color=color)
 
-                    keys = p.getKeyboardEvents()            
-                    if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED): 
-                        break
-                
+                break
+    
             while True:
                 # key callback
                 keys = p.getKeyboardEvents()            
@@ -113,8 +121,8 @@ print(start_msg)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
-    parser.add_argument('--input-dir', '-id', type=str, default='keypoint_trajectory_1118-1')
+    parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
+    parser.add_argument('--kptraj-dir', '-kd', type=str, default='keypoint_trajectory_1104')
     args = parser.parse_args()
 
     main(args)

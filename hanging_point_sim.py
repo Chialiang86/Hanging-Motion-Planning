@@ -160,16 +160,16 @@ def extract_contact_point(candidate_pts : np.ndarray, eps=0.002, min_samples=2):
         cluster_mean_z = np.mean(cluster_pts, axis=0)[2]
         cluster_means_z.append(cluster_mean_z)
     
-    # no clustering
+    # no clustering, choose the lowest point on the object as the final contact point
     if len(cluster_means_z) == 0:
         return list(sorted(candidate_pts, key=lambda x: x[2])[0])
 
     cluster_means_z = np.asarray(cluster_means_z)
     
-    # get the highest cluster
+    # get the "highest" cluster
     highest_cluster_id = np.argsort(-cluster_means_z)[0]
     
-    # the lowest point in the highest cluster
+    # the lowest point on the object in the highest cluster
     cond = np.where(clustering_labels == highest_cluster_id)
     highest_pts = candidate_pts[cond]
     lphc_id = np.argsort(-highest_pts[:, 1])[0]
@@ -440,7 +440,7 @@ def main(args):
             p.removeAllUserDebugItems()
             candidate_pts = []
             for contact_point in contact_points:
-                candidate_pts.append(contact_point[5])
+                candidate_pts.append(contact_point[5]) # on the object
             candidate_pts = np.asarray(candidate_pts)
             
             # relative homogeneous contact point

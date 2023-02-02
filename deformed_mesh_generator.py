@@ -15,7 +15,6 @@ import scipy.spatial.distance as dist
 from pytorch3d.io import load_obj, save_obj
 from pytorch3d.structures import Meshes
 from pytorch3d.ops import sample_points_from_meshes
-from pytorch3d.ops.marching_cubes import marching_cubes_naive
 from pytorch3d.loss import (
     chamfer_distance, 
     mesh_edge_loss, 
@@ -51,7 +50,6 @@ def plot_pointcloud(mesh, title="", save=False):
         plt.savefig(f'{title}.png')
     plt.show()
 
-
 def plot_pcds(points, title="", save=False):
     # Sample points uniformly from the surface of the mesh.
     x, y, z = points.clone().detach().cpu().squeeze().unbind(1)    
@@ -66,7 +64,6 @@ def plot_pcds(points, title="", save=False):
     if save:
         plt.savefig(f'{title}.png')
     plt.show()
-
 
 def deform_mesh_random(tgt_mesh : Meshes, device=torch.device("cuda:0"), max_scale=0.2):
 

@@ -1,7 +1,4 @@
-import glob
-import os
-import time
-import argparse
+import glob, os, time, argparse, cv2
 from  tqdm import tqdm
 import pybullet as p
 import numpy as np
@@ -13,7 +10,7 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 from scipy.spatial.transform import Rotation as R
 
-def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
+def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0, 1]):
 
     tree = ET.parse(urdf_path)
     root = tree.getroot()
@@ -38,10 +35,8 @@ def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
       ]
     )
     assert scale[0] == scale[1] and scale[0] == scale[2] and scale[1] == scale[2], f"scale is not uniformed : {scale}"
-    obj_id = p.loadURDF(urdf_path, pos, p.getQuaternionFromEuler(rot))
+    obj_id = p.loadURDF(urdf_path, pos, rot)
     return obj_id, center, scale[0]
-
-
 
 def cross(a:np.ndarray,b:np.ndarray)->np.ndarray:
     return np.cross(a,b)
@@ -189,15 +184,41 @@ def adjust_normals(pcd : o3d.geometry.PointCloud()):
   cond = np.where(inner_product_with_normals < 0)
   normals[cond] *= -1
 
+def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, std : float=0.01):
+    points = np.asarray(pcd.points)
+    print(f'there are {points.shape[0]} in point cloud')
+    points_diff = np.linalg.norm(points - center, axis=1, ord=2)
+    points_gaussian = np.exp(-0.5 * (points_diff / std) ** 2)
+    points_gaussian = (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
+    # points_gaussian = 0 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
+    colors = cv2.applyColorMap((255 * points_gaussian).astype(np.uint8), colormap=cv2.COLORMAP_JET).squeeze()
+    colors = colors[:,::-1]
+    pcd.colors = o3d.utility.Vector3dVector(colors)
+
+    # check the point cloud contain the contact point
+    assert 1.0 - np.max(points_gaussian) < 1e-10, f'the point cloud doesn\'t contain contact point'
+    cond = np.where(points_gaussian == np.max(points_gaussian))
+
+    # move contact point to the first point
+    val = points_gaussian[cond[0]]
+    points_gaussian = np.delete(points_gaussian, cond[0], axis=0)
+    points_gaussian = np.insert(points_gaussian, 0, val, axis=0)
+    val = points[cond[0]]
+    points = np.delete(points, cond[0], axis=0)
+    points = np.insert(points, 0, val, axis=0)
+
+    affordance_map = np.hstack((points, points_gaussian.reshape(-1, 1)))
+
+    return affordance_map
+
 def main(args):
 
-  input_dir = args.input_dir
-  file_token = args.file_token
-  if not os.path.exists(input_dir):
-    print(f'{input_dir} not exists')
+  object_dir = args.object_dir
+  if not os.path.exists(object_dir):
+    print(f'{object_dir} not exists')
     return 
-  if not os.path.exists(f'{input_dir}/report'):
-    os.mkdir(f'{input_dir}/report')
+  if not os.path.exists(f'{object_dir}/report'):
+    os.mkdir(f'{object_dir}/report')
 
   p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -247,8 +268,8 @@ def main(args):
   rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
 
   origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-  # urdf_files = glob.glob(f'{input_dir}/*/{file_token}.urdf')
-  urdf_files = glob.glob(f'{input_dir}/*/base.urdf')
+  # urdf_files = glob.glob(f'{object_dir}/*/{file_token}.urdf')
+  urdf_files = glob.glob(f'{object_dir}/*/base.urdf')
   urdf_files.sort()
   for urdf_file in tqdm(urdf_files):
     print(urdf_file)
@@ -260,10 +281,16 @@ def main(args):
       # serial_num = int(urdf_file.split('/')[-2].split('#')[1])
       # if serial_num < 0:
       #   continue
+    
+    # TODO:
+    # in the future, add an option [hook/object]
+    # hook: set the pose by using p.loadURDF
+    # object: set the pose by using p.resetBasePositionAndOrientation
     print(f'processing {urdf_file}')
-    obj_id, center, scale = load_obj_urdf(urdf_file, [0, 0, 0])
-    # obj_id = p.loadURDF(urdf_file)
-
+    pos = [0, 0, 0]
+    rot = [0, 0, 0, 1]
+    obj_id, center, scale = load_obj_urdf(urdf_file, pos, rot)
+    
     # reset_camera(yaw, pitch, cameraDistance)
 
     time.sleep(0.01)
@@ -280,9 +307,9 @@ def main(args):
     mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
     pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
     pcd_ori.scale(scale, [0., 0., 0.,])
+    o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
     
     # save ply
-    # o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
     output_ply_path = os.path.splitext(urdf_file)[0] + '.ply'
     o3d.io.write_point_cloud(output_ply_path, pcd)
 
@@ -292,8 +319,8 @@ def main(args):
     # # save image
     # # output_jpg_path = os.path.splitext(urdf_file)[0] + '.jpg'
     # sub_dir = urdf_file.split('/')[-2]
-    # # output_jpg_path = f'{input_dir}/All_img/{sub_dir}.jpg'
-    # output_jpg_path = f'{input_dir}/report/{sub_dir}.jpg'
+    # # output_jpg_path = f'{object_dir}/All_img/{sub_dir}.jpg'
+    # output_jpg_path = f'{object_dir}/report/{sub_dir}.jpg'
     # pil_img = Image.fromarray(rgb_buffer)
     # pil_img.save(output_jpg_path)
 
@@ -315,8 +342,10 @@ print(start_msg)
 
 if __name__=="__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument('--input-root', '-ir', type=str, default='data')
-  parser.add_argument('--input-dir', '-id', type=str, default='models/hook')
+  # TODO: 
+  # if object is hook => the pose should be assigned by p.loadURDF
+  # if object is everyday object => the pose should be assigned by p.resetBasePositionAndOrientation
+  parser.add_argument('--object-dir', '-id', type=str, default='models/hook')
   parser.add_argument('--file-token', '-ft', type=str, default='base')
   args = parser.parse_args()
 

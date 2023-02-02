@@ -14,6 +14,7 @@ import pybullet_data
 # from PIL import Image
 
 # for motion planners
+from utils.bullet_utils import get_matrix_from_pose, get_pose_from_matrix
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
 from pybullet_planning.interfaces.planner_interface.joint_motion_planning import check_initial_end
 from pybullet_planning.motion_planners.rrt_connect import birrt
@@ -32,6 +33,7 @@ def get_obj_hook_pose(physics_client_id, json_dict : dict):
     # hook initialization
     hook_pos = json_dict['hook_pose'][:3]
     hook_orientation = json_dict['hook_pose'][3:]
+    # set the original coordinate of the hook
     hook_id = p.loadURDF(json_dict['hook_path'], hook_pos, hook_orientation)
 
     # get target hanging pose
@@ -41,6 +43,7 @@ def get_obj_hook_pose(physics_client_id, json_dict : dict):
     tgt_obj_pos = contact_info['obj_pose'][:3]
     tgt_obj_rot = contact_info['obj_pose'][3:]
     obj_id_target = p.loadURDF(json_dict['obj_path'])
+    # set the center coordinate of the object
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id])
     p.removeBody(obj_id_target)
@@ -201,13 +204,14 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, targ
     
     return waypoints
 
-def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_relative_transform : np.ndarray, obj_id : int, hook_id : int):
+def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, 
+                                        contact_pose_object : np.ndarray, 
+                                        hook_pose : np.ndarray, 
+                                        obj_id : int):
 
-    assert contact_relative_transform.shape == (4, 4), f'wrong shape of contact_relative_transform : {contact_relative_transform.shape}'
+    hook_trans = get_matrix_from_pose(hook_pose)
+    contact_trans_object = get_matrix_from_pose(contact_pose_object)
     assert len(waypoints) > 0 and len(waypoints[0]) == 7, f'waypoints is empty or each pose is not 7d (pos 3d, rot 4d in x, y, z, w format)'
-
-    hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
-    hook_transform = get_matrix_from_pos_rot(hook_pos, hook_rot)
 
     contact_hook_trajectory_7d = []
     imgs = []
@@ -223,12 +227,12 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray, contact_r
 
             # contact pose position
             obj_transform = get_matrix_from_pos_rot(position7d[:3], position7d[3:])
-            contact_transform = obj_transform @ contact_relative_transform
+            contact_transform = obj_transform @ contact_trans_object
             
             # draw_coordinate(contact_transform)
             
             # contact pose relative to hook
-            contact_hook_transform = np.linalg.inv(hook_transform) @ contact_transform
+            contact_hook_transform = np.linalg.inv(hook_trans) @ contact_transform
             contact_hook_pos, contact_hook_quat = get_pos_rot_from_matrix(contact_hook_transform)
             contact_hook_pose_7d = list(contact_hook_pos) + list(contact_hook_quat)
             contact_hook_trajectory_7d.append(contact_hook_pose_7d)
@@ -259,7 +263,7 @@ def shorten_kpt_trajectory(kpt_trajectory : np.ndarray, length=0.05):
 
 def main(args):
 
-    assert os.path.exists(args.input_root), f'{args.input_root} not exists'
+    assert os.path.exists(args.kptraj_root), f'{args.kptraj_root} not exists'
     
     # ------------------------ #
     # --- Setup simulation --- #
@@ -267,15 +271,20 @@ def main(args):
 
     time_stamp = time.localtime()
     time_mon_day = '{:02d}{:02d}'.format(time_stamp.tm_mon, time_stamp.tm_mday)
-    input_dir = f'keypoint_trajectory_{time_mon_day}' if args.input_dir == '' else args.input_dir
+    input_dir = f'keypoint_trajectory_{time_mon_day}' if args.kptraj_dir == '' else args.kptraj_dir
     max_cnt = args.max_cnt
 
     # dir name
-    dir_name = f'{args.input_root}/{input_dir}' if input_dir != '' else 'keypoint_trajectory'
-    assert os.path.exists(dir_name), f'{dir_name} not exists'
+    kptraj_dir_name = f'{args.kptraj_root}/{input_dir}' if input_dir != '' else 'keypoint_trajectory'
+    assert os.path.exists(kptraj_dir_name), f'{kptraj_dir_name} not exists'
+
+    # data dir
+    data_dir = f'data/{args.data_root}'
+    assert os.path.exists(data_dir), f'{data_dir} not exists'
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.DIRECT)
+    # physics_client_id = p.connect(p.GUI)
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
         cameraYaw=90,
@@ -300,42 +309,60 @@ def main(args):
     # -------------------------- #
     # --- Load other objects --- #
     # -------------------------- #
-
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     input_jsons = [
         # for trajectory
-        # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
-        # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
-        # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
-        # "data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
-        # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
-        # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
-        # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
-        # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
-        # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
-        # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
-        # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
-        # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
-        # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
-        # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
-        # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
-        # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
-        # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
-        # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
-        # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
+        # 'data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
+        # 'data/data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
+        # 'data/data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
+        # 'data/data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
+        # 'data/data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
+        # "data/data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
+        # "data/data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
+        # "data/data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
+        # "data/data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
+        # "data/data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
+        # "data/data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
+        # "data/data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
+        # "data/data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
+        # "data/data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
+        # "data/data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
+        # "data/data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
+        # "data/data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
+        # "data/data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
+        # "data/data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
+        # "data/data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
+        # "data/data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
+        # "data/data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
+        # "data/data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
     ]
 
-    input_jsons = glob.glob('data/*/*-hanging_exp_daily_5.json')
+    input_jsons = glob.glob(f'{data_dir}/*/Hook_*-hanging_exp_daily_5.json')
     input_jsons.sort()
     input_jsons = input_jsons[::-1]
 
     ignore_list = [
-        'Hook_bar', 'Hook_skew', 'Hook_90', 'Hook_60', 'Hook_180', 'Hook84'
+        # 'Hook_90#8-', 'Hook_90#9-', 'Hook_90-', 
+        # 'Hook_bar#0-', 'Hook_bar#1-', 'Hook_bar#10-', 
+        # 'Hook_bar#11-', 'Hook_bar#12-', 'Hook_bar#13-', 
+        # 'Hook_bar#14-', 'Hook_bar#15-', 'Hook_bar#16-', 
+        # 'Hook_bar#17-', 'Hook_bar#18-', 'Hook_bar#19-', 
+        # 'Hook_bar#2-', 'Hook_bar#20-', 'Hook_bar#21-', 
+        # 'Hook_bar#22-', 'Hook_bar#23-', 'Hook_bar#24-', 
+        # 'Hook_bar#25-', 'Hook_bar#26-', 'Hook_bar#3-', 
+        # 'Hook_bar#4-', 'Hook_bar#5-', 'Hook_bar#6-', 
+        # 'Hook_bar#7-', 'Hook_bar#8-', 'Hook_bar#9-', 
+        # 'Hook_bar-', 'Hook_skew#0-', 'Hook_skew#1-', 
+        # 'Hook_skew#10-', 'Hook_skew#11-', 'Hook_skew#12-', 
+        # 'Hook_skew#13-', 'Hook_skew#14-', 'Hook_skew#15-', 
+        # 'Hook_skew#16-', 'Hook_skew#17-', 'Hook_skew#18-', 
+        # 'Hook_skew#19-', 'Hook_skew#2-', 'Hook_skew#20-', 
+        # 'Hook_skew#21-', 'Hook_skew#22-', 'Hook_skew#23-', 
+        # 'Hook_skew#24-', 'Hook_skew#25-', 'Hook_skew#26-', 
+        # 'Hook_skew#3-', 'Hook_skew#4-', 'Hook_skew#5-', 
+        # 'Hook_skew#6-', 'Hook_skew#7-', 'Hook_skew#8-', 
+        # 'Hook_skew#9-', 'Hook_skew-',
     ]
 
     for input_json in input_jsons:
@@ -354,7 +381,7 @@ def main(args):
         pair = os.path.splitext(input_json)[0].split('/')[-1]
         hook_name = pair.split('-')[0]
         obj_name = pair.split('-')[1]
-        in_fname = f'{dir_name}/{obj_name}.json'
+        in_fname = f'{kptraj_dir_name}/{obj_name}.json'
 
         print(f'processing {input_json}')
         assert os.path.exists(input_json), f'{input_json} not exists'
@@ -376,6 +403,7 @@ def main(args):
 
         # get the information that needed in rrt
         obj_id, hook_id, tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
+        contact_point_pos_hook = json_dict['contact_info'][0]['contact_point_hook'] # homogeneous position
 
         if tgt_pose is None:
             print(f'ignore {input_json} due to unreliable initial pose')
@@ -384,19 +412,32 @@ def main(args):
             continue
         
         # input keypoint pose relative to object
+        contact_pose_object = None
         with open(in_fname, 'r') as f:
             obj_dict = json.load(f)
-            contact_pose = obj_dict['contact_pose']
-            contact_object_pose = get_matrix_from_pos_rot(contact_pose[:3], contact_pose[3:])
+            contact_pose_object = obj_dict['contact_pose']
 
-        # output data structure        
-        hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
-        hook_pose = list(hook_pos) + list(hook_rot)
+        # output data structure      
+        # [ Important ]  
+        # this hook_pose is relative to the center, it is not true because 
+        # the contact information and pose information is relative to the origin
+        # hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
+        # hook_pose = list(hook_pos) + list(hook_rot)
+        # TODO: contact_pose should be modified
+        hook_pose = json_dict['hook_pose'] # relative to the origin
         trajectory_dict = {
             'file': json_dict['hook_path'],
             'trajectory': [],
-            'hook_pose': hook_pose
+            'hook_pose': hook_pose,
+            'contact_pose': contact_point_pos_hook
         }
+
+        # Add on 2023/01/31 final contact pose (for last to contact point)
+        obj_hanging_pose = json_dict['contact_info'][0]['obj_pose'] # object hanging pose
+        obj_contact_trans_world = get_matrix_from_pose(obj_hanging_pose) @ get_matrix_from_pose(contact_pose_object)
+        hook_contact_pose = get_pose_from_matrix(
+            np.linalg.inv(get_matrix_from_pose(hook_pose)) @ obj_contact_trans_world
+        )
 
         # object position initialization
         # for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
@@ -404,7 +445,7 @@ def main(args):
             if max_cnt != -1 and index >= max_cnt:
                 break
 
-            initial_info = json_dict['initial_pose'][0] # use initial pose
+            initial_info = json_dict['initial_pose'][0] # use the first initial pose
             obj_init_pos = initial_info['object_pose'][:3]
             obj_init_rot = initial_info['object_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
@@ -413,15 +454,30 @@ def main(args):
             # run RRT algorithm
             waypoints = None
             while waypoints is None:
-                waypoints = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[table_id, hook_id], max_vel=0.1)
+                waypoints = hanging_by_rrt(
+                                physics_client_id, 
+                                robot, 
+                                obj_id, 
+                                target_conf=tgt_pose, 
+                                obstacles=[table_id, hook_id], 
+                                max_vel=0.1
+                            )
             if waypoints is None:
                 p.removeBody(obj_id)
                 p.removeBody(hook_id)
                 continue
 
-            # write trajectory relative to hook to file
-            contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(waypoints=waypoints, contact_relative_transform=contact_object_pose, obj_id=obj_id, hook_id=hook_id)
-            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.08)
+            # write trajectory relative to "hook origin" to file
+            contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(
+                                                    waypoints=waypoints, 
+                                                    contact_pose_object=contact_pose_object, 
+                                                    hook_pose=hook_pose,
+                                                    obj_id=obj_id
+                                                )
+            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.2)
+            contact_hook_trajectory_7d = contact_hook_trajectory_7d.tolist()
+
+            # TODO: add last to contact
 
             # # visualize trajectory
             # hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
@@ -431,16 +487,26 @@ def main(args):
             #     waypoint_transform = hook_transform @ relative_transform
             #     draw_coordinate(waypoint_transform)
 
-            trajectory_dict['trajectory'].append(contact_hook_trajectory_7d.tolist())
+            # Add on 2023/01/31 final contact pose (for last to contact point)
+            last_to_contact_point = get_dense_waypoints(
+                                        contact_hook_trajectory_7d[-1], 
+                                        hook_contact_pose, 
+                                        resolution=0.001
+                                    )
+
+            print(f'last_to_contact_point len = {len(last_to_contact_point)}')
+            contact_hook_trajectory_7d.extend(last_to_contact_point)
+
+            trajectory_dict['trajectory'].append(contact_hook_trajectory_7d)
             
             # imgs_array = [Image.fromarray(img) for img in imgs]
             # if imgs_array is not None:
-            #     gif_path = os.path.join(f'{dir_name}', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
+            #     gif_path = os.path.join(f'{kptraj_dir_name}', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
             #     imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
         
             p.removeAllUserDebugItems()
 
-        out_fname = f'{dir_name}/{hook_name}.json'
+        out_fname = f'{kptraj_dir_name}/{hook_name}.json'
         with open(out_fname, 'w') as f:
             json.dump(trajectory_dict, f, indent=4)
             print(f'{out_fname} has been written')
@@ -462,9 +528,9 @@ this script will collect the keypoint trajectory of each hook-object pair
 and the result will be saved into the same folder as input
 
 dependency :
-- object folder that contains /[object_name]/base.urdf
-- hook folder that contains /[hook_name]/base.urdf
-- the keypoint pose of objects in []
+- object folder that contains [object_root]/[object_name]/base.urdf
+- hook folder that contains [hook_root]/[hook_name]/base.urdf
+- the keypoint pose of objects in keypoint_trajectory/[kptraj_id]/*.json
 ======================================================================================
 '''
 
@@ -473,8 +539,9 @@ print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
-    parser.add_argument('--input-dir', '-id', type=str, default='')
+    parser.add_argument('--data-root', '-dr', type=str, default='data')
+    parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
+    parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
     parser.add_argument('--max-cnt', '-mc', type=int, default='20')
     args = parser.parse_args()
     main(args)

@@ -3,13 +3,13 @@ import glob
 import time
 import json
 import numpy as np
-import skrobot
 import os
 import cv2
 import open3d as o3d
 import pybullet as p
 import xml.etree.ElementTree as ET
 
+from tqdm import tqdm
 from scipy.spatial.transform import Rotation as R
 from utils.bullet_utils import get_matrix_from_pos_rot, get_pos_rot_from_matrix, draw_coordinate
 
@@ -47,20 +47,36 @@ def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, st
     points = np.asarray(pcd.points)
     print(f'there are {points.shape[0]} in point cloud')
     points_diff = np.linalg.norm(points - center, axis=1, ord=2)
+    print(f'the closest point to the center is {np.min(points_diff)}')
+
     points_gaussian = np.exp(-0.5 * (points_diff / std) ** 2)
-    points_gaussian = 255 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
-    # points_gaussian = 0 * (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
-    colors = cv2.applyColorMap(points_gaussian.astype(np.uint8), colormap=cv2.COLORMAP_JET).squeeze()
+    points_gaussian = (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
+    colors = cv2.applyColorMap((255 * points_gaussian).astype(np.uint8), colormap=cv2.COLORMAP_JET).squeeze()
     colors = colors[:,::-1]
     pcd.colors = o3d.utility.Vector3dVector(colors)
+
+    # check the point cloud contain the contact point
+    cond = np.where(points_gaussian == np.max(points_gaussian))
+
+    # move contact point to the first point
+    val = points_gaussian[cond[0]]
+    points_gaussian = np.delete(points_gaussian, cond[0], axis=0)
+    points_gaussian = np.insert(points_gaussian, 0, val, axis=0)
+    val = points[cond[0]]
+    points = np.delete(points, cond[0], axis=0)
+    points = np.insert(points, 0, val, axis=0)
+
+    affordance_map = np.hstack((points, points_gaussian.reshape(-1, 1)))
+
+    return affordance_map
 
 def main(args):
 
     # extract file info
-    input_dir = f'{args.input_root}/{args.input_dir}'
+    data_dir = f'{args.data_root}/{args.data_dir}'
     std = args.std
-    assert os.path.exists(args.input_root), f'{args.input_root} not exists'
-    assert os.path.exists(input_dir), f'{input_dir} not exists'
+    assert os.path.exists(args.data_root), f'{args.data_root} not exists'
+    assert os.path.exists(data_dir), f'{data_dir} not exists'
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
@@ -69,7 +85,7 @@ def main(args):
         cameraDistance=0.3,
         cameraYaw=120,
         cameraPitch=-30,
-        cameraTargetPosition=[0.7, 0.0, 1.3]
+        cameraTargetPosition=[0.0, 0.0, 0.0]
     )
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
@@ -77,21 +93,23 @@ def main(args):
     gravity = -9.8
     p.setTimeStep(sim_timestep)
 
-    hook_dirs = glob.glob(f'{input_dir}/*')
-    # hook_dirs.sort()
-    for hook_dir in hook_dirs:
-        first_json = glob.glob(f'{hook_dir}/*exp_daily_5.json')[0]
-        print(f'processing {first_json} ...')
+    data_dirs = glob.glob(f'{data_dir}/*')
+    data_dirs.sort()
 
-        f_json = open(first_json, 'r')
+    for data_dir in tqdm(data_dirs):
+        pivot_json = glob.glob(f'{data_dir}/*exp_daily_5.json')[0]
+        print(f'processing {pivot_json} ...')
+
+        f_json = open(pivot_json, 'r')
         json_dict = json.load(f_json)
 
         # hook pose
-        hook_pose_7d = json_dict['hook_pose']
-        hook_trans = get_matrix_from_pos_rot(hook_pose_7d[:3], hook_pose_7d[3:])
+        # hook_pose_7d = json_dict['hook_pose']
+        # hook_trans = get_matrix_from_pos_rot(hook_pose_7d[:3], hook_pose_7d[3:])
         # hook urdf
         hook_urdf = json_dict['hook_path']
-        hook_id, center, scale = load_obj_urdf(hook_urdf, hook_pose_7d[:3], hook_pose_7d[3:])
+        # hook_id, center, scale = load_obj_urdf(hook_urdf, hook_pose_7d[:3], hook_pose_7d[3:])
+        hook_id, center, scale = load_obj_urdf(hook_urdf, [0, 0, 0], [0, 0, 0])
         # hook ply
         ply_path = os.path.split(hook_urdf)[0] + '/base.ply'
         if not os.path.exists(ply_path):
@@ -101,26 +119,37 @@ def main(args):
           continue
 
         hook_pcd = o3d.io.read_point_cloud(ply_path)
-        hook_pcd.transform(hook_trans)
+        # hook_pcd.transform(hook_trans)
         origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
 
         # obj pose
         contact_pos = json_dict['contact_info'][0]['contact_point_hook']
         contact_trans = get_matrix_from_pos_rot(contact_pos[:3], [0, 0, 0, 1])
-        contact_trans_world = hook_trans @ contact_trans
+        kpt_pos = contact_trans[:3, 3]
+
+        # contact_trans_world = hook_trans @ contact_trans
         # GT target pose 
-        kpt_pos_world = contact_trans_world[:3, 3]
+        # kpt_pos_world = contact_trans_world[:3, 3]
 
-        render_affordance_map(hook_pcd, kpt_pos_world, std)
-        o3d.visualization.draw_geometries([hook_pcd])
+        # hook affordance map
+        # affordance_map = render_affordance_map(hook_pcd, kpt_pos_world, std)
+        affordance_map = render_affordance_map(hook_pcd, kpt_pos, std)
+        affordance_path = os.path.split(hook_urdf)[0] + '/affordance.npy'
+        np.save(open(affordance_path, 'wb'), affordance_map)
+        print(f'{affordance_path} saved')
 
-        draw_coordinate(contact_trans_world)
+        # print(affordance_map[:5])
+        # o3d.visualization.draw_geometries([hook_pcd])
+
+        draw_coordinate(contact_trans, size=0.001)
 
         # while True:
         #     # key callback
         #     keys = p.getKeyboardEvents()            
         #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED ): 
         #         break
+
+
         p.removeBody(hook_id)
         p.removeAllUserDebugItems()
 
@@ -132,7 +161,7 @@ and the contact points information in [data_root]/[data_dir]/[hook_name-obj_name
 then save the affordace maps into the same folder
 
 dependency :
-- [root]/[obj_name]/base.urdf
+- [obj_root]/[obj_name]/base.urdf
 - [data_root]/[data_dir]/[hook_name-obj_name]/[hook_name-obj_name].urdf
 ======================================================================================
 '''
@@ -141,8 +170,8 @@ print(start_msg)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-root', '-ir', type=str, default='data')
-    parser.add_argument('--input-dir', '-id', type=str, default='data')
-    parser.add_argument('--std', '-std', type=float, default=0.01)
+    parser.add_argument('--data-root', '-ir', type=str, default='data')
+    parser.add_argument('--data-dir', '-id', type=str, default='data')
+    parser.add_argument('--std', '-std', type=float, default=0.005)
     args = parser.parse_args()
     main(args)

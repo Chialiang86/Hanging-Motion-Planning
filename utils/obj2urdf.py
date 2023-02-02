@@ -90,6 +90,7 @@ def create_urdf(mesh, file):
 
     dirname, filename = os.path.split(file)
 
+    # TODO: in the future I need to decide wether the center should be [0, 0, 0]
     base_urdf_path = 'models/base/base.urdf'
     tree = ET.parse(base_urdf_path)
     root = tree.getroot()
