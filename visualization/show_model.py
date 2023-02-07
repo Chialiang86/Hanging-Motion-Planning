@@ -6,6 +6,8 @@ import glob
 import cv2
 import copy
 import numpy as np
+
+from tqdm import tqdm
 from scipy.spatial.transform import Rotation as R
 
 def capture_from_viewer(mesh):
@@ -37,11 +39,11 @@ def main(args):
 
     # frames for visualization
     obj_files = glob.glob(f'{input_dir}/*/base.obj')
+    obj_files.sort()
     frames = 36
     rotate_per_frame = (2 * np.pi) / frames
 
-
-    for obj_file in obj_files:
+    for obj_file in tqdm(obj_files):
         
         mesh = o3d.io.read_triangle_mesh(obj_file)
         mesh_90 = copy.deepcopy(mesh)
@@ -51,22 +53,22 @@ def main(args):
         obj_dir = os.path.split(obj_file)[0].split('/')[-1]
 
         img_list = []
-        img_list_90 = []
+        # img_list_90 = []
         for _ in range(frames):
             r = mesh.get_rotation_matrix_from_xyz((0, rotate_per_frame, 0)) # (rx, ry, rz) = (right, up, inner)
             mesh.rotate(r, center=(0, 0, 0))
-            mesh_90.rotate(r, center=(0, 0, 0))
+            # mesh_90.rotate(r, center=(0, 0, 0))
 
             img = capture_from_viewer(mesh)
-            img_90 = capture_from_viewer(mesh_90)
+            # img_90 = capture_from_viewer(mesh_90)
             img_list.append(img)
-            img_list_90.append(img_90)
+            # img_list_90.append(img_90)
         
         save_path = f'{out_dir}/{sub_dir}_{obj_dir}-0.gif'
-        save_path_90 = f'{out_dir}/{sub_dir}_{obj_dir}-90.gif'
+        # save_path_90 = f'{out_dir}/{sub_dir}_{obj_dir}-90.gif'
         imageio.mimsave(save_path, img_list, fps=20)
-        imageio.mimsave(save_path_90, img_list_90, fps=20)
-        print(f'{save_path} and {save_path_90} saved')
+        # imageio.mimsave(save_path_90, img_list_90, fps=20)
+        # print(f'{save_path} and {save_path_90} saved')
 
 if __name__=="__main__":
 

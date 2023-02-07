@@ -113,7 +113,7 @@ def main(args):
 
     target_length = 0.1
 
-    files = glob.glob(f'{input_dir}/*/*_normalized.obj')
+    files = glob.glob(f'{input_dir}/*/*.obj')
     # ignore_list = ['bag', 'wrench']
     ignore_list = []
 

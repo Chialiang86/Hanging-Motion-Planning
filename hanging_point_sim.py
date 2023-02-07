@@ -16,8 +16,8 @@ from utils.bullet_utils import get_matrix_from_pos_rot, draw_coordinate
 from scipy.spatial.transform import Rotation as R
 import xml.etree.ElementTree as ET
 
-from tqdm import tqdm
-from utils.renderer import Renderer
+# from tqdm import tqdm
+# from utils.renderer import Renderer
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 print(currentdir)
@@ -252,17 +252,18 @@ def main(args):
     # hook_pos=[0.8, -0.2, 1.0] for hook_90
     # hook_pos=[0.8, -0.2, 1.0]
     hook_pos=[0.5, -0.1, 1.3]
-    hook_rot=[0, 0, -np.pi/2]
-    if 'Hook12/' in hook_path or 'Hook12-' in hook_path:
-        hook_rot=[np.pi/2, 0, -np.pi/2]
-    elif 'Hook122/' in hook_path or 'Hook122-' in hook_path:
-        hook_rot=[np.pi, 0, -np.pi/2]
-    elif 'Hook186/' in hook_path or 'Hook186-' in hook_path:
-        hook_rot=[-np.pi/2, np.pi/2, 0]
-    elif 'Hook48/' in hook_path or 'Hook48-' in hook_path:
-        hook_rot=[np.pi/2, -np.pi/2, 0]
-    elif 'Hook_' in hook_path:
-        hook_rot=[np.pi/2, 0, np.pi]
+    hook_rot=[np.pi/2, 0, np.pi]
+    # hook_rot=[0, 0, -np.pi/2]
+    # if 'Hook12/' in hook_path or 'Hook12-' in hook_path:
+    #     hook_rot=[np.pi/2, 0, -np.pi/2]
+    # elif 'Hook122/' in hook_path or 'Hook122-' in hook_path:
+    #     hook_rot=[np.pi, 0, -np.pi/2]
+    # elif 'Hook186/' in hook_path or 'Hook186-' in hook_path:
+    #     hook_rot=[-np.pi/2, np.pi/2, 0]
+    # elif 'Hook48/' in hook_path or 'Hook48-' in hook_path:
+    #     hook_rot=[np.pi/2, -np.pi/2, 0]
+    # elif 'Hook_' in hook_path:
+    #     hook_rot=[np.pi/2, 0, np.pi]
     hook_id = p.loadURDF(hook_path, hook_pos, p.getQuaternionFromEuler(hook_rot))
     
     # ignore_list = []
@@ -513,7 +514,7 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--output-root', '-or', type=str, default='data')
-    parser.add_argument('--output-dir', '-od', type=str, default='data_1205')
+    parser.add_argument('--output-dir', '-od', type=str, default='data_0206')
     parser.add_argument('--object-root', '-ir', type=str, default='models/geo_data')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook')
     parser.add_argument('--obj', '-o', type=str, default='hanging_exp')

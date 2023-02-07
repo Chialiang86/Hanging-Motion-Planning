@@ -2,6 +2,8 @@
 *.obj
 *.ply
 *.npy
+*.npz
+point_e_model_cache/
 models/robot
 *.txt
 */__pycache__
