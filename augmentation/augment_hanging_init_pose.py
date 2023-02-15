@@ -216,7 +216,7 @@ def main(args):
         json_dict = json.load(open(json_path, 'r'))
 
         if 'initial_pose' in json_dict.keys():
-            print(f'initial_pose not in {json_path}, ignore it')
+            print(f'initial_pose in {json_path}, ignore it')
             continue
 
         json_dict['initial_pose'] = canonical_initial_pose

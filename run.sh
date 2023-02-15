@@ -299,6 +299,61 @@ if [ $# -ge 1 ]; then
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_204" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_205" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
+
+                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
+                # "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
+                # "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
+                # "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
+                # "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
+                # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
+                # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
+                # ddd"data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
+                # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
+                # "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
+                # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
+                # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5" \
+                # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5" \
+                # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5" \
+                # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5" \
+                # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5" \
+                # "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5" \
+                # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5" \
+                # "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5" \
+                # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5" \
+                # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5" \
+                # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5" \
+                # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5" \
+                # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5" \
+                # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5" \
+                # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5" \
+                
+                
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_43" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59" \
                 # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_64" \
@@ -378,6 +433,15 @@ if [ $# -ge 1 ]; then
         for input in "${INPUT[@]}"
         do
             python3 hanging_init_pose.py --input-json "data/$input.json" --max-cnt $CNT
+        done
+    
+    elif [ $1 = 'kptraj' ]; then 
+
+        for i in {2..10}
+        do 
+           
+            python3 keypoint_trajectory.py -dr data_all -kd kptraj_all > "kptraj_logs/kptraj_all-${i}.txt"
+        
         done
     
     elif [ $1 = 'render' ]; then 

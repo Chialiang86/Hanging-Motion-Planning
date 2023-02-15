@@ -12,10 +12,9 @@ __all__ = [
 INF = float('inf')
 
 # default RRT configurations
-RRT_ITERATIONS = 3000
-RRT_RESTARTS = 2
+RRT_ITERATIONS = 5000
+RRT_RESTARTS = 1
 RRT_SMOOTHING = 100
-
 
 def irange(start, stop=None, step=1):  # np.arange
     if stop is None:
@@ -48,15 +47,12 @@ def merge_dicts(*args):
     return result
     # return dict(reduce(operator.add, [d.items() for d in args]))
 
-
 def flatten(iterable_of_iterables):
     return (item for iterables in iterable_of_iterables for item in iterables)
-
 
 def randomize(sequence):
     shuffle(sequence)
     return sequence
-
 
 def bisect(sequence):
     sequence = list(sequence)

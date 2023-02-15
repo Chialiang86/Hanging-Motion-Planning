@@ -380,7 +380,6 @@ def main(args):
             print(f'please get the hook_pose and write to {input_json}')
             continue
 
-
         out_fname = f'{kptraj_dir_name}/{hook_name}.json'
 
         # if os.path.exists(out_fname):
@@ -411,12 +410,33 @@ def main(args):
         # hook_pose = list(hook_pos) + list(hook_rot)
         # TODO: contact_pose should be modified
         hook_pose = json_dict['hook_pose'] # relative to the origin
-        trajectory_dict = {
-            'file': json_dict['hook_path'],
-            'trajectory': [],
-            'hook_pose': hook_pose,
-            'contact_pose': contact_point_pos_hook
-        }
+        trajectory_dict = None
+        if os.path.exists(out_fname):
+            traj_dict = json.load(open(out_fname, 'r'))
+
+            if 'trajectory' in traj_dict.keys():
+                trajectory_dict = {
+                    'file': json_dict['hook_path'],
+                    'trajectory': traj_dict['trajectory'],
+                    'hook_pose': hook_pose,
+                    'contact_pose': contact_point_pos_hook
+                }
+
+            else :
+                trajectory_dict = {
+                    'file': json_dict['hook_path'],
+                    'trajectory': [],
+                    'hook_pose': hook_pose,
+                    'contact_pose': contact_point_pos_hook
+                }
+
+        else :
+            trajectory_dict = {
+                'file': json_dict['hook_path'],
+                'trajectory': [],
+                'hook_pose': hook_pose,
+                'contact_pose': contact_point_pos_hook
+            }
 
         # Add on 2023/01/31 final contact pose (for last to contact point)
         obj_hanging_pose = json_dict['contact_info'][0]['obj_pose'] # object hanging pose
