@@ -222,8 +222,8 @@ def main(args):
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
     index = 0
     contact_info = json_dict['contact_info'][index]
-    tgt_obj_pos = contact_info['object_pose'][:3]
-    tgt_obj_rot = contact_info['object_pose'][3:]
+    tgt_obj_pos = contact_info['obj_pose'][:3]
+    tgt_obj_rot = contact_info['obj_pose'][3:]
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
 
@@ -240,7 +240,7 @@ def main(args):
     json_dict['initial_pose'] = []
 
     # grasping
-    # robot.apply_action(contact_info['object_pose'])
+    # robot.apply_action(contact_info['obj_pose'])
     sim_timestep = 1.0 / 240.0
     p.setTimeStep(sim_timestep)
 
@@ -298,23 +298,36 @@ def main(args):
 
                 # for novel poses
                 deg2rad = np.pi / 180
-                pos_low_limit = np.array( [-0.05,  0.0, -0.05])
-                pos_high_limit = np.array([ 0.05,  0.3,  0.15])
-                rot_low_limit = np.array( [-5 * deg2rad, -5 * deg2rad, -5 * deg2rad])
-                rot_high_limit = np.array([ 5 * deg2rad,  5 * deg2rad,  5 * deg2rad])
+                pos_low_limit = np.array( [-0.005,  0.0, -0.005])
+                pos_high_limit = np.array([ 0.005,  0.0,  0.005])
+                rot_low_limit = np.array( [-2 * deg2rad, -2 * deg2rad, -2 * deg2rad])
+                rot_high_limit = np.array([ 2 * deg2rad,  2 * deg2rad,  2 * deg2rad])
                 
                 initial_pose_ele = {
                     'robot_pose': gripper_pose,
-                    'object_pose': obj_pose
+                    'obj_pose': obj_pose
                 }
                 json_dict['initial_pose'].append(initial_pose_ele)
 
                 draw_bbox(np.asarray(obj_pos) + pos_low_limit, np.asarray(obj_pos) + pos_high_limit)
 
+                aug_offset = np.asarray([
+                                [-0.03, 0, -0.03],
+                                [-0.03, 0,  0],
+                                [-0.03, 0,  0.03],
+                                [    0, 0,  0.03],
+                                [ 0.03, 0,  0.03],
+                                [ 0.03, 0,  0],
+                                [ 0.03, 0, -0.03],
+                                [    0, 0, -0.03]
+                            ])
+
                 cnt = 0
+                max_cnt = 8
                 while cnt < max_cnt:
                     # for new obj pose
-                    obj_pos_new = np.asarray(obj_pos) + np.random.uniform(low=pos_low_limit, high=pos_high_limit)
+                    obj_pos_new = np.asarray(obj_pos) + aug_offset[cnt]
+                    obj_pos_new = obj_pos_new + np.random.uniform(low=pos_low_limit, high=pos_high_limit)
                     obj_rot_new = R.from_quat(obj_rot).as_rotvec() + np.random.uniform(low=rot_low_limit, high=rot_high_limit)
                     obj_rot_new = R.from_rotvec(obj_rot_new).as_quat()
                     obj_pose_new = list(obj_pos_new) + list(obj_rot_new)
@@ -329,7 +342,7 @@ def main(args):
                     # refine initial pose of gripper and object
                     initial_pose_ele = {
                         'robot_pose': gripper_pose_new,
-                        'object_pose': obj_pose_new
+                        'obj_pose': obj_pose_new
                     }
                     json_dict['initial_pose'].append(initial_pose_ele)
 
@@ -408,7 +421,7 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-root', '-ir', type=str, default='data')
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data_all_small/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json')
     parser.add_argument('--max-cnt', '-mc', type=int, default=1000)
     args = parser.parse_args()
     main(args)

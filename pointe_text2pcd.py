@@ -42,41 +42,29 @@ sampler = PointCloudSampler(
 # Set a prompt to condition on.
 prompts_list = [
             [
-                'a hook for hanging spatula', 
-                'a hook for hanging spatula', 
-                'a hook for hanging spatula', 
-                'a hook for hanging spatula', 
+                'a hook for hanging wrench', 
+                'a hook for hanging wrench', 
+                'a hook for hanging wrench', 
+                'a hook for hanging wrench'
             ],
             [
-                'a scissor', 
-                'a scissor', 
-                'a scissor', 
-                'a scissor', 
+                'a hook for hanging cooking utensils', 
+                'a hook for hanging cooking utensils', 
+                'a hook for hanging cooking utensils', 
+                'a hook for hanging cooking utensils' 
             ],
             [
-                'a lock', 
-                'a lock', 
-                'a lock', 
-                'a lock', 
+                'a hook for hanging keys', 
+                'a hook for hanging keys', 
+                'a hook for hanging keys', 
+                'a hook for hanging keys' 
             ],
             [
-                'a tool with a hole at the end for hanging', 
-                'a tool with a hole at the end for hanging', 
-                'a tool with a hole at the end for hanging', 
-                'a tool with a hole at the end for hanging', 
-            ],
-            [
-                'a spatula', 
-                'a spatula', 
-                'a spatula', 
-                'a spatula', 
-            ],
-            [
-                'a wrench', 
-                'a wrench', 
-                'a wrench', 
-                'a wrench', 
-            ],
+                'a hook for hanging scissors', 
+                'a hook for hanging scissors', 
+                'a hook for hanging scissors', 
+                'a hook for hanging scissors'
+            ]
         ]
 
 # Produce a sample from the model.

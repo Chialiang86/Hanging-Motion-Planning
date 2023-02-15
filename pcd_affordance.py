@@ -97,8 +97,12 @@ def main(args):
     data_dirs.sort()
 
     for data_dir in tqdm(data_dirs):
+
+        if not os.path.isdir(data_dir):
+          continue
+        
+        print(f'processing {data_dir} ...')
         pivot_json = glob.glob(f'{data_dir}/*exp_daily_5.json')[0]
-        print(f'processing {pivot_json} ...')
 
         f_json = open(pivot_json, 'r')
         json_dict = json.load(f_json)
@@ -108,40 +112,46 @@ def main(args):
         # hook_trans = get_matrix_from_pos_rot(hook_pose_7d[:3], hook_pose_7d[3:])
         # hook urdf
         hook_urdf = json_dict['hook_path']
-        # hook_id, center, scale = load_obj_urdf(hook_urdf, hook_pose_7d[:3], hook_pose_7d[3:])
         hook_id, center, scale = load_obj_urdf(hook_urdf, [0, 0, 0], [0, 0, 0])
+
+        ply_paths = glob.glob(f'{os.path.split(hook_urdf)[0]}/*.ply')
+        ply_paths.sort()
+        
         # hook ply
-        ply_path = os.path.split(hook_urdf)[0] + '/base.ply'
-        if not os.path.exists(ply_path):
-          print(f'{ply_path} is not been written')
-          p.removeBody(hook_id)
-          p.removeAllUserDebugItems()
-          continue
+        for ply_path in ply_paths:
+          if not os.path.exists(ply_path):
+            print(f'{ply_path} is not been written')
+            p.removeBody(hook_id)
+            p.removeAllUserDebugItems()
+            continue
 
-        hook_pcd = o3d.io.read_point_cloud(ply_path)
-        # hook_pcd.transform(hook_trans)
-        origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+          ply_id = os.path.split(ply_path)[-1].split('.')[0].split('-')[-1]
+          affordance_path = os.path.split(hook_urdf)[0] + f'/affordance-{ply_id}.npy'
+          # if os.path.exists(affordance_path):
+          #   print(f'ignore {affordance_path}')
+          #   continue
 
-        # obj pose
-        contact_pos = json_dict['contact_info'][0]['contact_point_hook']
-        contact_trans = get_matrix_from_pos_rot(contact_pos[:3], [0, 0, 0, 1])
-        kpt_pos = contact_trans[:3, 3]
+          hook_pcd = o3d.io.read_point_cloud(ply_path)
+          # hook_pcd.transform(hook_trans)
+          origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
 
-        # contact_trans_world = hook_trans @ contact_trans
-        # GT target pose 
-        # kpt_pos_world = contact_trans_world[:3, 3]
+          # obj pose
+          contact_pos = json_dict['contact_info'][0]['contact_point_hook']
+          contact_trans = get_matrix_from_pos_rot(contact_pos[:3], [0, 0, 0, 1])
+          kpt_pos = contact_trans[:3, 3]
 
-        # hook affordance map
-        # affordance_map = render_affordance_map(hook_pcd, kpt_pos_world, std)
-        affordance_map = render_affordance_map(hook_pcd, kpt_pos, std)
-        affordance_path = os.path.split(hook_urdf)[0] + '/affordance.npy'
-        np.save(open(affordance_path, 'wb'), affordance_map)
-        print(f'{affordance_path} saved')
+          # contact_trans_world = hook_trans @ contact_trans
+          # GT target pose 
+          # kpt_pos_world = contact_trans_world[:3, 3]
 
-        # print(affordance_map[:5])
-        # o3d.visualization.draw_geometries([hook_pcd])
+          # hook affordance map
+          # affordance_map = render_affordance_map(hook_pcd, kpt_pos_world, std)
+          affordance_map = render_affordance_map(hook_pcd, kpt_pos, std)
+          np.save(open(affordance_path, 'wb'), affordance_map)
+          print(f'{affordance_path} saved')
+          # draw_coordinate(contact_trans, size=0.001)
 
-        draw_coordinate(contact_trans, size=0.001)
+          # o3d.visualization.draw_geometries([hook_pcd])
 
         # while True:
         #     # key callback
@@ -162,6 +172,7 @@ then save the affordace maps into the same folder
 
 dependency :
 - [obj_root]/[obj_name]/base.urdf
+- [obj_root]/[obj_name]/base.ply
 - [data_root]/[data_dir]/[hook_name-obj_name]/[hook_name-obj_name].urdf
 ======================================================================================
 '''

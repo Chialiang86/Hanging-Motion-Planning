@@ -12,9 +12,9 @@ __all__ = [
 INF = float('inf')
 
 # default RRT configurations
-RRT_ITERATIONS = 20000
+RRT_ITERATIONS = 3000
 RRT_RESTARTS = 2
-RRT_SMOOTHING = 400
+RRT_SMOOTHING = 100
 
 
 def irange(start, stop=None, step=1):  # np.arange

@@ -111,7 +111,7 @@ def main(args):
     # base_save_dir = args.save_dir
     # os.makedirs(base_save_dir, exist_ok=True)
 
-    target_length = 0.1
+    target_length = 0.06
 
     files = glob.glob(f'{input_dir}/*/*.obj')
     # ignore_list = ['bag', 'wrench']
@@ -139,7 +139,7 @@ def main(args):
             size = np.array(np.max(mesh.vertices, axis=0)
                             - np.min(mesh.vertices, axis=0))
             length = np.max(size)
-            mesh.vertices = mesh.vertices * target_length / length
+            # mesh.vertices = mesh.vertices * target_length / length
 
         except Exception as e:
             print('skip {}'.format(file))

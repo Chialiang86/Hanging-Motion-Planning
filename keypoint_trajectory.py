@@ -102,6 +102,26 @@ def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
     print(f'successfully find refined pose')
     return refine_pose
 
+def refine_initial_pose(src_pose, tgt_pose):
+
+    src_transform = get_matrix_from_pose(src_pose)
+    tgt_transform = get_matrix_from_pose(tgt_pose)
+
+    src_rot = src_transform[:3, :3]
+    tgt_rot = tgt_transform[:3, :3]
+
+    src_rotvec = R.from_matrix(src_rot).as_rotvec()
+    tgt_rotvec = R.from_matrix(tgt_rot).as_rotvec()
+
+    rot_180 = np.identity(4)
+    rot_180[:3, :3] = R.from_rotvec([0, 0, np.pi]).as_matrix()
+    tgt_dual_transform = tgt_transform @ rot_180
+    tgt_dual_rotvec = R.from_matrix(tgt_dual_transform[:3, :3]).as_rotvec()
+
+    tgt_dual_pose = get_pose_from_matrix(tgt_dual_transform)
+
+    return list(tgt_pose) if np.sum((src_rotvec - tgt_rotvec) ** 2) < np.sum((src_rotvec - tgt_dual_rotvec) ** 2) else list(tgt_dual_pose)
+
 def draw_coordinate(pose : np.ndarray or tuple or list, size : float = 0.1):
     assert (type(pose) == np.ndarray and pose.shape == (4, 4)) or (len(pose) == 7)
 
@@ -169,17 +189,18 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     
     low_limit = [0, 0, 0]
     high_limit = [0, 0, 0]
-    padding = [0.05, 0.05, 0.1]
+    up_padding = [0.02, 0.03, 0.08]
+    down_padding = [0.05, 0.03, 0.02]
 
     # xlim, ylim
     for i in range(3):
         if start_pos[i] < target_pos[i]:
-            low_limit[i] = start_pos[i] - padding[i]
-            high_limit[i] = target_pos[i] + padding[i] 
+            low_limit[i] = start_pos[i] - down_padding[i]
+            high_limit[i] = target_pos[i] + up_padding[i] 
         else :
-            low_limit[i] = target_pos[i] - padding[i]
-            high_limit[i] = start_pos[i] + padding[i]
-    # draw_bbox(low_limit, high_limit) 
+            low_limit[i] = target_pos[i] - down_padding[i]
+            high_limit[i] = start_pos[i] + up_padding[i]
+    draw_bbox(low_limit, high_limit) 
     
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
@@ -258,6 +279,8 @@ def shorten_kpt_trajectory(kpt_trajectory : np.ndarray, length=0.05):
         if tmp_length >= length:
             print(tmp_length)
             break
+    
+    print(f'trajectory length: {tmp_length}')
 
     return kpt_trajectory[tmp_index:]
 
@@ -312,30 +335,6 @@ def main(args):
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     input_jsons = [
-        # for trajectory
-        # 'data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json',
-        # 'data/data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json',
-        # 'data/data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5.json',
-        # 'data/data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5.json',
-        # 'data/data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5.json',
-        # "data/data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5.json",
-        # "data/data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5.json",
-        # "data/data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5.json",
-        # "data/data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5.json",
-        # "data/data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5.json",
-        # "data/data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5.json",
-        # "data/data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5.json",
-        # "data/data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5.json",
-        # "data/data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5.json",
-        # "data/data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5.json",
-        # "data/data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5.json",
-        # "data/data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5.json",
-        # "data/data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5.json",
-        # "data/data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5.json",
-        # "data/data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5.json",
-        # "data/data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5.json",
-        # "data/data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5.json",
-        # "data/data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5.json",
     ]
 
     input_jsons = glob.glob(f'{data_dir}/*/Hook_*-hanging_exp_daily_5.json')
@@ -343,26 +342,6 @@ def main(args):
     input_jsons = input_jsons[::-1]
 
     ignore_list = [
-        # 'Hook_90#8-', 'Hook_90#9-', 'Hook_90-', 
-        # 'Hook_bar#0-', 'Hook_bar#1-', 'Hook_bar#10-', 
-        # 'Hook_bar#11-', 'Hook_bar#12-', 'Hook_bar#13-', 
-        # 'Hook_bar#14-', 'Hook_bar#15-', 'Hook_bar#16-', 
-        # 'Hook_bar#17-', 'Hook_bar#18-', 'Hook_bar#19-', 
-        # 'Hook_bar#2-', 'Hook_bar#20-', 'Hook_bar#21-', 
-        # 'Hook_bar#22-', 'Hook_bar#23-', 'Hook_bar#24-', 
-        # 'Hook_bar#25-', 'Hook_bar#26-', 'Hook_bar#3-', 
-        # 'Hook_bar#4-', 'Hook_bar#5-', 'Hook_bar#6-', 
-        # 'Hook_bar#7-', 'Hook_bar#8-', 'Hook_bar#9-', 
-        # 'Hook_bar-', 'Hook_skew#0-', 'Hook_skew#1-', 
-        # 'Hook_skew#10-', 'Hook_skew#11-', 'Hook_skew#12-', 
-        # 'Hook_skew#13-', 'Hook_skew#14-', 'Hook_skew#15-', 
-        # 'Hook_skew#16-', 'Hook_skew#17-', 'Hook_skew#18-', 
-        # 'Hook_skew#19-', 'Hook_skew#2-', 'Hook_skew#20-', 
-        # 'Hook_skew#21-', 'Hook_skew#22-', 'Hook_skew#23-', 
-        # 'Hook_skew#24-', 'Hook_skew#25-', 'Hook_skew#26-', 
-        # 'Hook_skew#3-', 'Hook_skew#4-', 'Hook_skew#5-', 
-        # 'Hook_skew#6-', 'Hook_skew#7-', 'Hook_skew#8-', 
-        # 'Hook_skew#9-', 'Hook_skew-',
     ]
 
     for input_json in input_jsons:
@@ -401,11 +380,18 @@ def main(args):
             print(f'please get the hook_pose and write to {input_json}')
             continue
 
+
+        out_fname = f'{kptraj_dir_name}/{hook_name}.json'
+
+        # if os.path.exists(out_fname):
+        #     print(f'{out_fname} exists, ignore it')
+        #     continue
+
         # get the information that needed in rrt
-        obj_id, hook_id, tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
+        obj_id, hook_id, obj_tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
         contact_point_pos_hook = json_dict['contact_info'][0]['contact_point_hook'] # homogeneous position
 
-        if tgt_pose is None:
+        if obj_tgt_pose is None:
             print(f'ignore {input_json} due to unreliable initial pose')
             p.removeBody(obj_id)
             p.removeBody(hook_id)
@@ -441,27 +427,32 @@ def main(args):
 
         # object position initialization
         # for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
+
+        initial_info = json_dict['initial_pose'][0] # use the first initial pose
+        obj_init_pos = initial_info['obj_pose'][:3]
+        obj_init_rot = initial_info['obj_pose'][3:]
+        obj_init_pose = list(obj_init_pos) + list(obj_init_rot)
+
+        refined_obj_init_pose = refine_initial_pose(obj_tgt_pose, obj_init_pose)
+        obj_init_pos = refined_obj_init_pose[:3]
+        obj_init_rot = refined_obj_init_pose[3:]
+
         for index in tqdm(range(max_cnt)):
             if max_cnt != -1 and index >= max_cnt:
                 break
 
-            initial_info = json_dict['initial_pose'][0] # use the first initial pose
-            obj_init_pos = initial_info['object_pose'][:3]
-            obj_init_rot = initial_info['object_pose'][3:]
             p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
             draw_coordinate(obj_init_pos + obj_init_rot)
 
             # run RRT algorithm
-            waypoints = None
-            while waypoints is None:
-                waypoints = hanging_by_rrt(
-                                physics_client_id, 
-                                robot, 
-                                obj_id, 
-                                target_conf=tgt_pose, 
-                                obstacles=[table_id, hook_id], 
-                                max_vel=0.1
-                            )
+            waypoints = hanging_by_rrt(
+                            physics_client_id, 
+                            robot, 
+                            obj_id, 
+                            target_conf=obj_tgt_pose, 
+                            obstacles=[table_id, hook_id], 
+                            max_vel=0.1
+                        )
             if waypoints is None:
                 p.removeBody(obj_id)
                 p.removeBody(hook_id)
@@ -474,7 +465,7 @@ def main(args):
                                                     hook_pose=hook_pose,
                                                     obj_id=obj_id
                                                 )
-            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.2)
+            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.5)
             contact_hook_trajectory_7d = contact_hook_trajectory_7d.tolist()
 
             # TODO: add last to contact
@@ -506,7 +497,6 @@ def main(args):
         
             p.removeAllUserDebugItems()
 
-        out_fname = f'{kptraj_dir_name}/{hook_name}.json'
         with open(out_fname, 'w') as f:
             json.dump(trajectory_dict, f, indent=4)
             print(f'{out_fname} has been written')
@@ -539,9 +529,9 @@ print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-root', '-dr', type=str, default='data')
+    parser.add_argument('--data-root', '-dr', type=str, default='data_all_small')
     parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
     parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
-    parser.add_argument('--max-cnt', '-mc', type=int, default='20')
+    parser.add_argument('--max-cnt', '-mc', type=int, default='1')
     args = parser.parse_args()
     main(args)

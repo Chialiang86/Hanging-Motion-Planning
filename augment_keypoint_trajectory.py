@@ -119,7 +119,7 @@ def waypoint_score(hook_id : int, obj_id : int):
     return penetration, within_thresh
 
 
-def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : int, obj_contact_pose : list or np.ndarray):
+def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : int, hook_pose : list or np.ndarray, obj_contact_pose : list or np.ndarray):
 
     if type(src_traj) == list:
         src_traj = np.asarray(src_traj)
@@ -134,9 +134,7 @@ def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : in
     else :
         obj_contact_trans = obj_contact_pose
     
-    hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
-    hook_pose = list(hook_pos) + list(hook_rot)
-    hook_trans = get_matrix_from_pose(hook_pose)
+    hook_trans = get_matrix_from_pose(list(hook_pose))
 
     score = 0.0 
     with_thresh_cnt = 0.0
@@ -162,17 +160,58 @@ def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : in
     
     return ratio
 
+# def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : int, obj_contact_pose : list or np.ndarray):
+
+#     if type(src_traj) == list:
+#         src_traj = np.asarray(src_traj)
+#     if type(obj_contact_pose) == list:
+#         obj_contact_pose = np.asarray(obj_contact_pose)
+
+#     assert obj_contact_pose.shape == (4, 4) or obj_contact_pose.shape == (7,), \
+#              f'the shape of obj_contact_pose must be (4, 4) or (7,), but got {obj_contact_pose.shape}'
+    
+#     if obj_contact_pose.shape == (7,):
+#         obj_contact_trans = get_matrix_from_pose(obj_contact_pose)
+#     else :
+#         obj_contact_trans = obj_contact_pose
+    
+#     hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
+#     hook_pose = list(hook_pos) + list(hook_rot)
+#     hook_trans = get_matrix_from_pose(hook_pose)
+
+#     score = 0.0 
+#     with_thresh_cnt = 0.0
+#     color = np.random.rand(1, 3)
+#     color = np.repeat(color, 3, axis=0)
+#     for i, waypoint in enumerate(src_traj):
+
+#         relative_trans = get_matrix_from_pose(waypoint)
+#         world_trans = hook_trans @ relative_trans
+#         obj_trans = world_trans @ np.linalg.inv(obj_contact_trans)
+#         obj_pose = get_pose_from_matrix(obj_trans, pose_size=7)
+#         p.resetBasePositionAndOrientation(obj_id, obj_pose[:3], obj_pose[3:])
+
+#         # draw_coordinate(world_trans, size=0.001, color=color)
+        
+#         waypoint_penetration, with_thresh = waypoint_score(hook_id=hook_id, obj_id=obj_id)
+#         score -= waypoint_penetration
+#         with_thresh_cnt += with_thresh
+    
+#     score /= with_thresh_cnt if with_thresh_cnt != 0 else 1.0
+#     score += MAX_TRAJECTORY_SCORE # hyper param, < 0 : not good
+#     ratio = score / MAX_TRAJECTORY_SCORE if score > 0 else -1.0
+    
+#     return ratio
+
 def smooth_augment_path(src_traj : list, 
-                        physicsClientId : int, obj_id : int, hook_id : int, obj_contact_trans : list or np.ndarray):
+                        physicsClientId : int, obj_id : int, hook_id : int, hook_pose : list or np.ndarray, obj_contact_trans : list or np.ndarray):
 
     if obj_contact_trans.shape == (7,):
         obj_contact_trans = get_matrix_from_pose(obj_contact_trans)
     else :
         obj_contact_trans = obj_contact_trans
 
-    hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
-    hook_pose = list(hook_pos) + list(hook_rot)
-    hook_trans = get_matrix_from_pose(hook_pose)
+    hook_trans = get_matrix_from_pose(list(hook_pose))
 
     # for path smoothing
     extend7d_fn = get_extend7d_fn()
@@ -203,6 +242,48 @@ def smooth_augment_path(src_traj : list,
         kpt_traj.append(kpt_pose)
 
     return kpt_traj
+
+# def smooth_augment_path(src_traj : list, 
+#                         physicsClientId : int, obj_id : int, hook_id : int, obj_contact_trans : list or np.ndarray):
+
+#     if obj_contact_trans.shape == (7,):
+#         obj_contact_trans = get_matrix_from_pose(obj_contact_trans)
+#     else :
+#         obj_contact_trans = obj_contact_trans
+
+#     hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
+#     hook_pose = list(hook_pos) + list(hook_rot)
+#     hook_trans = get_matrix_from_pose(hook_pose)
+
+#     # for path smoothing
+#     extend7d_fn = get_extend7d_fn()
+#     collision7d_fn = get_collision7d_fn(physicsClientId, obj_id, obstacles=[hook_id])
+
+#     # object pose in world coordinate
+#     obj_traj = []
+#     for waypoint in src_traj:
+
+#         relative_trans = get_matrix_from_pose(waypoint)
+#         world_trans = hook_trans @ relative_trans
+#         obj_trans = world_trans @ np.linalg.inv(obj_contact_trans)
+#         obj_pose = get_pose_from_matrix(obj_trans, pose_size=7)
+
+#         obj_traj.append(obj_pose)
+
+#     aug_smooth_traj = smooth_path(obj_traj, extend_fn=extend7d_fn, collision_fn=collision7d_fn)
+
+#     # keypoint pose in hook coordinate
+#     kpt_traj = []
+#     for waypoint in aug_smooth_traj:
+        
+#         obj_trans = get_matrix_from_pose(waypoint)
+#         kpt_trans = obj_trans @ obj_contact_trans
+#         relative_trans = np.linalg.inv(hook_trans) @ kpt_trans
+#         kpt_pose = get_pose_from_matrix(relative_trans, pose_size=7)
+
+#         kpt_traj.append(kpt_pose)
+
+#     return kpt_traj
 
 def augment_trajectory_7d(src_traj : list or np.ndarray, 
                             physicsClientId : int, obj_id : int, hook_id : int, contact_trans : list or np.ndarray,
@@ -268,7 +349,8 @@ def interpolate_two_trajectories_7d(src_traj1 : list or np.ndarray, src_traj2 : 
     delta = 1e-10
     interpolate_ratio = np.arange(1 / (interpolate_num + 1), 1 - delta, 1 / (interpolate_num + 1))
     
-    interpolated_trajectories = [[] for _ in range(interpolate_num + 2)] # add traj1 and traj2
+    # interpolated_trajectories = [[] for _ in range(interpolate_num + 2)] # add traj1 and traj2
+    interpolated_trajectories = [[] for _ in range(interpolate_num)] 
 
     for wpt_id in range(trajectory_length):
         quat1 = quaternion.as_quat_array(xyzw2wxyz(src_traj1[wpt_id,3:]))
@@ -278,10 +360,11 @@ def interpolate_two_trajectories_7d(src_traj1 : list or np.ndarray, src_traj2 : 
             quat = quaternion.slerp_evaluate(quat1, quat2, iratio)
             quat = wxyz2xyzw(quaternion.as_float_array(quat))
             waypoint_7d = list(pos) + list(quat)
-            interpolated_trajectories[1 + traj_id].append(waypoint_7d) # ignore the first and the last (first for src_traj1, last for src_traj1)
+            # interpolated_trajectories[1 + traj_id].append(waypoint_7d) # ignore the first and the last (first for src_traj1, last for src_traj1)
+            interpolated_trajectories[traj_id].append(waypoint_7d) # ignore the first and the last (first for src_traj1, last for src_traj1)
 
-    interpolated_trajectories[0] = src_traj1.tolist()
-    interpolated_trajectories[-1] = src_traj2.tolist()
+    # interpolated_trajectories[0] = src_traj1.tolist()
+    # interpolated_trajectories[-1] = src_traj2.tolist()
     
     return interpolated_trajectories
 
@@ -291,6 +374,9 @@ def main(args):
 
     input_dir = f'{args.input_root}/{args.input_dir}'
     assert os.path.exists(input_dir), f'{input_dir} not exists'
+
+    output_dir = f'{args.output_root}/{args.output_dir}' if args.output_dir != '' else f'{args.output_root}/{args.input_dir}_aug'
+    os.makedirs(output_dir, exist_ok=False)
 
     all_trajectory_files = glob.glob(f'{input_dir}/Hook*.json')
     trajectory_files = []
@@ -335,7 +421,8 @@ def main(args):
         f.close()
 
         # output file
-        path = f'{os.path.splitext(trajectory_file)[0]}_aug.json'
+        # path = f'{os.path.splitext(trajectory_file)[0]}_aug.json'
+        path = f'{output_dir}/{os.path.split(trajectory_file)[-1]}'
         # if os.path.exists(path):
         #     continue
             
@@ -352,34 +439,50 @@ def main(args):
             'hook_pose': trajectory_json['hook_pose'],
         }
 
-        trajectories = trajectory_json['trajectory']
+        # trajectories = trajectory_json['trajectory']
+        trajectories = trajectory_json['trajectory'][:7] # 105
         trajectory_num = len(trajectories)
         interpolate_num = 5
 
         # C(trajectory_num, 2) * (interpolate_num + 2) * aug_num
-        max_trajectories = int((trajectory_num * (trajectory_num - 1) / 2) * (interpolate_num + 2) * aug_num)
+        # max_trajectories = int((trajectory_num * (trajectory_num - 1) / 2) * (interpolate_num + 2) * aug_num)
+        max_trajectories = int((trajectory_num * (trajectory_num - 1) / 2) * (interpolate_num))
         tmp_trajectories = 0
         for i in range(trajectory_num - 1):
             for j in range(i + 1, trajectory_num):
 
                 interpolated_trajectories = interpolate_two_trajectories_7d(trajectories[i], trajectories[j], interpolate_num=interpolate_num)
 
-                for trajectory in interpolated_trajectories:
-                
-                    color = np.random.rand(1, 3)
-                    color = np.repeat(color, 3, axis=0)
+                aug_dense_trajs = []
+                for i in range(len(interpolated_trajectories)):
+                    aug_smooth_traj = smooth_augment_path(interpolated_trajectories[i], physicsClientId, obj_id, hook_id, hook_pose, contact_trans)
+                    aug_dense_traj = get_dense_trajectory(aug_smooth_traj)
+                    score = trajectory_scoring(aug_dense_traj, hook_id, obj_id, hook_pose, obj_contact_pose=contact_trans)
                     
-                    aug_trajs = augment_trajectory_7d(trajectory, physicsClientId, obj_id, hook_id, contact_trans,
-                                                        aug_num=aug_num, noise_pos=3, noise_rot=3, 
-                                                        down_sample_frequency=10)
-                    
-                    for aug_traj in aug_trajs:
-                        tmp_trajectories += 1
-                        print(f'progress: {tmp_trajectories}/{max_trajectories}')
-                        aug_trajectory_json['trajectory'].append(list(aug_traj))
-                    
-                p.removeAllUserDebugItems()
+                    print(f'aug id : {i}, score : {score}')
+                    if score > 0:
+                        aug_dense_trajs.append(aug_dense_traj)
 
+                for trajectory in aug_dense_trajs:
+                    tmp_trajectories += 1
+                    print(f'progress: {tmp_trajectories}/{max_trajectories}')
+                    aug_trajectory_json['trajectory'].append(list(trajectory))
+
+                # for trajectory in interpolated_trajectories:
+                
+                    # color = np.random.rand(1, 3)
+                    # color = np.repeat(color, 3, axis=0)
+                    
+                    # aug_trajs = augment_trajectory_7d(trajectory, physicsClientId, obj_id, hook_id, contact_trans,
+                    #                                     aug_num=aug_num, noise_pos=3, noise_rot=3, 
+                    #                                     down_sample_frequency=10)
+                    
+                    # for aug_traj in aug_trajs:
+                    #     tmp_trajectories += 1
+                    #     print(f'progress: {tmp_trajectories}/{max_trajectories}')
+                    #     aug_trajectory_json['trajectory'].append(list(aug_traj))
+                    
+                # p.removeAllUserDebugItems()
     
         f = open(path, 'w')
         json.dump(aug_trajectory_json, f, indent=4)
@@ -411,7 +514,9 @@ if __name__=="__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
-    parser.add_argument('--input-dir', '-id', type=str, default='keypoint_trajectory_1118-10')
+    parser.add_argument('--input-dir', '-id', type=str, default='kptraj')
+    parser.add_argument('--output-root', '-or', type=str, default='keypoint_trajectory')
+    parser.add_argument('--output-dir', '-od', type=str, default='')
     parser.add_argument('--aug-num', '-an', type=int, default=3)
     args = parser.parse_args()
     

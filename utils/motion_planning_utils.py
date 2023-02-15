@@ -31,8 +31,13 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
             pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
             pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
             pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
-            for i in range(3, 6):
-                pos_euler.append(np.random.uniform(-np.pi, np.pi))
+            # for i in range(3, 6):
+                # pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
+
+            # 20 * np.pi / 180, 90 * np.pi / 180, -60 * np.pi / 180
+            pos_euler.append( 0 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # roll
+            pos_euler.append( 0 * np.pi / 180 + np.random.uniform(-120 * np.pi / 180, 60 * np.pi / 180)) # pitch
+            pos_euler.append(90 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # yew
             ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
             
         return tuple(ret)

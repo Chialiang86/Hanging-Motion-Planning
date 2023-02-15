@@ -195,12 +195,6 @@ def main(args):
     if not os.path.exists(obj_dir):
         print(f'{obj_dir} not exists')
         return
-
-    output_dir = os.path.join(args.output_root, args.output_dir)
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-    if not os.path.exists(os.path.join(output_dir, f'{args.hook}-{args.obj}')):
-        os.mkdir(os.path.join(output_dir, f'{args.hook}-{args.obj}'))
     
     hook_path = os.path.join(hook_dir, 'base.urdf')
     obj_paths = glob.glob(f'{obj_dir}/*/base.urdf')
@@ -213,11 +207,12 @@ def main(args):
     physics_client_id = p.connect(p.GUI)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.3,
+        cameraDistance=0.15,
         cameraYaw=120,
         cameraPitch=-30,
-        cameraTargetPosition=[0.7, 0.0, 1.3]
+        cameraTargetPosition=[0.5, -0.05, 1.3]
     )
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     sim_timestep = 1.0 / 1000
@@ -268,15 +263,13 @@ def main(args):
     
     # ignore_list = []
     ignore_list = [ 
-        "daily_5/",
-        "bag_5/",  
-        "scissor_4/", "mug_59/", "wrench_1/", 
+        # "daily_5/",
+        "bag_5/", "scissor_4/", "mug_59/", "wrench_1/", 
         "bag_6/", "bag_70/",
         "daily_11/", "daily_114/", "daily_115/", "daily_2/", "daily_23/",  
         "daily_42/", "daily_57/", "daily_63/", "daily_84/", "daily_7/", "daily_71/", "daily_72/",
         "daily_85/", "daily_97/", "daily_8/", "daily_106/", "daily_41/",
-        "mug_118/",
-        # "mug_19/", 
+        "mug_118/", "mug_19/", 
         "mug_100/", "mug_11/", "mug_112/", "mug_113/", "mug_115/",  "mug_123/", "mug_126/", "mug_128/", 
         "mug_132/", "mug_67/", "mug_70/", "mug_80/", "mug_82/", "mug_90/", "mug_135/", "mug_199/", "mug_73/", "mug_129/",
         "mug_142/", "mug_146/", "mug_147/", "mug_149/", "mug_150/", "mug_159/", "mug_166/", "mug_184/",
@@ -297,6 +290,10 @@ def main(args):
             ]
     mug_good_rot = R.from_quat(mug_good_quat).as_rotvec()
 
+    output_dir = os.path.join(args.output_root, args.output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
     height_thresh = 0.8
     for obj_path in obj_paths:
 
@@ -308,6 +305,10 @@ def main(args):
                 cont = True
         if cont:
             continue
+
+        obj_id, center = load_obj_urdf(obj_path)
+        if not os.path.exists(os.path.join(output_dir, f'{args.hook}-{args.obj}')):
+            os.mkdir(os.path.join(output_dir, f'{args.hook}-{args.obj}'))
 
         # config object hook info
         obj_id, center = load_obj_urdf(obj_path)

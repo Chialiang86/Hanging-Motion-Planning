@@ -32,7 +32,7 @@ for json_file in tqdm(json_files):
         for initial_pose_ele in json_dict["initial_pose"]:
             new_initial_pose_ele = {
                 "robot_pose": initial_pose_ele["robot_pose"],
-                "obj_pose": initial_pose_ele["object_pose"],
+                "obj_pose": initial_pose_ele["obj_pose"],
             }
             new_json_dict["initial_pose"].append(new_initial_pose_ele)
     assert len(new_json_dict["initial_pose"]) == len(json_dict["initial_pose"])

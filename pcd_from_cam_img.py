@@ -49,7 +49,7 @@ def get_projmat_and_intrinsic(width, height, fx, fy, far, near):
 
   project_matrix = p.computeProjectionMatrixFOV(
                       fov=fov,
-                      aspect=1.0,
+                      aspect=width/height,
                       nearVal=near,
                       farVal=far
                     )
@@ -63,7 +63,6 @@ def get_projmat_and_intrinsic(width, height, fx, fy, far, near):
   return project_matrix, intrinsic
 
 def get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector):
-
 
     view_matrix = p.computeViewMatrix(
                     cameraEyePosition=cameraEyePosition,
@@ -239,7 +238,8 @@ def main(args):
   # # D435 serial_num=141722071222, fx=605, fy=605, cx=323, cy=240
   # intrinsic matrix
   depth_threshold = 2.0
-  width, height = 512, 512
+  # width, height = 512, 512
+  width, height = 640, 480
   fx = fy = 605
   fov = 2 * np.arctan(height / fy) * 180.0 / np.pi
   far = 1000.
@@ -254,33 +254,35 @@ def main(args):
   projection_matrix, intrinsic = get_projmat_and_intrinsic(width, height, fx, fy, far, near)
 
   # extrinsic matrix for hanging pose
-  cameraEyePosition = [-0.24, 0.16, 0.0]
-  cameraTargetPosition = [0.0, 0.0, 0.0]
-  cameraUpVector =  [0.0, 0.0, 1.0]
-  pcd_view_matrix, pcd_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
+  cam_dist = 0.25
+  cameraEyePositions = []
+  cam_angles = [
+    30 * np.pi / 180,  45 * np.pi / 180,  60 * np.pi / 180, 
+    120 * np.pi / 180, 135 * np.pi / 180, 150 * np.pi / 180
+  ]
+
+  up =  [[-cam_dist * np.cos(i), 0.01, cam_dist * np.sin(i)] for i in cam_angles]
+  mid = [[-cam_dist * np.cos(i),  0.05, cam_dist * np.sin(i)] for i in cam_angles]
+  cameraEyePositions.extend(up)
+  cameraEyePositions.extend(mid)
+
+  cameraTargetPositions = [[0.0, 0.0, 0.0] for _ in range(len(cameraEyePositions))]
+  cameraUpVectors = [[0.0, 1.0, 0.0] for _ in range(len(cameraEyePositions))]
+  cam_extr_num = len(cameraEyePositions)
 
   # cameraEyePosition = [-0.12, 0.08, 0.0]
   # cameraTargetPosition = [0.0, 0.0, 0.0]
   # cameraUpVector =  [0.0, 0.0, 1.0]
-  cameraEyePosition = [0.0, 0.36, -0.24]
-  cameraTargetPosition = [0.0, 0.0, 0.0]
-  cameraUpVector =  [1.0, 0.0, 0.0]
-  rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
+  # cameraEyePosition = [0.0, 0.36, -0.24]
+  # cameraTargetPosition = [0.0, 0.0, 0.0]
+  # cameraUpVector =  [1.0, 0.0, 0.0]
+  # rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
 
   origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-  # urdf_files = glob.glob(f'{object_dir}/*/{file_token}.urdf')
   urdf_files = glob.glob(f'{object_dir}/*/base.urdf')
   urdf_files.sort()
   for urdf_file in tqdm(urdf_files):
     print(urdf_file)
-
-    # if len(urdf_file.split('#')) > 1:
-    #   continue
-    # if 'scissor' not in urdf_file:
-    #   continue
-      # serial_num = int(urdf_file.split('/')[-2].split('#')[1])
-      # if serial_num < 0:
-      #   continue
     
     # TODO:
     # in the future, add an option [hook/object]
@@ -291,40 +293,50 @@ def main(args):
     rot = [0, 0, 0, 1]
     obj_id, center, scale = load_obj_urdf(urdf_file, pos, rot)
     
-    # reset_camera(yaw, pitch, cameraDistance)
+    for cam_id in range(cam_extr_num):
 
-    time.sleep(0.01)
-    img = p.getCameraImage(width, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
-    rgb_buffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
-    depth_buffer = np.reshape(img[3], [height, width])
+      output_ply_path = os.path.splitext(urdf_file)[0] + f'-{cam_id}.ply'
+      # if os.path.exists(output_ply_path):
+      #   print(f'ignore {output_ply_path}')
+      #   continue
 
-    # get real depth
-    depth_buffer = far * near / (far - (far - near) * depth_buffer)
+      pcd_view_matrix, pcd_extrinsic = get_viewmat_and_extrinsic(cameraEyePositions[cam_id], cameraTargetPositions[cam_id], cameraUpVectors[cam_id])
 
-    # adjustment
-    pcd = create_rgbd(rgb_buffer, depth_buffer, intrinsic, pcd_extrinsic, dscale=1, depth_threshold=depth_threshold)
+      time.sleep(0.01)
+      img = p.getCameraImage(width, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
+      rgb_buffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
+      depth_buffer = np.reshape(img[3], [height, width])
 
-    mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
-    pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
-    pcd_ori.scale(scale, [0., 0., 0.,])
-    o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
-    
-    # save ply
-    output_ply_path = os.path.splitext(urdf_file)[0] + '.ply'
-    o3d.io.write_point_cloud(output_ply_path, pcd)
+      # get real depth
+      depth_buffer = far * near / (far - (far - near) * depth_buffer)
 
-    img = p.getCameraImage(height, height, viewMatrix=rgb_view_matrix, projectionMatrix=projection_matrix)
-    rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
+      # adjustment
+      pcd = create_rgbd(rgb_buffer, depth_buffer, intrinsic, pcd_extrinsic, dscale=1, depth_threshold=depth_threshold)
 
-    # # save image
-    # # output_jpg_path = os.path.splitext(urdf_file)[0] + '.jpg'
-    # sub_dir = urdf_file.split('/')[-2]
-    # # output_jpg_path = f'{object_dir}/All_img/{sub_dir}.jpg'
-    # output_jpg_path = f'{object_dir}/report/{sub_dir}.jpg'
-    # pil_img = Image.fromarray(rgb_buffer)
-    # pil_img.save(output_jpg_path)
+      # for visualization
+      # mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
+      # pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
+      # pcd_ori.scale(scale, [0., 0., 0.,])
+      # o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
+      
+      # save ply
+      o3d.io.write_point_cloud(output_ply_path, pcd)
 
-    # print(f'{output_ply_path} and {output_jpg_path} saved')
+      # img = p.getCameraImage(height, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
+      # rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
+
+      # img = p.getCameraImage(height, height, viewMatrix=rgb_view_matrix, projectionMatrix=projection_matrix)
+      # rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
+
+      # # save image
+      # # output_jpg_path = os.path.splitext(urdf_file)[0] + '.jpg'
+      # sub_dir = urdf_file.split('/')[-2]
+      # # output_jpg_path = f'{object_dir}/All_img/{sub_dir}.jpg'
+      # output_jpg_path = f'{object_dir}/report/{sub_dir}.jpg'
+      # pil_img = Image.fromarray(rgb_buffer)
+      # pil_img.save(output_jpg_path)
+
+      # print(f'{output_ply_path} and {output_jpg_path} saved')
     p.removeBody(obj_id)
 
 start_msg = \

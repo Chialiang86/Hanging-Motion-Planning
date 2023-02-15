@@ -8,7 +8,7 @@
       <contact_erp value="1.0" />
     </contact>
     <inertial>
-      <origin rpy="0 0 0" xyz="-0.00014391118211871487 0.03739686637223076 0.01357460195537432" />
+      <origin rpy="0 0 0" xyz="-8.634670927122903e-05 0.022438119823338452 0.008144761173224595" />
        <mass value="0.0" />
        <inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3" />
     </inertial>

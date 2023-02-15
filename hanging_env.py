@@ -481,8 +481,8 @@ def main(args):
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
     contact_index = 0
     contact_info = json_dict['contact_info'][contact_index]
-    tgt_obj_pos = contact_info['object_pose'][:3]
-    tgt_obj_rot = contact_info['object_pose'][3:]
+    tgt_obj_pos = contact_info['obj_pose'][:3]
+    tgt_obj_rot = contact_info['obj_pose'][3:]
     obj_id_target, _ = load_obj_urdf(json_dict['obj_path'])
     p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
     tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id, planeId])
@@ -511,8 +511,8 @@ def main(args):
     for index in range(max_cnt):
         # object initialization
         initial_info = json_dict['initial_pose'][index]
-        obj_pos = initial_info['object_pose'][:3]
-        obj_rot = initial_info['object_pose'][3:]
+        obj_pos = initial_info['obj_pose'][:3]
+        obj_rot = initial_info['obj_pose'][3:]
         # obj_pos = list(np.asarray(obj_pos) + pos_noise)
         # obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
 

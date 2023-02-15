@@ -1,7 +1,7 @@
 import argparse
 import open3d as o3d
 import numpy as np
-import time, os, json, glob
+import time, os, json, glob, keyboard
 
 from tqdm import tqdm
 from scipy.spatial.transform import Rotation as R
@@ -111,6 +111,20 @@ def assign_zneg(vis):
     status = "zneg"
     return True
 
+def assign_scaleup(vis):
+
+    global status 
+    # You can do something here when a key is pressed
+    status = "scaleup"
+    return True
+
+def assign_scaledown(vis):
+
+    global status 
+    # You can do something here when a key is pressed
+    status = "scaledown"
+    return True
+
 def get_affine_mat(status, step_size=0.1):
     global affine_op
     assert status in affine_op, f'unknown status : {status}'
@@ -140,6 +154,14 @@ def get_affine_mat(status, step_size=0.1):
         retmat[:3, :3] = R.from_rotvec([0, 0, np.pi / 6]).as_matrix()
     if status == "z30neg":
         retmat[:3, :3] = R.from_rotvec([0, 0,-np.pi / 6]).as_matrix()
+    if status == "scaleup":
+        retmat[0, 0] = 1.1
+        retmat[1, 1] = 1.1
+        retmat[2, 2] = 1.1
+    if status == "scaledown":
+        retmat[0, 0] = 0.9
+        retmat[1, 1] = 0.9
+        retmat[2, 2] = 0.9
     
     return retmat
 
@@ -153,9 +175,9 @@ def main(args):
 
     mesh_paths = None
     if ext == ".obj":
-        mesh_paths = glob.glob(f'{input_dir}/*/*.obj')
+        mesh_paths = glob.glob(f'{input_dir}/*/*_normalized.obj')
     if ext == ".ply":
-        mesh_paths = glob.glob(f'{input_dir}/*/*.ply')
+        mesh_paths = glob.glob(f'{input_dir}/*.ply')
     mesh_paths.sort()
     coor = o3d.geometry.TriangleMesh.create_coordinate_frame(size=args.coor_scale)
 
@@ -177,6 +199,8 @@ def main(args):
     vis.register_key_callback(ord('K'), assign_yneg) 
     vis.register_key_callback(ord('M'), assign_z) 
     vis.register_key_callback(ord('.'), assign_zneg) 
+    vis.register_key_callback(265, assign_scaleup) # up arrow
+    vis.register_key_callback(264, assign_scaledown) # down arrow 
     vis.add_geometry(coor)
 
     global status 
@@ -195,7 +219,7 @@ def main(args):
 
     affine_op = [
                     "x", "y", "z", "xneg", "yneg", "zneg",
-                    "x30", "y30", "z30", "x30neg", "y30neg", "z30neg"
+                    "x30", "y30", "z30", "x30neg", "y30neg", "z30neg", "scaleup", "scaledown"
                 ]
 
     result_path = f'{input_dir}/res.txt'
@@ -230,13 +254,23 @@ def main(args):
             vis.update_renderer()
 
             if status in affine_op:
-                affine_mat = get_affine_mat(status, args.coor_scale / 10)
 
-                points = np.asarray(mesh.vertices)
-                points_homo = np.hstack((points, np.ones((points.shape[0], 1)))).T
-                points_homo = affine_mat @ points_homo
-                points = points_homo.T[:, :3]
-                mesh.vertices = o3d.utility.Vector3dVector(points)
+                if status == "scaleup" or status == "scaledown":
+                    center = mesh.get_center()
+
+                    if status == "scaleup":
+                        mesh.scale(1.1, center)
+                    if status == "scaledown":
+                        mesh.scale(0.9, center)
+                else :
+
+                    affine_mat = get_affine_mat(status, args.coor_scale / 10)
+
+                    points = np.asarray(mesh.vertices)
+                    points_homo = np.hstack((points, np.ones((points.shape[0], 1)))).T
+                    points_homo = affine_mat @ points_homo
+                    points = points_homo.T[:, :3]
+                    mesh.vertices = o3d.utility.Vector3dVector(points)
 
                 status = ""
 
