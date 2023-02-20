@@ -43,8 +43,7 @@ if [ $# -ge 1 ]; then
             # 'Hook_hcu_104_devil' 'Hook_hcu_109_devil' 'Hook_hcu_142_devil' 'Hook_hcu_149_devil' 'Hook_hcu_167_devil' 
             # 'Hook_hcu_180_devil' 'Hook_hcu_189_devil' 'Hook_hcu_279_devil' 'Hook_hcu_314_devil' 'Hook_hcu_376_devil' 
             # 'Hook_hsr_2_devil' 'Hook_hcu_54_devil' 'Hook_hcu_65_devil' 'Hook_hcu_89_devil' 'Hook_hs_109_devil' 
-            # 'Hook_hs_11_devil' 'Hook_hs_134_devil' 'Hook_hs_170_devil' 'Hook_hs_174_devil' 
-            'Hook_hs_177_devil' 
+            # 'Hook_hs_11_devil' 'Hook_hs_134_devil' 'Hook_hs_170_devil' 'Hook_hs_174_devil' 'Hook_hs_177_devil' 
             # 'Hook_hs_191_devil' 'Hook_hs_205_devil' 'Hook_hs_232_devil' 'Hook_hs_23_devil' 'Hook_hs_260_devil'
             # 'Hook_hcu_0_normal' 'Hook_hcu_101_normal' 'Hook_hcu_104_devil' 'Hook_hcu_105_normal' 'Hook_hcu_106_normal' 
             # 'Hook_hcu_108_easy' 'Hook_hcu_109_devil' 'Hook_hcu_110_easy' 'Hook_hcu_112_hard' 'Hook_hcu_113_easy' 
@@ -70,7 +69,7 @@ if [ $# -ge 1 ]; then
 
         INPUT1=( 
             # =============== hook_all_new_1 =============== # 
-            'Hook_hs_321_devil' 'Hook_hs_347_devil' 'Hook_hs_363_devil' 'Hook_hsr_115_devil' 'Hook_hsr_231_devil'
+            'Hook_hs_266_devil'
             # 'Hook_hcu_362_easy' 'Hook_hcu_364_normal' 'Hook_hcu_386_normal' 'Hook_hcu_38_normal' 'Hook_hcu_390_easy' 
             # 'Hook_hcu_398_easy' 'Hook_hcu_46_easy' 'Hook_hcu_50_easy' 'Hook_hcu_52_easy' 'Hook_hcu_62_easy' 
             # 'Hook_hcu_69_hard' 'Hook_hcu_74_hard' 'Hook_hcu_75_easy' 'Hook_hcu_86_normal' 'Hook_hcu_8_normal' 
@@ -95,8 +94,6 @@ if [ $# -ge 1 ]; then
 
         INPUT2=( 
             # =============== hook_all_new_2 =============== #  
-            'Hook_hs_287_easy' 'Hook_hsr_104_hard' 'Hook_hsr_117' 'Hook_hsr_117_easy' 'Hook_hsr_129_normal' 
-            'Hook_hsr_207_normal' 'Hook_hsr_232_normal' 'Hook_hsr_283_normal' 'Hook_hsr_34_devil' 'Hook_omni_57_devil'
             # 'Hook_hs_277_easy' 'Hook_hs_287_easy' 'Hook_hs_28_easy' 'Hook_hs_290_easy' 'Hook_hs_314_easy' 
             # 'Hook_hs_315_easy' 'Hook_hs_317_easy' 'Hook_hs_326_easy' 'Hook_hs_327_easy' 'Hook_hs_338_easy' 
             # 'Hook_hs_349_easy' 'Hook_hs_35_easy' 'Hook_hs_361_easy' 'Hook_hs_362_easy' 'Hook_hs_370_easy' 
@@ -119,7 +116,6 @@ if [ $# -ge 1 ]; then
 
         INPUT3=( 
             # =============== hook_all_new_3 =============== #  
-            'Hook_hsr_151_easy' 'Hook_hsr_208_hard' 'Hook_hsr_380_hard'
             # 'Hook_hsr_11_easy' 'Hook_hsr_125_easy' 'Hook_hsr_12_easy' 'Hook_hsr_134_easy' 'Hook_hsr_135_easy' 
             # 'Hook_hsr_146_easy' 'Hook_hsr_151_easy' 'Hook_hsr_154_easy' 'Hook_hsr_170_easy' 'Hook_hsr_171_easy' 
             # 'Hook_hsr_173_easy' 'Hook_hsr_192_hard' 'Hook_hsr_194_easy' 'Hook_hsr_200_easy' 'Hook_hsr_205_hard' 
@@ -137,11 +133,10 @@ if [ $# -ge 1 ]; then
 
         INPUT4=( 
             # =============== hook_all_new_4 =============== #  
-            'Hook_hsr_341_easy'
-            # 'Hook_hsr_341_easy' 'Hook_hsr_350_easy' 'Hook_hsr_381_easy' 'Hook_hsr_390_easy' 'Hook_hsr_45_easy' 
+            # 'Hook_hsr_350_easy' 'Hook_hsr_381_easy' 'Hook_hsr_390_easy' 'Hook_hsr_45_easy' 'Hook_omni_84_easy'
             # 'Hook_hsr_6_easy' 'Hook_hsr_71_easy' 'Hook_hsr_95_hard' 'Hook_hsr_98_easy' 'Hook_my_45_hard' 
             # 'Hook_my_bar_easy' 'Hook_omni_122_hard' 'Hook_omni_12_hard' 'Hook_omni_136_hard' 'Hook_omni_145_easy' 
-            # 'Hook_omni_2_easy' 'Hook_omni_35_easy' 'Hook_omni_42_hard' 'Hook_omni_84_easy'
+            # 'Hook_omni_2_easy' 'Hook_omni_35_easy' 'Hook_omni_42_hard' 
         )
         
         for input in "${INPUT0[@]}"
@@ -149,25 +144,25 @@ if [ $# -ge 1 ]; then
             python3 hanging_point_sim.py --hook-root 'models/hook_all_new_0' --hook $input --output-dir 'data_all_new_0'
         done    
 
-        # for input in "${INPUT1[@]}"
-        # do
-        #     python3 hanging_point_sim.py --hook-root 'models/hook_all_new_1' --hook $input --output-dir 'data_all_new_1'
-        # done    
+        for input in "${INPUT1[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/hook_all_new_1' --hook $input --output-dir 'data_all_new_1'
+        done    
 
-        # for input in "${INPUT2[@]}"
-        # do
-        #     python3 hanging_point_sim.py --hook-root 'models/hook_all_new_2' --hook $input --output-dir 'data_all_new_2'
-        # done    
+        for input in "${INPUT2[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/hook_all_new_2' --hook $input --output-dir 'data_all_new_2'
+        done    
 
-        # for input in "${INPUT3[@]}"
-        # do
-        #     python3 hanging_point_sim.py --hook-root 'models/hook_all_new_3' --hook $input --output-dir 'data_all_new_3'
-        # done    
+        for input in "${INPUT3[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/hook_all_new_3' --hook $input --output-dir 'data_all_new_3'
+        done    
 
-        # for input in "${INPUT4[@]}"
-        # do
-        #     python3 hanging_point_sim.py --hook-root 'models/hook_all_new_4' --hook $input --output-dir 'data_all_new_4'
-        # done    
+        for input in "${INPUT4[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/hook_all_new_4' --hook $input --output-dir 'data_all_new_4'
+        done    
 
     elif [ $1 = 'hangpose' ]; then 
         INPUT=(
