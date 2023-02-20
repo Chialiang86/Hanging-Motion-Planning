@@ -221,7 +221,7 @@ def main(args):
 
         json_dict['initial_pose'] = canonical_initial_pose
 
-        outfile = f'{json_path}.json'
+        outfile = f'{json_path[:-5]}.json'
         json.dump(json_dict, open(outfile, 'w'), indent=4)
 
     return

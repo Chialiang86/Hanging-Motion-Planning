@@ -46,9 +46,9 @@ def load_obj_urdf(urdf_path, pos=[0, 0, 0], rot=[0, 0, 0]):
 def render_affordance_map(pcd : o3d.geometry.PointCloud, center : np.ndarray, std : float=0.01):
     points = np.asarray(pcd.points)
     print(f'there are {points.shape[0]} in point cloud')
-    points_diff = np.linalg.norm(points - center, axis=1, ord=2)
     print(f'the closest point to the center is {np.min(points_diff)}')
 
+    points_diff = np.linalg.norm(points - center, axis=1, ord=2)
     points_gaussian = np.exp(-0.5 * (points_diff / std) ** 2)
     points_gaussian = (points_gaussian - np.min(points_gaussian)) / (np.max(points_gaussian) - np.min(points_gaussian))
     colors = cv2.applyColorMap((255 * points_gaussian).astype(np.uint8), colormap=cv2.COLORMAP_JET).squeeze()
@@ -93,7 +93,7 @@ def main(args):
     gravity = -9.8
     p.setTimeStep(sim_timestep)
 
-    data_dirs = glob.glob(f'{data_dir}/*')
+    data_dirs = glob.glob(f'{data_dir}/Hook_hcu*')
     data_dirs.sort()
 
     for data_dir in tqdm(data_dirs):
@@ -146,12 +146,14 @@ def main(args):
 
           # hook affordance map
           # affordance_map = render_affordance_map(hook_pcd, kpt_pos_world, std)
-          affordance_map = render_affordance_map(hook_pcd, kpt_pos, std)
-          np.save(open(affordance_path, 'wb'), affordance_map)
-          print(f'{affordance_path} saved')
+          affordance_map = render_affordance_map(hook_pcd, kpt_pos, std) # this function will change the color of 'hook_pcd'
+          # np.save(open(affordance_path, 'wb'), affordance_map)
+          # print(f'{affordance_path} saved')
           # draw_coordinate(contact_trans, size=0.001)
 
-          # o3d.visualization.draw_geometries([hook_pcd])
+
+          o3d.visualization.draw_geometries([hook_pcd])
+          break
 
         # while True:
         #     # key callback
@@ -182,7 +184,7 @@ print(start_msg)
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-root', '-ir', type=str, default='data')
-    parser.add_argument('--data-dir', '-id', type=str, default='data')
+    parser.add_argument('--data-dir', '-id', type=str, default='data_all')
     parser.add_argument('--std', '-std', type=float, default=0.005)
     args = parser.parse_args()
     main(args)

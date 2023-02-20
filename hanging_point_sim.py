@@ -318,6 +318,10 @@ def main(args):
         # config output json dict and filename
         result_path = os.path.join(output_dir, f'{args.hook}-{args.obj}', f'{hook_name}-{obj_name}.json')
         if os.path.exists(result_path):
+            # print(f'ignore {result_path}')
+            # continue
+
+            # uncomment it if you want to recollect
             f = open(result_path, 'r')
             result_json = json.load(f)
             result_json['contact_info'] = [] # clear

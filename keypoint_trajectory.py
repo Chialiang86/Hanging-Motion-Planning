@@ -334,15 +334,10 @@ def main(args):
     # -------------------------- #
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
-    input_jsons = [
-    ]
-
+    input_jsons = []
     input_jsons = glob.glob(f'{data_dir}/*/Hook_*-hanging_exp_daily_5.json')
     input_jsons.sort()
-    input_jsons = input_jsons[::-1]
-
-    ignore_list = [
-    ]
+    ignore_list = []
 
     for input_json in input_jsons:
 
@@ -448,74 +443,75 @@ def main(args):
         # object position initialization
         # for index, initial_info in tqdm(enumerate(json_dict['initial_pose'])):
 
-        initial_info = json_dict['initial_pose'][0] # use the first initial pose
-        obj_init_pos = initial_info['obj_pose'][:3]
-        obj_init_rot = initial_info['obj_pose'][3:]
-        obj_init_pose = list(obj_init_pos) + list(obj_init_rot)
+        initial_infos = json_dict['initial_pose'] # use the first initial pose
 
-        refined_obj_init_pose = refine_initial_pose(obj_tgt_pose, obj_init_pose)
-        obj_init_pos = refined_obj_init_pose[:3]
-        obj_init_rot = refined_obj_init_pose[3:]
+        for initial_info in tqdm(initial_infos):
 
-        for index in tqdm(range(max_cnt)):
-            if max_cnt != -1 and index >= max_cnt:
-                break
+            obj_init_pos = initial_info['obj_pose'][:3]
+            obj_init_rot = initial_info['obj_pose'][3:]
+            obj_init_pose = list(obj_init_pos) + list(obj_init_rot)
 
-            p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
-            draw_coordinate(obj_init_pos + obj_init_rot)
+            refined_obj_init_pose = refine_initial_pose(obj_tgt_pose, obj_init_pose)
+            obj_init_pos = refined_obj_init_pose[:3]
+            obj_init_rot = refined_obj_init_pose[3:]
 
-            # run RRT algorithm
-            waypoints = hanging_by_rrt(
-                            physics_client_id, 
-                            robot, 
-                            obj_id, 
-                            target_conf=obj_tgt_pose, 
-                            obstacles=[table_id, hook_id], 
-                            max_vel=0.1
-                        )
-            if waypoints is None:
-                p.removeBody(obj_id)
-                p.removeBody(hook_id)
-                continue
+            for index in range(max_cnt):
+                if max_cnt != -1 and index >= max_cnt:
+                    break
 
-            # write trajectory relative to "hook origin" to file
-            contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(
-                                                    waypoints=waypoints, 
-                                                    contact_pose_object=contact_pose_object, 
-                                                    hook_pose=hook_pose,
-                                                    obj_id=obj_id
-                                                )
-            contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.5)
-            contact_hook_trajectory_7d = contact_hook_trajectory_7d.tolist()
+                p.resetBasePositionAndOrientation(obj_id, obj_init_pos, obj_init_rot)
+                draw_coordinate(obj_init_pos + obj_init_rot)
 
-            # TODO: add last to contact
+                # run RRT algorithm
+                waypoints = hanging_by_rrt(
+                                physics_client_id, 
+                                robot, 
+                                obj_id, 
+                                target_conf=obj_tgt_pose, 
+                                obstacles=[table_id, hook_id], 
+                                max_vel=0.1
+                            )
+                if waypoints is None:
+                    continue
 
-            # # visualize trajectory
-            # hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
-            # hook_transform = get_matrix_from_pos_rot(hook_pos, hook_rot)
-            # for waypoint in contact_hook_trajectory_7d:
-            #     relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
-            #     waypoint_transform = hook_transform @ relative_transform
-            #     draw_coordinate(waypoint_transform)
+                # write trajectory relative to "hook origin" to file
+                contact_hook_trajectory_7d, imgs = get_kpt_trajectory_from_trajectory(
+                                                        waypoints=waypoints, 
+                                                        contact_pose_object=contact_pose_object, 
+                                                        hook_pose=hook_pose,
+                                                        obj_id=obj_id
+                                                    )
+                contact_hook_trajectory_7d = shorten_kpt_trajectory(contact_hook_trajectory_7d, length=0.5)
+                contact_hook_trajectory_7d = contact_hook_trajectory_7d.tolist()
 
-            # Add on 2023/01/31 final contact pose (for last to contact point)
-            last_to_contact_point = get_dense_waypoints(
-                                        contact_hook_trajectory_7d[-1], 
-                                        hook_contact_pose, 
-                                        resolution=0.001
-                                    )
+                # TODO: add last to contact
 
-            print(f'last_to_contact_point len = {len(last_to_contact_point)}')
-            contact_hook_trajectory_7d.extend(last_to_contact_point)
+                # # visualize trajectory
+                # hook_pos, hook_rot = p.getBasePositionAndOrientation(hook_id)
+                # hook_transform = get_matrix_from_pos_rot(hook_pos, hook_rot)
+                # for waypoint in contact_hook_trajectory_7d:
+                #     relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
+                #     waypoint_transform = hook_transform @ relative_transform
+                #     draw_coordinate(waypoint_transform)
 
-            trajectory_dict['trajectory'].append(contact_hook_trajectory_7d)
+                # Add on 2023/01/31 final contact pose (for last to contact point)
+                last_to_contact_point = get_dense_waypoints(
+                                            contact_hook_trajectory_7d[-1], 
+                                            hook_contact_pose, 
+                                            resolution=0.001
+                                        )
+
+                print(f'last_to_contact_point len = {len(last_to_contact_point)}')
+                contact_hook_trajectory_7d.extend(last_to_contact_point)
+
+                trajectory_dict['trajectory'].append(contact_hook_trajectory_7d)
+                
+                # imgs_array = [Image.fromarray(img) for img in imgs]
+                # if imgs_array is not None:
+                #     gif_path = os.path.join(f'{kptraj_dir_name}', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
+                #     imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
             
-            # imgs_array = [Image.fromarray(img) for img in imgs]
-            # if imgs_array is not None:
-            #     gif_path = os.path.join(f'{kptraj_dir_name}', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
-            #     imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
-        
-            p.removeAllUserDebugItems()
+                # p.removeAllUserDebugItems()
 
         with open(out_fname, 'w') as f:
             json.dump(trajectory_dict, f, indent=4)

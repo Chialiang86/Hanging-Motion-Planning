@@ -6,12 +6,6 @@ import time, os, json, glob, keyboard
 from tqdm import tqdm
 from scipy.spatial.transform import Rotation as R
 
-def assign_good(vis):
-
-    global status 
-    # You can do something here when a key is pressed
-    status = "good"
-    return True
 
 def assign_bad(vis):
 
@@ -111,6 +105,34 @@ def assign_zneg(vis):
     status = "zneg"
     return True
 
+def assign_1(vis):
+
+    global category
+    # You can do something here when a key is pressed
+    category = "1"
+    return True
+
+def assign_2(vis):
+
+    global category
+    # You can do something here when a key is pressed
+    category = "2"
+    return True
+
+def assign_3(vis):
+
+    global category
+    # You can do something here when a key is pressed
+    category = "3"
+    return True
+
+def assign_4(vis):
+
+    global category
+    # You can do something here when a key is pressed
+    category = "4"
+    return True
+
 def assign_scaleup(vis):
 
     global status 
@@ -175,16 +197,15 @@ def main(args):
 
     mesh_paths = None
     if ext == ".obj":
-        mesh_paths = glob.glob(f'{input_dir}/*/*_normalized.obj')
+        mesh_paths = glob.glob(f'{input_dir}/*/*.obj')
     if ext == ".ply":
-        mesh_paths = glob.glob(f'{input_dir}/*.ply')
+        mesh_paths = glob.glob(f'{input_dir}/*/*.ply')
     mesh_paths.sort()
     coor = o3d.geometry.TriangleMesh.create_coordinate_frame(size=args.coor_scale)
 
     # window for displaying point cloud
     vis = o3d.visualization.VisualizerWithKeyCallback()
     vis.create_window()
-    vis.register_key_callback(ord('Y'), assign_good) 
     vis.register_key_callback(ord('N'), assign_bad) 
     vis.register_key_callback(ord('B'), assign_break) 
     vis.register_key_callback(ord('S'), assign_x30) 
@@ -199,11 +220,16 @@ def main(args):
     vis.register_key_callback(ord('K'), assign_yneg) 
     vis.register_key_callback(ord('M'), assign_z) 
     vis.register_key_callback(ord('.'), assign_zneg) 
+    vis.register_key_callback(ord('1'), assign_1) 
+    vis.register_key_callback(ord('2'), assign_2) 
+    vis.register_key_callback(ord('3'), assign_3) 
+    vis.register_key_callback(ord('4'), assign_4) 
     vis.register_key_callback(265, assign_scaleup) # up arrow
     vis.register_key_callback(264, assign_scaledown) # down arrow 
     vis.add_geometry(coor)
 
     global status 
+    global category 
     global affine_op
 
     # fout = open("res.txt", "w")
@@ -222,28 +248,46 @@ def main(args):
                     "x30", "y30", "z30", "x30neg", "y30neg", "z30neg", "scaleup", "scaledown"
                 ]
 
-    result_path = f'{input_dir}/res.txt'
+    os.makedirs(args.output_dir, exist_ok=True)
+    result_path = f'{args.output_dir}/res.txt'
 
-    f_res = open(result_path, 'a')
+    if os.path.exists(result_path):
+        f_res = open(result_path, 'a')
+    else :
+        f_res = open(result_path, 'w')
     f_res_rd = open(result_path, 'r')
     res_history = f_res_rd.readlines()
 
-    for m_id, mesh_path in enumerate(tqdm(mesh_paths)):
-        
-        if len(res_history) > m_id:
-            print(f'{mesh_path} exists, ignore it')
-            continue
+    # mesh.vertices = mesh.vertices * target_length / length
 
-        fname = f'{os.path.splitext(mesh_path)[0]}.obj'
-        if ext==".ply" and os.path.exists(fname):
-            print(f'{fname} exists, ignore it')
+    for m_id, mesh_path in enumerate(tqdm(mesh_paths)):
+
+        cont = False
+        for line in res_history:
+            if mesh_path in line:
+                print(f'{mesh_path} exists, ignore it')
+                cont = True
+        if cont:
             continue
 
         mesh = o3d.io.read_triangle_mesh(mesh_path)
+        
+        # normalize to a 0.1m width bounding box 
+        size = np.array(np.max(mesh.vertices, axis=0)
+                        - np.min(mesh.vertices, axis=0))
+        length = np.max(size)
+        mesh.scale( 0.06 / length, np.array([0, 0, 0]))
 
         vis.add_geometry(mesh)
         status = ""
-        while status != "good" and status != "bad":
+        category = ""
+        category_dict = {
+            "1": "easy",
+            "2": "normal",
+            "3": "hard",
+            "4": "devil",
+        }
+        while status != "bad" and category == "":
             time.sleep(0.01)
 
             if status == "break":
@@ -256,16 +300,14 @@ def main(args):
             if status in affine_op:
 
                 if status == "scaleup" or status == "scaledown":
-                    center = mesh.get_center()
 
                     if status == "scaleup":
-                        mesh.scale(1.1, center)
+                        mesh.scale(1.1, np.array([0, 0, 0]))
                     if status == "scaledown":
-                        mesh.scale(0.9, center)
+                        mesh.scale(0.9, np.array([0, 0, 0]))
                 else :
 
                     affine_mat = get_affine_mat(status, args.coor_scale / 10)
-
                     points = np.asarray(mesh.vertices)
                     points_homo = np.hstack((points, np.ones((points.shape[0], 1)))).T
                     points_homo = affine_mat @ points_homo
@@ -274,11 +316,26 @@ def main(args):
 
                 status = ""
 
-        if status != "bad" and status != "break" and status != "":
+        if category != "":
 
-            o3d.io.write_triangle_mesh(fname, mesh)
-        
-            f_res.write(f'{mesh_path} good\n')
+            fname = '{}/{}_{}/{}.obj'.format(
+                args.output_dir, 
+                mesh_path.split('/')[-2], 
+                category_dict[category],
+                os.path.splitext(os.path.split(mesh_path)[-1])[0]
+            )
+            print(fname)
+
+            # if ext==".ply" and os.path.exists(fname):
+            #     print(f'{fname} exists, ignore it')
+            #     continue
+                
+
+            # create new object folder
+            os.makedirs(os.path.split(fname)[0], exist_ok=True)
+
+            o3d.io.write_triangle_mesh(fname, mesh)        
+            f_res.write(f'{mesh_path} {category_dict[category]}\n')
 
         elif status != "break" and status != "":
             
@@ -294,8 +351,9 @@ def main(args):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir', '-id', type=str, default='pointe_out')
+    parser.add_argument('--input_dir', '-id', type=str, default='pointe_out/hcu')
+    parser.add_argument('--output_dir', '-od', type=str, default='pointe_out/hcu_selected')
     parser.add_argument('--extension', '-ext', type=str, default='.obj')
-    parser.add_argument('--coor_scale', '-cs', type=float, default=1.0)
+    parser.add_argument('--coor_scale', '-cs', type=float, default=0.1)
     args = parser.parse_args()
     main(args)

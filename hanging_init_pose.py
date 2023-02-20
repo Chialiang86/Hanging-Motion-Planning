@@ -421,7 +421,7 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-root', '-ir', type=str, default='data')
-    parser.add_argument('--input-json', '-ij', type=str, default='data_all_small/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data_all/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json')
     parser.add_argument('--max-cnt', '-mc', type=int, default=1000)
     args = parser.parse_args()
     main(args)

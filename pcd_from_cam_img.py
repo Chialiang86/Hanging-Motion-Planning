@@ -292,6 +292,8 @@ def main(args):
     pos = [0, 0, 0]
     rot = [0, 0, 0, 1]
     obj_id, center, scale = load_obj_urdf(urdf_file, pos, rot)
+
+    pcd_extrinsics = []
     
     for cam_id in range(cam_extr_num):
 
@@ -301,6 +303,8 @@ def main(args):
       #   continue
 
       pcd_view_matrix, pcd_extrinsic = get_viewmat_and_extrinsic(cameraEyePositions[cam_id], cameraTargetPositions[cam_id], cameraUpVectors[cam_id])
+
+      pcd_extrinsics.append(pcd_extrinsic)
 
       time.sleep(0.01)
       img = p.getCameraImage(width, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
@@ -337,6 +341,17 @@ def main(args):
       # pil_img.save(output_jpg_path)
 
       # print(f'{output_ply_path} and {output_jpg_path} saved')
+    
+    mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
+    pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
+    pcd_ori.scale(scale, [0., 0., 0.,])
+    geometries = [pcd_ori]
+    for extr in pcd_extrinsics:
+      origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.05)
+      origin.transform(extr)
+      geometries.append(origin)
+    o3d.visualization.draw_geometries(geometries, point_show_normal=False)
+
     p.removeBody(obj_id)
 
 start_msg = \
@@ -357,7 +372,7 @@ if __name__=="__main__":
   # TODO: 
   # if object is hook => the pose should be assigned by p.loadURDF
   # if object is everyday object => the pose should be assigned by p.resetBasePositionAndOrientation
-  parser.add_argument('--object-dir', '-id', type=str, default='models/hook')
+  parser.add_argument('--object-dir', '-id', type=str, default='models/hook_all')
   parser.add_argument('--file-token', '-ft', type=str, default='base')
   args = parser.parse_args()
 

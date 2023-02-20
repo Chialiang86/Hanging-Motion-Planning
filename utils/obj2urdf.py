@@ -12,6 +12,8 @@ import open3d as o3d
 import trimesh
 import pybullet as p
 
+from tqdm import tqdm
+
 def open3d_to_trimesh(src):
     """Convert mesh from open3d to trimesh
 
@@ -45,24 +47,6 @@ def open3d_to_trimesh(src):
 
     return dst
 
-def centerize_mesh(mesh):
-    """Move mesh to its center
-
-    Parameters
-    ----------
-    mesh : trimesh.base.Trimesh or open3d.open3d.geometry.TriangleMesh
-
-    Returns
-    -------
-    mesh : trimesh.base.Trimesh
-    center : list[float]
-    """
-    if isinstance(mesh, o3d.geometry.TriangleMesh):
-        mesh = open3d_to_trimesh(mesh)
-    center = np.mean(mesh.vertices, axis=0)
-    mesh.vertices -= center
-    return mesh, center
-
 def create_urdf(mesh, file):
     """Create urdf from mesh
 
@@ -84,9 +68,7 @@ def create_urdf(mesh, file):
     """
     if isinstance(mesh, o3d.geometry.TriangleMesh):
         mesh = open3d_to_trimesh(mesh)
-    center = np.mean(mesh.vertices, axis=0)
-    # mesh.vertices -= center
-    print(center)
+    center = np.mean(np.asarray(mesh.vertices), axis=0)
 
     dirname, filename = os.path.split(file)
 
@@ -113,11 +95,11 @@ def main(args):
 
     target_length = 0.06
 
-    files = glob.glob(f'{input_dir}/*/*.obj')
-    # ignore_list = ['bag', 'wrench']
+    files = glob.glob(f'{input_dir}/*/*_normalized.obj')
+    files.sort()
     ignore_list = []
 
-    for file in files:
+    for file in tqdm(files):
 
         for ignore_item in ignore_list:
             if ignore_item in file:
@@ -126,19 +108,24 @@ def main(args):
         dirname, filename = os.path.split(file)
         filename_without_ext, ext = os.path.splitext(filename)
 
+        out_path = f'{dirname}/base.urdf'
+        if os.path.exists(out_path):
+            print(f'{out_path} exists, continue...')
+            continue
+
         try:
             mesh = o3d.io.read_triangle_mesh(file)
             mesh = mesh.simplify_vertex_clustering(
-                voxel_size=0.01,
+                voxel_size=0.001,
                 contraction=o3d.geometry.SimplificationContraction.Average)
             mesh = open3d_to_trimesh(mesh)
             mesh_invert = mesh.copy()
             mesh_invert.invert()
             mesh += mesh_invert
             mesh.merge_vertices()
-            size = np.array(np.max(mesh.vertices, axis=0)
-                            - np.min(mesh.vertices, axis=0))
-            length = np.max(size)
+            # size = np.array(np.max(mesh.vertices, axis=0)
+            #                 - np.min(mesh.vertices, axis=0))
+            # length = np.max(size)
             # mesh.vertices = mesh.vertices * target_length / length
 
         except Exception as e:
@@ -148,7 +135,7 @@ def main(args):
         if mesh.vertices.shape[0] > 1 and mesh.faces.shape[0] > 1:
             print(f'processing {file}')
             create_urdf(mesh, file)
-            print(f'{dirname}/base.urdf saved')
+            print(f'{out_path} saved')
         else:
             print('skip {}'.format(file))
 
