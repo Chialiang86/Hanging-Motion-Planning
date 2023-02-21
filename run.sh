@@ -69,7 +69,6 @@ if [ $# -ge 1 ]; then
 
         INPUT1=( 
             # =============== hook_all_new_1 =============== # 
-            'Hook_hs_266_devil'
             # 'Hook_hcu_362_easy' 'Hook_hcu_364_normal' 'Hook_hcu_386_normal' 'Hook_hcu_38_normal' 'Hook_hcu_390_easy' 
             # 'Hook_hcu_398_easy' 'Hook_hcu_46_easy' 'Hook_hcu_50_easy' 'Hook_hcu_52_easy' 'Hook_hcu_62_easy' 
             # 'Hook_hcu_69_hard' 'Hook_hcu_74_hard' 'Hook_hcu_75_easy' 'Hook_hcu_86_normal' 'Hook_hcu_8_normal' 
@@ -138,6 +137,16 @@ if [ $# -ge 1 ]; then
             # 'Hook_my_bar_easy' 'Hook_omni_122_hard' 'Hook_omni_12_hard' 'Hook_omni_136_hard' 'Hook_omni_145_easy' 
             # 'Hook_omni_2_easy' 'Hook_omni_35_easy' 'Hook_omni_42_hard' 
         )
+
+        INPUT5=(  
+            'Hook_hsr_13_devil'
+            # 'Hook_hcu_104_devil' 'Hook_hcu_105_normal' 'Hook_hcu_112_hard' 'Hook_hcu_136_hard' 
+            # 'Hook_hcu_149_devil' 'Hook_hcu_167_devil' 'Hook_hcu_191_normal' 'Hook_hcu_267_hard' 'Hook_hcu_276_hard' 
+            # 'Hook_hcu_279_devil' 'Hook_hcu_290_hard' 'Hook_hcu_314_devil' 'Hook_hcu_89_devil' 'Hook_hs_170_devil' 
+            # 'Hook_hs_177_devil' 'Hook_hs_196_hard' 'Hook_hs_252_hard' 'Hook_hs_275_devil' 'Hook_hs_291_hard' 
+            # 'Hook_hs_294_devil' 'Hook_hs_92_devil' 'Hook_hsr_137_hard' 'Hook_hsr_13_devil' 'Hook_hsr_243_devil' 
+            # 'Hook_hsr_321_devil' 'Hook_my_90_devil' 'Hook_omni_1_devil'
+        )
         
         for input in "${INPUT0[@]}"
         do
@@ -162,6 +171,11 @@ if [ $# -ge 1 ]; then
         for input in "${INPUT4[@]}"
         do
             python3 hanging_point_sim.py --hook-root 'models/hook_all_new_4' --hook $input --output-dir 'data_all_new_4'
+        done    
+
+        for input in "${INPUT5[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/hook_all_new_hard_modified' --hook $input --output-dir 'data_all_new_hard_modified'
         done    
 
     elif [ $1 = 'hangpose' ]; then 

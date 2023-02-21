@@ -197,7 +197,7 @@ def main(args):
 
     mesh_paths = None
     if ext == ".obj":
-        mesh_paths = glob.glob(f'{input_dir}/*/*.obj')
+        mesh_paths = glob.glob(f'{input_dir}/*/*_normalized.obj')
     if ext == ".ply":
         mesh_paths = glob.glob(f'{input_dir}/*/*.ply')
     mesh_paths.sort()
@@ -276,7 +276,7 @@ def main(args):
         size = np.array(np.max(mesh.vertices, axis=0)
                         - np.min(mesh.vertices, axis=0))
         length = np.max(size)
-        mesh.scale( 0.06 / length, np.array([0, 0, 0]))
+        # mesh.scale( 0.06 / length, np.array([0, 0, 0]))
 
         vis.add_geometry(mesh)
         status = ""

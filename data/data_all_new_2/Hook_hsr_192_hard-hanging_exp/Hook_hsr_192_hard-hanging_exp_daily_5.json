@@ -1,5 +1,5 @@
 {
-    "hook_path": "models/hook_all_new_3/Hook_hsr_192_hard/base.urdf",
+    "hook_path": "models/hook_all_new_2/Hook_hsr_192_hard/base.urdf",
     "obj_path": "models/geo_data/hanging_exp/daily_5/base.urdf",
     "hook_pose": [
         0.5,

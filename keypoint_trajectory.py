@@ -28,29 +28,52 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
 
-def get_obj_hook_pose(physics_client_id, json_dict : dict):
+def get_obj_hook_pose(json_dict : dict):
 
     # hook initialization
     hook_pos = json_dict['hook_pose'][:3]
-    hook_orientation = json_dict['hook_pose'][3:]
+    hook_rot = json_dict['hook_pose'][3:]
     # set the original coordinate of the hook
-    hook_id = p.loadURDF(json_dict['hook_path'], hook_pos, hook_orientation)
+    hook_id = p.loadURDF(json_dict['hook_path'], hook_pos, hook_rot)
+    obj_id = p.loadURDF(json_dict['obj_path'])
 
+    return obj_id, hook_id
+
+def refine_tgt_obj_pose(physics_client_id, obj_id, obstacles, json_dict):
     # get target hanging pose
     assert len(json_dict['contact_info']) > 0, 'contact info is empty'
     contact_index = 0
     contact_info = json_dict['contact_info'][contact_index]
     tgt_obj_pos = contact_info['obj_pose'][:3]
     tgt_obj_rot = contact_info['obj_pose'][3:]
-    obj_id_target = p.loadURDF(json_dict['obj_path'])
+
+    # find refined target pose
+
     # set the center coordinate of the object
-    p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
-    tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id])
-    p.removeBody(obj_id_target)
+    p.resetBasePositionAndOrientation(obj_id, tgt_obj_pos, tgt_obj_rot)
+    collision7d_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
-    obj_id = p.loadURDF(json_dict['obj_path'])
+    # setting range
+    low_limit = [-0.005, -0.005, -0.005, -np.pi / 180, -np.pi / 180, -np.pi / 180]
+    high_limit = [ 0.005,  0.005,  0.005,  np.pi / 180,  np.pi / 180,  np.pi / 180]
 
-    return obj_id, hook_id, tgt_pose
+    # find reliable tgt pose iteratively
+    original_pose = np.asarray(tgt_obj_pos + tgt_obj_rot)
+    refine_pose = original_pose
+    max_iter = 100000
+    i = 0
+    while i < max_iter and collision7d_fn(tuple(refine_pose)):
+        refine_pose6d = np.concatenate((np.asarray(tgt_obj_pos), R.from_quat(tgt_obj_rot).as_rotvec())) + \
+                        np.random.uniform(low_limit, high_limit)
+        refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
+        i += 1
+    if i == max_iter:
+        print(f'connot find refined pose')
+        return None
+    print(f'successfully find refined pose')
+
+    return refine_pose
+
 
 def xyzw2wxyz(quat : np.ndarray):
     assert len(quat) == 4, f'quaternion size must be 4, got {len(quat)}'
@@ -80,29 +103,29 @@ def get_pos_rot_from_matrix(pose : np.ndarray):
     rot = R.from_matrix(pose[:3, :3]).as_quat()
     return pos, rot
 
-def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
-    collision7d_fn = get_collision7d_fn(physicsClientId, body, obstacles=obstacles)
+# def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
+#     collision7d_fn = get_collision7d_fn(physicsClientId, body, obstacles=obstacles)
 
-    low_limit = [-0.005, -0.005, -0.005, -np.pi / 180, -np.pi / 180, -np.pi / 180]
-    high_limit = [ 0.005,  0.005,  0.005,  np.pi / 180,  np.pi / 180,  np.pi / 180]
-    obj_pos, obj_rot = p.getBasePositionAndOrientation(body)
+#     low_limit = [-0.005, -0.005, -0.005, -np.pi / 180, -np.pi / 180, -np.pi / 180]
+#     high_limit = [ 0.005,  0.005,  0.005,  np.pi / 180,  np.pi / 180,  np.pi / 180]
+#     obj_pos, obj_rot = p.getBasePositionAndOrientation(body)
 
-    original_pose = np.asarray(obj_pos + obj_rot)
-    refine_pose = original_pose
-    max_iter = 100000
-    i = 0
-    while i < max_iter and collision7d_fn(tuple(refine_pose)):
-        refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
-        refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
-        # print(refine_pose)
-        i += 1
-    if i == max_iter:
-        print(f'connot find refined pose')
-        return None
-    print(f'successfully find refined pose')
-    return refine_pose
+#     original_pose = np.asarray(obj_pos + obj_rot)
+#     refine_pose = original_pose
+#     max_iter = 100000
+#     i = 0
+#     while i < max_iter and collision7d_fn(tuple(refine_pose)):
+#         refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
+#         refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
+#         # print(refine_pose)
+#         i += 1
+#     if i == max_iter:
+#         print(f'connot find refined pose')
+#         return None
+#     print(f'successfully find refined pose')
+#     return refine_pose
 
-def refine_initial_pose(src_pose, tgt_pose):
+def refine_init_obj_pose(src_pose, tgt_pose):
 
     src_transform = get_matrix_from_pose(src_pose)
     tgt_transform = get_matrix_from_pose(tgt_pose)
@@ -120,7 +143,11 @@ def refine_initial_pose(src_pose, tgt_pose):
 
     tgt_dual_pose = get_pose_from_matrix(tgt_dual_transform)
 
-    return list(tgt_pose) if np.sum((src_rotvec - tgt_rotvec) ** 2) < np.sum((src_rotvec - tgt_dual_rotvec) ** 2) else list(tgt_dual_pose)
+    if np.sum((src_rotvec - tgt_rotvec) ** 2) < np.sum((src_rotvec - tgt_dual_rotvec) ** 2):
+        return list(tgt_pose)
+    else :
+        print('tgt_pose refined')
+        return list(tgt_dual_pose)
 
 def draw_coordinate(pose : np.ndarray or tuple or list, size : float = 0.1):
     assert (type(pose) == np.ndarray and pose.shape == (4, 4)) or (len(pose) == 7)
@@ -382,14 +409,8 @@ def main(args):
         #     continue
 
         # get the information that needed in rrt
-        obj_id, hook_id, obj_tgt_pose = get_obj_hook_pose(physics_client_id, json_dict)
+        obj_id, hook_id = get_obj_hook_pose(json_dict)
         contact_point_pos_hook = json_dict['contact_info'][0]['contact_point_hook'] # homogeneous position
-
-        if obj_tgt_pose is None:
-            print(f'ignore {input_json} due to unreliable initial pose')
-            p.removeBody(obj_id)
-            p.removeBody(hook_id)
-            continue
         
         # input keypoint pose relative to object
         contact_pose_object = None
@@ -451,9 +472,15 @@ def main(args):
             obj_init_rot = initial_info['obj_pose'][3:]
             obj_init_pose = list(obj_init_pos) + list(obj_init_rot)
 
-            refined_obj_init_pose = refine_initial_pose(obj_tgt_pose, obj_init_pose)
+            obj_tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id, obstacles=[hook_id], json_dict=json_dict)
+
+            refined_obj_init_pose = refine_init_obj_pose(obj_tgt_pose, obj_init_pose)
             obj_init_pos = refined_obj_init_pose[:3]
             obj_init_rot = refined_obj_init_pose[3:]
+            
+            if obj_tgt_pose is None:
+                print(f'{input_json} failed to find reliable initial pose')
+                continue
 
             for index in range(max_cnt):
                 if max_cnt != -1 and index >= max_cnt:
@@ -511,7 +538,7 @@ def main(args):
                 #     gif_path = os.path.join(f'{kptraj_dir_name}', 'traj_gif', f'{hook_name}-{obj_name}-{index}.gif')
                 #     imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
             
-                # p.removeAllUserDebugItems()
+                p.removeAllUserDebugItems()
 
         with open(out_fname, 'w') as f:
             json.dump(trajectory_dict, f, indent=4)
@@ -548,6 +575,6 @@ if __name__ == '__main__':
     parser.add_argument('--data-root', '-dr', type=str, default='data_all_small')
     parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
     parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
-    parser.add_argument('--max-cnt', '-mc', type=int, default='1')
+    parser.add_argument('--max-cnt', '-mc', type=int, default='10')
     args = parser.parse_args()
     main(args)
