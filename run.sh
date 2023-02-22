@@ -139,13 +139,10 @@ if [ $# -ge 1 ]; then
         )
 
         INPUT5=(  
-            'Hook_hsr_13_devil'
-            # 'Hook_hcu_104_devil' 'Hook_hcu_105_normal' 'Hook_hcu_112_hard' 'Hook_hcu_136_hard' 
-            # 'Hook_hcu_149_devil' 'Hook_hcu_167_devil' 'Hook_hcu_191_normal' 'Hook_hcu_267_hard' 'Hook_hcu_276_hard' 
-            # 'Hook_hcu_279_devil' 'Hook_hcu_290_hard' 'Hook_hcu_314_devil' 'Hook_hcu_89_devil' 'Hook_hs_170_devil' 
-            # 'Hook_hs_177_devil' 'Hook_hs_196_hard' 'Hook_hs_252_hard' 'Hook_hs_275_devil' 'Hook_hs_291_hard' 
-            # 'Hook_hs_294_devil' 'Hook_hs_92_devil' 'Hook_hsr_137_hard' 'Hook_hsr_13_devil' 'Hook_hsr_243_devil' 
-            # 'Hook_hsr_321_devil' 'Hook_my_90_devil' 'Hook_omni_1_devil'
+            'Hook_hcu_279_devil' 
+            'Hook_hsr_27_devil' 
+            'Hook_hsr_118_hard' 'Hook_hsr_129_normal' 'Hook_hsr_321_devil' 'Hook_omni_57_devil'
+            'Hook_hsr_313_hard'
         )
         
         for input in "${INPUT0[@]}"

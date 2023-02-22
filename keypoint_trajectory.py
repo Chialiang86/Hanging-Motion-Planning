@@ -575,6 +575,6 @@ if __name__ == '__main__':
     parser.add_argument('--data-root', '-dr', type=str, default='data_all_small')
     parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
     parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
-    parser.add_argument('--max-cnt', '-mc', type=int, default='10')
+    parser.add_argument('--max-cnt', '-mc', type=int, default='5')
     args = parser.parse_args()
     main(args)

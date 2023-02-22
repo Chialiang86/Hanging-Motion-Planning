@@ -44,7 +44,7 @@ def main(args):
 
     obj_id = p.loadURDF(object_urdf)
 
-    kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/Hook_60*.json')
+    kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/*.json')
     kpt_trajectory_jsons.sort()
 
     for i, kpt_trajectory_json in enumerate(kpt_trajectory_jsons):

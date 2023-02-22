@@ -276,7 +276,7 @@ def main(args):
         size = np.array(np.max(mesh.vertices, axis=0)
                         - np.min(mesh.vertices, axis=0))
         length = np.max(size)
-        # mesh.scale( 0.06 / length, np.array([0, 0, 0]))
+        mesh.scale( 0.06 / length, np.array([0, 0, 0]))
 
         vis.add_geometry(mesh)
         status = ""

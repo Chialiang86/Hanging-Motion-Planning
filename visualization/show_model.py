@@ -66,7 +66,7 @@ def main(args):
         
         save_path = f'{out_dir}/{sub_dir}_{obj_dir}-0.gif'
         # save_path_90 = f'{out_dir}/{sub_dir}_{obj_dir}-90.gif'
-        imageio.mimsave(save_path, img_list, fps=20)
+        imageio.mimsave(save_path, img_list, fps=10)
         # imageio.mimsave(save_path_90, img_list_90, fps=20)
         # print(f'{save_path} and {save_path_90} saved')
 
