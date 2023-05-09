@@ -16,6 +16,8 @@ import pybullet_data
 # for robot control
 from pybullet_robot_envs.envs.panda_envs.panda_env import pandaEnv
 
+from utils.bullet_utils import get_matrix_from_pose, get_pose_from_matrix, get_matrix_from_pos_rot
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 print(currentdir)
 parentdir = os.path.dirname(os.path.dirname(currentdir))
@@ -191,7 +193,7 @@ def main(args):
     obj_name = os.path.split(obj_fname)[1].split('.')[0]
     hook_name = os.path.split(hook_fname)[1].split('.')[0]
     # TODO : need to add postfix to data/ ?
-    obj_hook_pair_fname = f'{data_dir}/Hook_bar-hanging_exp/Hook_bar-{obj_name}.json'
+    obj_hook_pair_fname = f'{data_dir}/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-{obj_name}.json'
     print(f'hook_name: {hook_name}, obj_name: {obj_name}, obj_hook_pair_fname: {obj_hook_pair_fname}')
 
     # if 'Hook_90' not in hook_fname:
@@ -208,9 +210,9 @@ def main(args):
     with open(hook_fname, 'r') as f:
         hook_dict = json.load(f)
     
-    demonstration_dir = f'{args.output_root}/{args.output_dir}' if args.output_dir != '' else f'{args.output_root}/{time_mon_day}'
-    if not os.path.exists(demonstration_dir):
-        os.mkdir(demonstration_dir)
+    # demonstration_dir = f'{args.output_root}/{args.output_dir}' if args.output_dir != '' else f'{args.output_root}/{time_mon_day}'
+    # if not os.path.exists(demonstration_dir):
+    #     os.mkdir(demonstration_dir)
 
     # assert some attributes exist in the given json files
     assert 'initial_pose' in obj_hook_pair_dict.keys(), \
@@ -229,7 +231,7 @@ def main(args):
     p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
-        cameraYaw=120,
+        cameraYaw=90,
         cameraPitch=-30,
         cameraTargetPosition=[0.5, 0.0, 1.3]
     )
@@ -262,19 +264,18 @@ def main(args):
     obj_id = p.loadURDF(obj_dict['file'])
     # p.resetBasePositionAndOrientation(obj_id, obj_pos, obj_rot)
 
-    hook_id = p.loadURDF(hook_dict['file'])
     hook_pose_6d = hook_dict['hook_pose']
     hook_pos = hook_pose_6d[:3]
     hook_quat = hook_pose_6d[3:]
+    hook_id = p.loadURDF(hook_dict['file'], hook_pos, hook_quat)
     hook_transform = get_matrix_from_pos_rot(hook_pos, hook_quat)
-    p.resetBasePositionAndOrientation(hook_id, hook_pos, hook_quat)
-    trajectories_hook = hook_dict['trajectory']
+    trajectories_hook = hook_dict['trajectory'][:20]
 
     # grasping
     index = 0 # medium
     initial_info = obj_hook_pair_dict['initial_pose'][index] # medium
-    obj_pos = initial_info['object_pose'][:3]
-    obj_rot = initial_info['object_pose'][3:]
+    obj_pos = initial_info['obj_pose'][:3]
+    obj_rot = initial_info['obj_pose'][3:]
     obj_pos = list(np.array(obj_pos) + np.array([0, 0, 0.05]))
 
     initial_info = obj_hook_pair_dict['initial_pose'][index] # medium
@@ -301,6 +302,13 @@ def main(args):
         fov, aspect_ratio, near, far
     )
 
+    out_tmp_dict = {
+        'obj_file': obj_dict['file'],
+        'obj_pose': obj_dict['contact_pose'],
+        'hook_file': hook_dict['file'],
+        'hook_pose': hook_dict['hook_pose'],
+        'obj_trajs': []
+    }
     for traj_i in range(len(trajectories_hook)):
         
         robot.reset()
@@ -318,7 +326,7 @@ def main(args):
         obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
         kpt_transform_world = obj_transform @ obj_contact_relative_transform
         
-        trajectory_hook = trajectories_hook[traj_i]
+        trajectory_hook = trajectories_hook[traj_i][-100:]
         first_waypoint = trajectory_hook[0]
         relative_kpt_transform = get_matrix_from_pos_rot(first_waypoint[:3], first_waypoint[3:])
         first_kpt_transform_world = hook_transform @ relative_kpt_transform
@@ -331,9 +339,9 @@ def main(args):
         first_gripper_pos, first_gripper_rot = get_pos_rot_from_matrix(first_gripper_transform)
         first_gripper_pose = list(first_gripper_pos) + list(first_gripper_rot)
 
-        draw_coordinate(first_kpt_transform_world)
+        # draw_coordinate(first_kpt_transform_world, size=0.01)
 
-        trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose, resolution=0.003)
+        trajectory_start = get_dense_waypoints(robot_pose, first_gripper_pose, resolution=0.002)
         for waypoint in trajectory_start:
             robot.apply_action(waypoint)
             p.stepSimulation()
@@ -347,17 +355,27 @@ def main(args):
 
         gripper_pose = None
         previous_transform = np.identity(4)
-        motion_frequency = 3 # down sample
+        motion_frequency = 2 # down sample
+
+        tmp_list = []
+        wpt_ids = []
+        colors = list(np.random.rand(3)) + [1]
         for i, waypoint in enumerate(trajectory_hook):
             if i % motion_frequency == 0:
-                
+
                 relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
                 world_transform = hook_transform @ relative_transform
                 gripper_transform = world_transform @ kpt_to_gripper
                 gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_transform)
                 gripper_pose = list(gripper_pos) + list(gripper_rot)
 
-                draw_coordinate(world_transform)
+                wpt_id = p.createMultiBody(
+                    baseCollisionShapeIndex=p.createCollisionShape(p.GEOM_SPHERE, 0.001), 
+                    baseVisualShapeIndex=p.createVisualShape(p.GEOM_SPHERE, 0.001, rgbaColor=colors), 
+                    basePosition=world_transform[:3,3]
+                )
+                wpt_ids.append(wpt_id)
+                # draw_coordinate(world_transform)
 
                 robot.apply_action(gripper_pose)
                 p.stepSimulation()
@@ -373,6 +391,9 @@ def main(args):
                     relative_action = list(relative_pos) + list(R.from_quat(relative_rot).as_rotvec())
                 else :
                     relative_action = [0, 0, 0, 0, 0, 0]
+
+                obj_tmp_pos, obj_tmp_rot = p.getBasePositionAndOrientation(obj_id)
+                tmp_list.append(list(obj_tmp_pos) + list(obj_tmp_rot))
 
                 t = np.identity(4)
                 t[:3, 3] = relative_action[:3]
@@ -411,53 +432,71 @@ def main(args):
         contact_points = p.getContactPoints(obj_id, hook_id)
         contact = True if contact_points != () else False
 
+        if contact:
+            out_tmp_dict['obj_trajs'].append(tmp_list)
+
         # save gif
         if args.save_gif:
-            output_gif_dir = f'{demonstration_dir}/gif'
+            # output_gif_dir = f'{demonstration_dir}/gif'
+            output_gif_dir = f'visualization/hanging_trajs'
             os.makedirs(output_gif_dir, exist_ok=True)
             status = 'success' if contact else 'failed'
             # if imgs_array is not None and status=='failed':
             gif_path = os.path.join(output_gif_dir, f'{hook_name}-{obj_name}_{traj_i}_{status}.gif')
             imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
-        
-        # save demonstration
-        if args.save_demo:
-            if status=='success':
-                output_dir = f'{demonstration_dir}/{hook_name}-{traj_i}-{obj_name}'
-                os.makedirs(output_dir, exist_ok=True)
-                action_dict = {
-                    'action':[],
-                    'cameraEyePosition':cameraEyePosition,
-                    'cameraTargetPosition':cameraTargetPosition,
-                    'cameraUpVector':cameraUpVector,
-                    'far': far,
-                    'near': near,
-                    'fov': fov,
-                    'aspect_ratio': aspect_ratio,
-                }
-                for i, data in enumerate(demonstration_list):
-                    rgb_fname = f'{output_dir}/{i}.jpg'
-                    depth_fname = f'{output_dir}/{i}.npy'
-                    Image.fromarray(data['rgb']).save(rgb_fname)
-                    np.save(depth_fname, data['depth'])
-                    action_dict['action'].append(data['action'])
 
-                action_fname = f'{output_dir}/action.json'
-                action_f = open(action_fname, 'w')
-                json.dump(action_dict, action_f, indent=4)
+        output_gif_dir = f'visualization/hanging_trajs'
+        os.makedirs(output_gif_dir, exist_ok=True)
+        status = 'success' if contact else 'failed'
+        # if imgs_array is not None and status=='failed':
+        gif_path = os.path.join(output_gif_dir, f'{hook_name}-{obj_name}_{traj_i}_{status}.gif')
+        imgs_array[0].save(gif_path, save_all=True, append_images=imgs_array[1:], duration=50, loop=0)
+        
+
+        for wpt_id in wpt_ids:
+            p.removeBody(wpt_id)
+        
+        # # save demonstration
+        # if args.save_demo:
+        #     if status=='success':
+        #         output_dir = f'{demonstration_dir}/{hook_name}-{traj_i}-{obj_name}'
+        #         os.makedirs(output_dir, exist_ok=True)
+        #         action_dict = {
+        #             'action':[],
+        #             'cameraEyePosition':cameraEyePosition,
+        #             'cameraTargetPosition':cameraTargetPosition,
+        #             'cameraUpVector':cameraUpVector,
+        #             'far': far,
+        #             'near': near,
+        #             'fov': fov,
+        #             'aspect_ratio': aspect_ratio,
+        #         }
+        #         for i, data in enumerate(demonstration_list):
+        #             rgb_fname = f'{output_dir}/{i}.jpg'
+        #             depth_fname = f'{output_dir}/{i}.npy'
+        #             Image.fromarray(data['rgb']).save(rgb_fname)
+        #             np.save(depth_fname, data['depth'])
+        #             action_dict['action'].append(data['action'])
+
+        #         action_fname = f'{output_dir}/action.json'
+        #         action_f = open(action_fname, 'w')
+        #         json.dump(action_dict, action_f, indent=4)
 
         # save status
-        with open(f"{demonstration_dir}/result.txt", "a") as myfile:
-            print(f'{hook_name}-{obj_name}_{traj_i}_{status}')
-            myfile.write(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
-            myfile.flush()
-            myfile.close()
+        # with open(f"{demonstration_dir}/result.txt", "a") as myfile:
+        #     print(f'{hook_name}-{obj_name}_{traj_i}_{status}')
+        #     myfile.write(f'{hook_name}-{obj_name}_{traj_i}_{status}\n')
+        #     myfile.flush()
+        #     myfile.close()
 
     # while True:
     #     # key callback
     #     keys = p.getKeyboardEvents()            
     #     if ord('q') in keys and keys[ord('q')] & (p.KEY_WAS_TRIGGERED | p.KEY_IS_DOWN): 
     #         break
+
+    out_tmp_f = open('0308_tmp/{}.json'.format(hook_fname.split('/')[-1][:-5]), 'w')
+    json.dump(out_tmp_dict, out_tmp_f, indent=4)
 
 start_msg = \
 '''
@@ -484,11 +523,11 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-root', '-dr', type=str, default='data')
-    parser.add_argument('--data-dir', '-dd', type=str, default='data')
+    parser.add_argument('--data-dir', '-dd', type=str, default='data_all_new')
     parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
-    parser.add_argument('--input-dir', '-id', type=str, default='')
+    parser.add_argument('--input-dir', '-id', type=str, default='kptraj_all_new')
     parser.add_argument('--obj', '-obj', type=str, default='hanging_exp_daily_5.json')
-    parser.add_argument('--hook', '-hook', type=str, default='')
+    parser.add_argument('--hook', '-hook', type=str, default='Hook_my_90_devil.json')
     parser.add_argument('--output-root', '-or', type=str, default='demonstration_data')
     parser.add_argument('--output-dir', '-od', type=str, default='')
     parser.add_argument('--save-demo', '-sd', action="store_true")

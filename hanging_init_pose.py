@@ -67,7 +67,7 @@ def update_debug_param(robot : pandaEnv):
 
 def robot_key_callback(robot : pandaEnv, keys : dict, object_id : int=None):
 
-    move_offset = 0.005
+    move_offset = 0.003
     rot_offset = 0.01
     ret = None
 
@@ -164,6 +164,10 @@ def main(args):
     input_json = os.path.join(input_root, args.input_json)
     if not os.path.exists(input_json):
         print(f'{input_json} not exists')
+    
+    print("=============================================")
+    print(input_json)
+    print("=============================================")
 
     json_dict = None
     with open(input_json, 'r') as f:
@@ -175,6 +179,7 @@ def main(args):
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
+    # p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
@@ -421,7 +426,7 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-root', '-ir', type=str, default='data')
-    parser.add_argument('--input-json', '-ij', type=str, default='data_all/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5.json')
+    parser.add_argument('--input-json', '-ij', type=str, default='data_all_new/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_bag_5.json')
     parser.add_argument('--max-cnt', '-mc', type=int, default=1000)
     args = parser.parse_args()
     main(args)

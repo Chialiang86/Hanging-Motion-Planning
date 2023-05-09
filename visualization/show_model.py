@@ -40,7 +40,7 @@ def main(args):
     # frames for visualization
     obj_files = glob.glob(f'{input_dir}/*/base.obj')
     obj_files.sort()
-    frames = 36
+    frames = 18
     rotate_per_frame = (2 * np.pi) / frames
 
     for obj_file in tqdm(obj_files):

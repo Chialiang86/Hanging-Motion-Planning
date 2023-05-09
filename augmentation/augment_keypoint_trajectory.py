@@ -8,6 +8,7 @@ from utils.bullet_utils import get_matrix_from_pose, get_pose_from_matrix, draw_
 from utils.motion_planning_utils import get_sample7d_fn, get_distance7d_fn, get_extend7d_fn, get_collision7d_fn
 from pybullet_planning.motion_planners.meta import smooth_path
 
+
 MAX_TRAJECTORY_SCORE = 0.001
 
 def down_sample_trajectory(traj : list or np.ndarray,
@@ -100,10 +101,6 @@ def waypoint_score(hook_id : int, obj_id : int):
 
     p.performCollisionDetection()
 
-    # for i in range(5):
-    #     time.sleep(0.001)
-    #     p.stepSimulation()
-
     contact_points = p.getContactPoints(bodyA=hook_id, bodyB=obj_id)
     closest_points = p.getClosestPoints(bodyA=hook_id, bodyB=obj_id, distance=thresh)
     within_thresh = 1 if len(closest_points) > 0 else 0
@@ -147,8 +144,6 @@ def trajectory_scoring(src_traj : list or np.ndarray, hook_id : int, obj_id : in
         obj_trans = world_trans @ np.linalg.inv(obj_contact_trans)
         obj_pose = get_pose_from_matrix(obj_trans, pose_size=7)
         p.resetBasePositionAndOrientation(obj_id, obj_pose[:3], obj_pose[3:])
-
-        # draw_coordinate(world_trans, size=0.001, color=color)
         
         waypoint_penetration, with_thresh = waypoint_score(hook_id=hook_id, obj_id=obj_id)
         score -= waypoint_penetration

@@ -19,7 +19,7 @@ print('loading SDF model...')
 model.load_state_dict(load_checkpoint(name, device))
 
 # Load a point cloud we want to convert into a mesh.
-pc_paths = glob.glob(f'pointe_out/a hook for hanging scissors/*.npz')
+pc_paths = glob.glob(f'pointe_out/mug/*/*.npz')
 pc_paths.sort()
 
 for pc_path in tqdm(pc_paths):

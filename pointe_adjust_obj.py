@@ -105,6 +105,13 @@ def assign_zneg(vis):
     status = "zneg"
     return True
 
+def assign_0(vis):
+
+    global category
+    # You can do something here when a key is pressed
+    category = "0"
+    return True
+
 def assign_1(vis):
 
     global category
@@ -165,17 +172,17 @@ def get_affine_mat(status, step_size=0.1):
     if status == "zneg":
         retmat[:3, 3] -= np.array([0, 0, step_size])
     if status == "x30":
-        retmat[:3, :3] = R.from_rotvec([ np.pi / 6, 0, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([ np.pi / 12, 0, 0]).as_matrix()
     if status == "x30neg":
-        retmat[:3, :3] = R.from_rotvec([-np.pi / 6, 0, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([-np.pi / 12, 0, 0]).as_matrix()
     if status == "y30":
-        retmat[:3, :3] = R.from_rotvec([0, np.pi / 6, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, np.pi / 12, 0]).as_matrix()
     if status == "y30neg":
-        retmat[:3, :3] = R.from_rotvec([0,-np.pi / 6, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0,-np.pi / 12, 0]).as_matrix()
     if status == "z30":
-        retmat[:3, :3] = R.from_rotvec([0, 0, np.pi / 6]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, 0, np.pi / 12]).as_matrix()
     if status == "z30neg":
-        retmat[:3, :3] = R.from_rotvec([0, 0,-np.pi / 6]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, 0,-np.pi / 12]).as_matrix()
     if status == "scaleup":
         retmat[0, 0] = 1.1
         retmat[1, 1] = 1.1
@@ -220,6 +227,7 @@ def main(args):
     vis.register_key_callback(ord('K'), assign_yneg) 
     vis.register_key_callback(ord('M'), assign_z) 
     vis.register_key_callback(ord('.'), assign_zneg) 
+    vis.register_key_callback(ord('0'), assign_0) 
     vis.register_key_callback(ord('1'), assign_1) 
     vis.register_key_callback(ord('2'), assign_2) 
     vis.register_key_callback(ord('3'), assign_3) 
@@ -262,6 +270,11 @@ def main(args):
 
     for m_id, mesh_path in enumerate(tqdm(mesh_paths)):
 
+        # if 'cooking' in mesh_path:
+        #     continue
+        # if 'wrench' in mesh_path:
+        #     continue
+
         cont = False
         for line in res_history:
             if mesh_path in line:
@@ -276,12 +289,13 @@ def main(args):
         size = np.array(np.max(mesh.vertices, axis=0)
                         - np.min(mesh.vertices, axis=0))
         length = np.max(size)
-        mesh.scale( 0.06 / length, np.array([0, 0, 0]))
+        mesh.scale( 0.1 / length, np.array([0, 0, 0]))
 
         vis.add_geometry(mesh)
         status = ""
         category = ""
         category_dict = {
+            "0": "",
             "1": "easy",
             "2": "normal",
             "3": "hard",
@@ -317,13 +331,20 @@ def main(args):
                 status = ""
 
         if category != "":
-
-            fname = '{}/{}_{}/{}.obj'.format(
-                args.output_dir, 
-                mesh_path.split('/')[-2], 
-                category_dict[category],
-                os.path.splitext(os.path.split(mesh_path)[-1])[0]
-            )
+            
+            if category_dict[category] != "":
+                fname = '{}/{}_{}/{}.obj'.format(
+                    args.output_dir, 
+                    mesh_path.split('/')[-2], 
+                    category_dict[category],
+                    os.path.splitext(os.path.split(mesh_path)[-1])[0]
+                )
+            else:
+                fname = '{}/{}/{}.obj'.format(
+                    args.output_dir, 
+                    mesh_path.split('/')[-2], 
+                    os.path.splitext(os.path.split(mesh_path)[-1])[0]
+                )
             print(fname)
 
             # if ext==".ply" and os.path.exists(fname):

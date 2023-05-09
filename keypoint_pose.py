@@ -354,8 +354,8 @@ def main(args):
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     input_jsons = [
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_114.json",
@@ -366,7 +366,7 @@ def main(args):
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42.json",
         "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_72.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_7.json",
@@ -405,8 +405,8 @@ def main(args):
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_43.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_64.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_73.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_82.json",
@@ -420,8 +420,8 @@ def main(args):
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79.json",
@@ -432,8 +432,8 @@ def main(args):
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json",
-        # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1.json",
+        "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31.json",
         # "data/data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32.json",
@@ -548,7 +548,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5.json')
     # parser.add_argument('--id', '-id', type=str)
-    parser.add_argument('--output-root', '-or', type=str, default='keypoint_trajectory')
+    parser.add_argument('--output-root', '-or', type=str, default='keypoint_pose')
     parser.add_argument('--output-dir', '-od', type=str, default='')
     args = parser.parse_args()
     main(args)

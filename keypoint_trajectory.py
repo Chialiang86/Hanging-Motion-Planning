@@ -270,7 +270,7 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray,
         for position7d in positions7d:
 
             # object transform
-            p.resetBasePositionAndOrientation(obj_id, position7d[:3], position7d[3:])
+            # p.resetBasePositionAndOrientation(obj_id, position7d[:3], position7d[3:])
             time.sleep(1.0 / 240.0)
 
             # contact pose position
@@ -285,8 +285,8 @@ def get_kpt_trajectory_from_trajectory(waypoints : list or np.ndarray,
             contact_hook_pose_7d = list(contact_hook_pos) + list(contact_hook_quat)
             contact_hook_trajectory_7d.append(contact_hook_pose_7d)
 
-            img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
-            imgs.append(img)
+            # img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+            # imgs.append(img)
 
     contact_hook_trajectory_7d = np.asarray(contact_hook_trajectory_7d)
 
@@ -333,8 +333,8 @@ def main(args):
     assert os.path.exists(data_dir), f'{data_dir} not exists'
 
     # Create pybullet GUI
-    physics_client_id = p.connect(p.DIRECT)
-    # physics_client_id = p.connect(p.GUI)
+    # physics_client_id = p.connect(p.DIRECT)
+    physics_client_id = p.connect(p.GUI)
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
         cameraYaw=90,
@@ -540,6 +540,8 @@ def main(args):
             
                 p.removeAllUserDebugItems()
 
+            break
+
         with open(out_fname, 'w') as f:
             json.dump(trajectory_dict, f, indent=4)
             print(f'{out_fname} has been written')
@@ -572,7 +574,7 @@ print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-root', '-dr', type=str, default='data_all_small')
+    parser.add_argument('--data-root', '-dr', type=str, default='data_all_new_1')
     parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
     parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
     parser.add_argument('--max-cnt', '-mc', type=int, default='5')

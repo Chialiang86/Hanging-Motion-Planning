@@ -109,9 +109,9 @@ def main(args):
         filename_without_ext, ext = os.path.splitext(filename)
 
         out_path = f'{dirname}/base.urdf'
-        if os.path.exists(out_path):
-            print(f'{out_path} exists, continue...')
-            continue
+        # if os.path.exists(out_path):
+        #     print(f'{out_path} exists, continue...')
+        #     continue
 
         try:
             mesh = o3d.io.read_triangle_mesh(file)

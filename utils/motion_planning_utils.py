@@ -1,7 +1,8 @@
-
+import json
 import numpy as np
 import pybullet as p
 import quaternion
+import glob
 
 from scipy.spatial.transform import Rotation as R
 
@@ -11,12 +12,76 @@ from pybullet_planning.interfaces.robots.body import set_pose
 from pybullet_planning.interfaces.robots.link import get_all_links
 from pybullet_planning.interfaces.debug_utils.debug_utils import draw_collision_diagnosis
 
+
+def get_matrix_from_pose(pose : list or tuple or np.ndarray) -> np.ndarray:
+    assert len(pose) == 6 or len(pose) == 7, f'pose must contain 6 or 7 elements, but got {len(pose)}'
+    pos_m = np.asarray(pose[:3])
+    rot_m = np.identity(3)
+
+    if len(pose) == 6:
+        rot_m = R.from_rotvec(pose[3:]).as_matrix()
+    elif len(pose) == 7:
+        rot_m = R.from_quat(pose[3:]).as_matrix()
+            
+    ret_m = np.identity(4)
+    ret_m[:3, :3] = rot_m
+    ret_m[:3, 3] = pos_m
+
+    return ret_m
+
+
+def get_pose_from_matrix(matrix : list or tuple or np.ndarray, 
+                        pose_size : int = 7) -> np.ndarray:
+
+    mat = np.array(matrix)
+    assert mat.shape == (4, 4), f'pose must contain 4 x 4 elements, but got {mat.shape}'
+    
+    pos = matrix[:3, 3]
+    rot = None
+
+    if pose_size == 6:
+        rot = R.from_matrix(matrix[:3, :3]).as_rotvec()
+    elif pose_size == 7:
+        rot = R.from_matrix(matrix[:3, :3]).as_quat()
+            
+    pose = list(pos) + list(rot)
+
+    return np.array(pose)
+
 def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
                     low_limit : list or tuple or np.ndarray,
                     high_limit : list or tuple or np.ndarray, 
                     ratio_to_target=0.1):
 
     assert len(low_limit) == 3 and len(high_limit) == 3, 'illegal size of limit, len(limit) must be 3'
+
+    # Add on 2023/3/5 template trajectories
+    template_dir = 'keypoint_trajectory/template'
+    template_paths = glob.glob(f'{template_dir}/*.json')
+    template_paths.sort()
+
+    hook_pose = [
+        0.5,
+        -0.1,
+        1.3,
+        4.329780281177466e-17,
+        0.7071067811865475,
+        0.7071067811865476,
+        4.329780281177467e-17
+    ]
+    hook_trans = get_matrix_from_pose(hook_pose)
+
+    template_trajs = []
+    for template_path in template_paths:
+        traj = json.load(open(template_path, 'r'))['trajectory'][0][::-1][:50] # using first trajectory
+        template_wpts = []
+        for template_wpt in traj:
+            world_wpts = get_pose_from_matrix(hook_trans @ get_matrix_from_pose(template_wpt), pose_size=6)
+            template_wpts.append(list(world_wpts))
+
+        template_trajs.append(template_wpts)
+
+    deg2rad = np.pi / 180
     
     def sample7d_fn():
         rand_val = np.random.random()
@@ -24,21 +89,37 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
         if rand_val < ratio_to_target:
             ret = target_conf
         else:
-            pos_euler = []
+            # pos_euler = []
+            # pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
+            # pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
+            # pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
+            # # for i in range(3, 6):
+            #     # pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
 
-            rotvec = R.from_quat(target_conf[3:]).as_rotvec()
+            # # 20 * np.pi / 180, 90 * np.pi / 180, -60 * np.pi / 180
+            # pos_euler.append( 0 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # roll
+            # pos_euler.append( 0 * np.pi / 180 + np.random.uniform(-120 * np.pi / 180, 60 * np.pi / 180)) # pitch
+            # pos_euler.append(90 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # yew
+            # ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
 
-            pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
-            pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
-            pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
-            # for i in range(3, 6):
-                # pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
+            template_traj_id = np.random.randint(0, len(template_trajs))
+            template_traj = template_trajs[template_traj_id]
 
-            # 20 * np.pi / 180, 90 * np.pi / 180, -60 * np.pi / 180
-            pos_euler.append( 0 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # roll
-            pos_euler.append( 0 * np.pi / 180 + np.random.uniform(-120 * np.pi / 180, 60 * np.pi / 180)) # pitch
-            pos_euler.append(90 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # yew
-            ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
+            template_wpt_id = np.random.randint(0, len(template_traj))
+            template_wpt = template_traj[template_wpt_id]
+
+            template_pos = np.asarray(template_wpt[:3])
+            template_euler = np.asarray(template_wpt[3:])
+
+            template_pos += np.random.uniform([-0.02, -0.02, -0.01], [0.02, 0.02, 0.02])
+            template_euler += np.random.uniform(
+                                [-20 * deg2rad, -50 * deg2rad, -20 * deg2rad], 
+                                [ 20 * deg2rad,  50 * deg2rad,  20 * deg2rad]
+                            )
+            template_euler = ((template_euler + np.pi) % (2 * np.pi)) - np.pi
+            template_quat = R.from_rotvec(template_euler).as_quat()
+
+            ret = list(np.hstack((template_pos, template_quat)))
             
         return tuple(ret)
     return sample7d_fn

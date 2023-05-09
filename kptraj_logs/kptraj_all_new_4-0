@@ -1,0 +1,2100 @@
+current_dir=/home/hcis-s16/Desktop/Hanging-Motion-Planning/pybullet_robot_envs/envs/panda_envs
+/home/hcis-s16/Desktop/Hanging-Motion-Planning
+
+======================================================================================
+this script will collect the keypoint trajectory of each hook-object pair
+and the result will be saved into the same folder as input
+
+dependency :
+- object folder that contains [object_root]/[object_name]/base.urdf
+- hook folder that contains [hook_root]/[hook_name]/base.urdf
+- the keypoint pose of objects in keypoint_trajectory/[kptraj_id]/*.json
+======================================================================================
+
+processing data/data_all_new_4/Hook_hsr_350_easy-hanging_exp/Hook_hsr_350_easy-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 27|Nodes 1280|Time 0.41864800453186035
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1740129045226074
+last_to_contact_point len = 3
+[Results]|Iterations 55|Nodes 1715|Time 0.9831991195678711
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.17530229966478952
+last_to_contact_point len = 3
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 4|Nodes 644|Time 0.08368444442749023
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15721982536006968
+last_to_contact_point len = 9
+[Results]|Iterations 25|Nodes 514|Time 0.5003576278686523
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.15863653872777989
+last_to_contact_point len = 8
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 362|Time 0.021212100982666016
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16794232559321462
+last_to_contact_point len = 7
+[Results]|Iterations 46|Nodes 837|Time 0.7644681930541992
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.16868296140096298
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 21|Nodes 846|Time 0.20121431350708008
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1856194880726959
+last_to_contact_point len = 5
+[Results]|Iterations 49|Nodes 1345|Time 0.8517210483551025
+[Before Smoothness]|Length 16
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18999279569534286
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 30|Nodes 1301|Time 0.4968109130859375
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17875885209188538
+last_to_contact_point len = 6
+[Results]|Iterations 28|Nodes 856|Time 0.7510557174682617
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17851838440590587
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 4|Nodes 1426|Time 0.12167119979858398
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19874637069590978
+last_to_contact_point len = 7
+[Results]|Iterations 45|Nodes 2546|Time 0.7912387847900391
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.19513544655003778
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 60|Nodes 2072|Time 1.4811031818389893
+[Before Smoothness]|Length 14
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17724274050700478
+last_to_contact_point len = 5
+[Results]|Iterations 26|Nodes 1242|Time 0.37896156311035156
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17639955295633317
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 430|Time 0.027291536331176758
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.17256075742531085
+last_to_contact_point len = 2
+[Results]|Iterations 2|Nodes 862|Time 0.049179792404174805
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1710884151178608
+last_to_contact_point len = 2
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 487|Time 0.05388975143432617
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.16298119149089887
+last_to_contact_point len = 5
+[Results]|Iterations 1|Nodes 471|Time 0.0277252197265625
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.16207396767675217
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_350_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_381_easy-hanging_exp/Hook_hsr_381_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 61|Nodes 3272|Time 3.0565147399902344
+[Before Smoothness]|Length 225
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17721588023596468
+last_to_contact_point len = 7
+[Results]|Iterations 6|Nodes 2160|Time 0.262678861618042
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1788731099561493
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 2|Nodes 1727|Time 0.13281512260437012
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.15856046653241257
+last_to_contact_point len = 8
+[Results]|Iterations 0|Nodes 93|Time 0.0030858516693115234
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.15780038885553463
+last_to_contact_point len = 9
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1976|Time 0.10504269599914551
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1765836255766291
+last_to_contact_point len = 5
+[Results]|Iterations 18|Nodes 3729|Time 0.6012418270111084
+[Before Smoothness]|Length 13
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18282331107561905
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 11|Nodes 2009|Time 0.2610156536102295
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18236442257245766
+last_to_contact_point len = 6
+[Results]|Iterations 462|Nodes 6202|Time 24.552183866500854
+[Before Smoothness]|Length 35
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.18291549402161275
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 10|Nodes 2327|Time 0.7196335792541504
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.22604943685111512
+last_to_contact_point len = 5
+[Results]|Iterations 26|Nodes 4086|Time 1.7742478847503662
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.2000142566983604
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 48|Nodes 4815|Time 2.140653610229492
+[Before Smoothness]|Length 78
+[After Smoothness]|Length 10
+[After Smoothness]|Length 10
+trajectory length: 0.20854442355254288
+last_to_contact_point len = 7
+[Results]|Iterations 54|Nodes 3414|Time 1.8763031959533691
+[Before Smoothness]|Length 18
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.28922863722785225
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 75|Nodes 3992|Time 3.220154047012329
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18247666160894965
+last_to_contact_point len = 4
+[Results]|Iterations 38|Nodes 5202|Time 1.8810806274414062
+[Before Smoothness]|Length 54
+[After Smoothness]|Length 10
+[After Smoothness]|Length 10
+trajectory length: 0.1894330580528912
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 9|Nodes 3968|Time 0.5206480026245117
+[Before Smoothness]|Length 63
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17429277541625027
+last_to_contact_point len = 7
+[Results]|Iterations 46|Nodes 2999|Time 1.459211826324463
+[Before Smoothness]|Length 14
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18166184925263135
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 42|Nodes 3677|Time 1.6270434856414795
+[Before Smoothness]|Length 225
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1626562436528461
+last_to_contact_point len = 6
+[Results]|Iterations 3|Nodes 2130|Time 0.15334248542785645
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.16192580391061012
+last_to_contact_point len = 6
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_381_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_390_easy-hanging_exp/Hook_hsr_390_easy-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 58|Nodes 1791|Time 0.8114712238311768
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16967044390287772
+last_to_contact_point len = 4
+[Results]|Iterations 32|Nodes 1005|Time 0.7441129684448242
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1703722260788785
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 4|Nodes 744|Time 0.05832815170288086
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16487215472973712
+last_to_contact_point len = 5
+[Results]|Iterations 21|Nodes 989|Time 0.549729585647583
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1646836920055577
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 2|Nodes 825|Time 0.0511326789855957
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16807918175053818
+last_to_contact_point len = 3
+[Results]|Iterations 0|Nodes 469|Time 0.014085531234741211
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1685175009602338
+last_to_contact_point len = 3
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 9|Nodes 454|Time 0.0734262466430664
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17903892008165034
+last_to_contact_point len = 5
+[Results]|Iterations 66|Nodes 1597|Time 0.7901191711425781
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.177671489412041
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 20|Nodes 943|Time 0.6210041046142578
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18292208066570567
+last_to_contact_point len = 7
+[Results]|Iterations 6|Nodes 1136|Time 0.15497565269470215
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18164384847034037
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 8|Nodes 1138|Time 0.136216402053833
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 10
+[After Smoothness]|Length 10
+trajectory length: 0.1909203438336944
+last_to_contact_point len = 4
+[Results]|Iterations 7|Nodes 607|Time 0.18941426277160645
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1908105000248938
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 6|Nodes 727|Time 0.09735727310180664
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1731480901052489
+last_to_contact_point len = 6
+[Results]|Iterations 38|Nodes 960|Time 0.31928157806396484
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1769832607982409
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 16|Nodes 1100|Time 0.1851944923400879
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.17241464221689326
+last_to_contact_point len = 6
+[Results]|Iterations 6|Nodes 887|Time 0.11391997337341309
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.17367401289038437
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 0|Nodes 486|Time 0.017165184020996094
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1600650767535554
+last_to_contact_point len = 5
+[Results]|Iterations 2|Nodes 564|Time 0.051306962966918945
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1617018135965257
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_390_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_45_easy-hanging_exp/Hook_hsr_45_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 1|Nodes 784|Time 0.0520932674407959
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15344830329440887
+last_to_contact_point len = 4
+[Results]|Iterations 1|Nodes 1045|Time 0.06810402870178223
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15342061907069915
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 0|Nodes 81|Time 0.002501964569091797
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.1455573790002419
+last_to_contact_point len = 3
+[Results]|Iterations 1|Nodes 884|Time 0.05329418182373047
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1464153881893452
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 31|Nodes 2877|Time 0.8953158855438232
+[Before Smoothness]|Length 14
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.15674583567446024
+last_to_contact_point len = 5
+[Results]|Iterations 3|Nodes 2966|Time 0.1406562328338623
+[Before Smoothness]|Length 33
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.157945806262878
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 67|Nodes 3972|Time 6.340420484542847
+[Before Smoothness]|Length 15
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17005681249611557
+last_to_contact_point len = 5
+[Results]|Iterations 9|Nodes 1225|Time 0.20975112915039062
+[Before Smoothness]|Length 228
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.16947321426635545
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 0|Nodes 94|Time 0.003217935562133789
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.16020861155922708
+last_to_contact_point len = 7
+[Results]|Iterations 6|Nodes 3674|Time 0.2715799808502197
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16136548141819637
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1300|Time 0.06722164154052734
+[Before Smoothness]|Length 253
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17618149566680494
+last_to_contact_point len = 5
+[Results]|Iterations 1|Nodes 1705|Time 0.06838536262512207
+[Before Smoothness]|Length 225
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17594780762705164
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 4|Nodes 1690|Time 0.20117878913879395
+[Before Smoothness]|Length 70
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1592975236506581
+last_to_contact_point len = 7
+[Results]|Iterations 1|Nodes 2752|Time 0.12868142127990723
+[Before Smoothness]|Length 52
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.16119574971873635
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 27|Nodes 1935|Time 0.652534008026123
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15977748452330837
+last_to_contact_point len = 4
+[Results]|Iterations 0|Nodes 1423|Time 0.04851174354553223
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.15941642438234244
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1047|Time 0.06996798515319824
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.14443677940989633
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 1760|Time 0.08564066886901855
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1444513185538396
+last_to_contact_point len = 6
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_45_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_6_easy-hanging_exp/Hook_hsr_6_easy-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 10|Nodes 1397|Time 0.33831095695495605
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16421209446430465
+last_to_contact_point len = 6
+[Results]|Iterations 14|Nodes 1196|Time 0.4071826934814453
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1646825631256203
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 2|Nodes 518|Time 0.07598590850830078
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1568244380543591
+last_to_contact_point len = 3
+[Results]|Iterations 4|Nodes 516|Time 0.05943036079406738
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15686348403599265
+last_to_contact_point len = 3
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 13|Nodes 1105|Time 0.22789812088012695
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17010813970694771
+last_to_contact_point len = 4
+[Results]|Iterations 4|Nodes 666|Time 0.056775808334350586
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.16971987367493166
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 4|Nodes 1151|Time 0.04963064193725586
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.1794889189078946
+last_to_contact_point len = 4
+[Results]|Iterations 2|Nodes 540|Time 0.04073381423950195
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1794075956666623
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 18|Nodes 1269|Time 0.1898338794708252
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1773831192306927
+last_to_contact_point len = 5
+[Results]|Iterations 1|Nodes 870|Time 0.040136098861694336
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1719708029124828
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 10|Nodes 1192|Time 0.1833028793334961
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.19054797620710343
+last_to_contact_point len = 7
+[Results]|Iterations 3|Nodes 917|Time 0.12198066711425781
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.19092598683734988
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 526|Time 0.03361105918884277
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17523770185440588
+last_to_contact_point len = 7
+[Results]|Iterations 5|Nodes 925|Time 0.09018945693969727
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17558698261455455
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 14|Nodes 1040|Time 0.20189332962036133
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.16364737431177864
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 455|Time 0.02831101417541504
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16230311590721141
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 642|Time 0.04294013977050781
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1615943528852414
+last_to_contact_point len = 4
+[Results]|Iterations 9|Nodes 1269|Time 0.2009282112121582
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16144144176921954
+last_to_contact_point len = 4
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_6_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_71_easy-hanging_exp/Hook_hsr_71_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 3|Nodes 2590|Time 0.16670846939086914
+[Before Smoothness]|Length 48
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1637270702798352
+last_to_contact_point len = 1
+[Results]|Iterations 1|Nodes 1534|Time 0.06367373466491699
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1646829661777444
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1412|Time 0.041357994079589844
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15509618221664728
+last_to_contact_point len = 0
+[Results]|Iterations 2|Nodes 1403|Time 0.13775157928466797
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.1547283545991584
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 0|Nodes 99|Time 0.003265857696533203
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.16452983253273615
+last_to_contact_point len = 1
+[Results]|Iterations 1|Nodes 1225|Time 0.09726095199584961
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.16452983253273612
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 33|Nodes 3048|Time 0.961388349533081
+[Before Smoothness]|Length 14
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.17649615973985233
+last_to_contact_point len = 1
+[Results]|Iterations 11|Nodes 4089|Time 0.5385890007019043
+[Before Smoothness]|Length 53
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17784996603859946
+last_to_contact_point len = 0
+successfully find refined pose
+[Results]|Iterations 4|Nodes 3203|Time 0.44882893562316895
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18075960553129627
+last_to_contact_point len = 0
+[Results]|Iterations 11|Nodes 3405|Time 0.31865668296813965
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1775663378019232
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 92|Nodes 4592|Time 3.840494394302368
+[Before Smoothness]|Length 56
+[After Smoothness]|Length 24
+[After Smoothness]|Length 24
+trajectory length: 0.33852919322033265
+last_to_contact_point len = 1
+[Results]|Iterations 30|Nodes 3589|Time 1.1005971431732178
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.2092709167008444
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 55|Nodes 3471|Time 1.749023199081421
+[Before Smoothness]|Length 35
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.206122370044911
+last_to_contact_point len = 0
+[Results]|Iterations 0|Nodes 1249|Time 0.03561043739318848
+[Before Smoothness]|Length 30
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17011993635247522
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 2|Nodes 1829|Time 0.10729408264160156
+[Before Smoothness]|Length 20
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1643736528919859
+last_to_contact_point len = 1
+[Results]|Iterations 8|Nodes 3815|Time 0.5952005386352539
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1628396417992935
+last_to_contact_point len = 1
+successfully find refined pose
+[Results]|Iterations 1|Nodes 904|Time 0.054686784744262695
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.1542951845205645
+last_to_contact_point len = 1
+[Results]|Iterations 1|Nodes 881|Time 0.05204200744628906
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.1542951845205645
+last_to_contact_point len = 1
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_71_easy.json has been written
+processing data/data_all_new_4/Hook_hsr_98_easy-hanging_exp/Hook_hsr_98_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 14|Nodes 3281|Time 0.7058682441711426
+[Before Smoothness]|Length 31
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1681288510726554
+last_to_contact_point len = 3
+[Results]|Iterations 0|Nodes 94|Time 0.002881288528442383
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.1681146462836588
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 4|Nodes 3942|Time 0.3860299587249756
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15345422438300116
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 2463|Time 0.10566830635070801
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1555001934113892
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 1|Nodes 926|Time 0.060019731521606445
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.16718374874859096
+last_to_contact_point len = 3
+[Results]|Iterations 30|Nodes 2154|Time 1.0655865669250488
+[Before Smoothness]|Length 151
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16876722218771004
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 13|Nodes 4027|Time 0.6491553783416748
+[Before Smoothness]|Length 43
+[After Smoothness]|Length 26
+[After Smoothness]|Length 26
+trajectory length: 0.18307171126028585
+last_to_contact_point len = 7
+[Results]|Iterations 16|Nodes 3221|Time 0.6775867938995361
+[Before Smoothness]|Length 111
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1809169572961266
+last_to_contact_point len = 8
+successfully find refined pose
+[Results]|Iterations 7|Nodes 3062|Time 0.2901139259338379
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17752903656231192
+last_to_contact_point len = 2
+[Results]|Iterations 1|Nodes 758|Time 0.05877232551574707
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17872357867991057
+last_to_contact_point len = 2
+successfully find refined pose
+[Results]|Iterations 41|Nodes 3034|Time 1.3349204063415527
+[Before Smoothness]|Length 388
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.21196051645033656
+last_to_contact_point len = 7
+[Results]|Iterations 215|Nodes 2870|Time 6.624222040176392
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.19440479599484414
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 14|Nodes 3266|Time 0.711331844329834
+[Before Smoothness]|Length 196
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17335463005330826
+last_to_contact_point len = 6
+[Results]|Iterations 35|Nodes 2260|Time 0.9001774787902832
+[Before Smoothness]|Length 272
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.17834044133848898
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1185|Time 0.049005985260009766
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1689582088729671
+last_to_contact_point len = 7
+[Results]|Iterations 42|Nodes 4125|Time 3.8791379928588867
+[Before Smoothness]|Length 26
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17052061751952782
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 1|Nodes 2295|Time 0.10061430931091309
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.2048867823965141
+last_to_contact_point len = 5
+[Results]|Iterations 0|Nodes 1440|Time 0.045562028884887695
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15638252585999685
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_hsr_98_easy.json has been written
+processing data/data_all_new_4/Hook_my_45_hard-hanging_exp/Hook_my_45_hard-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 12|Nodes 1384|Time 0.15573763847351074
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18326836855748052
+last_to_contact_point len = 4
+[Results]|Iterations 13|Nodes 1048|Time 0.19609451293945312
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1806211428423599
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 15|Nodes 1075|Time 0.28452634811401367
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17620102672747356
+last_to_contact_point len = 3
+[Results]|Iterations 34|Nodes 1992|Time 0.46648645401000977
+[Before Smoothness]|Length 15
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17528394969157252
+last_to_contact_point len = 3
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 15|Nodes 1152|Time 0.3725624084472656
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18237282747355424
+last_to_contact_point len = 5
+[Results]|Iterations 28|Nodes 1100|Time 0.3414304256439209
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1815897468777765
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 27|Nodes 1055|Time 0.3018934726715088
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19007143817054953
+last_to_contact_point len = 4
+[Results]|Iterations 5|Nodes 530|Time 0.050811052322387695
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19036707362519528
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 324|Time 0.013284444808959961
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18662625994398707
+last_to_contact_point len = 7
+[Results]|Iterations 4|Nodes 868|Time 0.10923504829406738
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18670273530657566
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 1066|Time 0.03941845893859863
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19970572810884363
+last_to_contact_point len = 4
+[Results]|Iterations 1|Nodes 540|Time 0.03608989715576172
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.20168913149905227
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 955|Time 0.05178356170654297
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18378533357819207
+last_to_contact_point len = 7
+[Results]|Iterations 10|Nodes 956|Time 0.1890583038330078
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18473689116254352
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 33|Nodes 1700|Time 1.0072712898254395
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.18329891379928798
+last_to_contact_point len = 7
+[Results]|Iterations 14|Nodes 1160|Time 0.2024233341217041
+[Before Smoothness]|Length 44
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17953773434249629
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 7|Nodes 1162|Time 0.1268007755279541
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16956059276309984
+last_to_contact_point len = 7
+[Results]|Iterations 24|Nodes 925|Time 0.33018016815185547
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17065807201920952
+last_to_contact_point len = 7
+keypoint_trajectory/kptraj_all_new_4-0/Hook_my_45_hard.json has been written
+processing data/data_all_new_4/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 7|Nodes 1941|Time 0.42005109786987305
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16562048427707943
+last_to_contact_point len = 4
+[Results]|Iterations 0|Nodes 98|Time 0.0032672882080078125
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.1656199392059318
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1389|Time 0.038965463638305664
+[Before Smoothness]|Length 124
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1543715032855268
+last_to_contact_point len = 7
+[Results]|Iterations 4|Nodes 1713|Time 0.16949248313903809
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.2607752655140019
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 1|Nodes 2460|Time 0.10400104522705078
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.23619020756481302
+last_to_contact_point len = 7
+[Results]|Iterations 0|Nodes 1168|Time 0.038393497467041016
+[Before Smoothness]|Length 314
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16722042764198855
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1199|Time 0.03900885581970215
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18217105704376815
+last_to_contact_point len = 5
+[Results]|Iterations 17|Nodes 3013|Time 1.2698020935058594
+[Before Smoothness]|Length 211
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18263761086882285
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 8|Nodes 3266|Time 0.333484411239624
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17934313185709105
+last_to_contact_point len = 7
+[Results]|Iterations 17|Nodes 1787|Time 0.4588139057159424
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17990210460836803
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 3|Nodes 3127|Time 0.1779780387878418
+[Before Smoothness]|Length 31
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.18933389611743948
+last_to_contact_point len = 4
+[Results]|Iterations 7|Nodes 3781|Time 0.26734042167663574
+[Before Smoothness]|Length 329
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18791107913157287
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 1|Nodes 913|Time 0.05399274826049805
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17665809685422731
+last_to_contact_point len = 7
+[Results]|Iterations 10|Nodes 2433|Time 0.41866230964660645
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17520989790085179
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 1|Nodes 2079|Time 0.11632847785949707
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17167484663325475
+last_to_contact_point len = 6
+[Results]|Iterations 0|Nodes 100|Time 0.0034444332122802734
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.17105294398407841
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 1|Nodes 2114|Time 0.09228873252868652
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15971868798767253
+last_to_contact_point len = 4
+[Results]|Iterations 0|Nodes 1387|Time 0.027419328689575195
+[Before Smoothness]|Length 31
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15964282940749772
+last_to_contact_point len = 4
+keypoint_trajectory/kptraj_all_new_4-0/Hook_my_bar_easy.json has been written
+processing data/data_all_new_4/Hook_omni_122_hard-hanging_exp/Hook_omni_122_hard-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 185|Nodes 4687|Time 23.362470149993896
+[Before Smoothness]|Length 74
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.21490554274244622
+last_to_contact_point len = 3
+[Results]|Iterations 135|Nodes 2916|Time 7.108283042907715
+[Before Smoothness]|Length 23
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.1952295336909405
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 77|Nodes 4541|Time 3.013110399246216
+[Before Smoothness]|Length 86
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18488226995279386
+last_to_contact_point len = 6
+[Results]|Iterations 36|Nodes 2872|Time 1.1245875358581543
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19399018570500823
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 120|Nodes 6039|Time 7.4804933071136475
+[Before Smoothness]|Length 135
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19653028362293343
+last_to_contact_point len = 2
+[Results]|Iterations 28|Nodes 1549|Time 0.5105407238006592
+[Before Smoothness]|Length 15
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19419566349335765
+last_to_contact_point len = 2
+successfully find refined pose
+[Results]|Iterations 12|Nodes 3889|Time 0.748889684677124
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.3831711213038787
+last_to_contact_point len = 3
+[Results]|Iterations 177|Nodes 3473|Time 20.878511905670166
+[Before Smoothness]|Length 25
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.2074523739489804
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 10|Nodes 1829|Time 0.16046929359436035
+[Before Smoothness]|Length 24
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1995236597455714
+last_to_contact_point len = 6
+[Results]|Iterations 10|Nodes 3724|Time 0.4539473056793213
+[Before Smoothness]|Length 13
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19978569849430267
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 48|Nodes 4456|Time 1.936866044998169
+[Before Smoothness]|Length 21
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.21448636280778338
+last_to_contact_point len = 4
+[Results]|Iterations 43|Nodes 2430|Time 0.978074312210083
+[Before Smoothness]|Length 69
+[After Smoothness]|Length 10
+[After Smoothness]|Length 10
+trajectory length: 0.21666872241125332
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 133|Nodes 4569|Time 8.667414665222168
+[Before Smoothness]|Length 15
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.20388684923209868
+last_to_contact_point len = 7
+[Results]|Iterations 90|Nodes 4480|Time 3.7312698364257812
+[Before Smoothness]|Length 18
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.19980154081450158
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 204|Nodes 4356|Time 9.799690961837769
+[Before Smoothness]|Length 38
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.20273525604153425
+last_to_contact_point len = 6
+[Results]|Iterations 23|Nodes 3361|Time 0.9584887027740479
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1962304827556575
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 60|Nodes 3002|Time 2.216571569442749
+[Before Smoothness]|Length 16
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19088651393841283
+last_to_contact_point len = 5
+[Results]|Iterations 805|Nodes 7837|Time 59.428159952163696
+[Before Smoothness]|Length 79
+[After Smoothness]|Length 13
+[After Smoothness]|Length 13
+trajectory length: 0.19804461462309017
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_122_hard.json has been written
+processing data/data_all_new_4/Hook_omni_12_hard-hanging_exp/Hook_omni_12_hard-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 7|Nodes 2723|Time 0.41915059089660645
+[Before Smoothness]|Length 89
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.17543623065797237
+last_to_contact_point len = 5
+[Results]|Iterations 4|Nodes 2824|Time 0.31732702255249023
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1733473074216324
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 14|Nodes 2747|Time 0.6588497161865234
+[Before Smoothness]|Length 118
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18079275493976404
+last_to_contact_point len = 5
+[Results]|Iterations 11|Nodes 2882|Time 0.5614922046661377
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17495598511247445
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 2|Nodes 2804|Time 0.12216997146606445
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1845895590046062
+last_to_contact_point len = 5
+[Results]|Iterations 6|Nodes 5020|Time 0.4247474670410156
+[Before Smoothness]|Length 49
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17603730631826872
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 3|Nodes 3556|Time 0.22621726989746094
+[Before Smoothness]|Length 22
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18641495461258922
+last_to_contact_point len = 3
+[Results]|Iterations 6|Nodes 3770|Time 0.5753231048583984
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18691387751087382
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 3|Nodes 1303|Time 0.09547281265258789
+[Before Smoothness]|Length 109
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1791927537082769
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 1616|Time 0.07201099395751953
+[Before Smoothness]|Length 124
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1796351482674388
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 3|Nodes 2045|Time 0.18254351615905762
+[Before Smoothness]|Length 102
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19662895076540382
+last_to_contact_point len = 3
+[Results]|Iterations 0|Nodes 1265|Time 0.04312634468078613
+[Before Smoothness]|Length 380
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.19164021232227427
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 7|Nodes 2448|Time 0.31312012672424316
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.18389022351592027
+last_to_contact_point len = 4
+[Results]|Iterations 3|Nodes 2763|Time 0.1384119987487793
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.18110502380963728
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 5|Nodes 3859|Time 0.30306339263916016
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.1937464201003137
+last_to_contact_point len = 7
+[Results]|Iterations 5|Nodes 2669|Time 0.31110715866088867
+[Before Smoothness]|Length 70
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17928983660491618
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 8|Nodes 3243|Time 0.40467214584350586
+[Before Smoothness]|Length 142
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1773666265680164
+last_to_contact_point len = 5
+[Results]|Iterations 18|Nodes 4241|Time 0.6221024990081787
+[Before Smoothness]|Length 96
+[After Smoothness]|Length 41
+[After Smoothness]|Length 41
+trajectory length: 0.1750824795278418
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_12_hard.json has been written
+processing data/data_all_new_4/Hook_omni_136_hard-hanging_exp/Hook_omni_136_hard-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 94|Nodes 2786|Time 2.7539234161376953
+[Before Smoothness]|Length 17
+[After Smoothness]|Length 14
+[After Smoothness]|Length 14
+trajectory length: 0.20144787312121082
+last_to_contact_point len = 3
+[Results]|Iterations 139|Nodes 3892|Time 5.357944488525391
+[Before Smoothness]|Length 69
+[After Smoothness]|Length 17
+[After Smoothness]|Length 17
+trajectory length: 0.19658411026496747
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 127|Nodes 4510|Time 13.969889879226685
+[Before Smoothness]|Length 18
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17890076436433572
+last_to_contact_point len = 5
+[Results]|Iterations 62|Nodes 1405|Time 1.6933810710906982
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18985260425224734
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 6|Nodes 2700|Time 0.2464745044708252
+[Before Smoothness]|Length 284
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1840865043400967
+last_to_contact_point len = 6
+[Results]|Iterations 15|Nodes 3259|Time 0.5102400779724121
+[Before Smoothness]|Length 195
+[After Smoothness]|Length 10
+[After Smoothness]|Length 10
+trajectory length: 0.20689046502886455
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 9|Nodes 374|Time 0.10069870948791504
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.19197624950372155
+last_to_contact_point len = 6
+[Results]|Iterations 15|Nodes 2975|Time 0.5575227737426758
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.19519381865747024
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 40|Nodes 2168|Time 1.3704490661621094
+[Before Smoothness]|Length 35
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.2041131224002078
+last_to_contact_point len = 6
+[Results]|Iterations 16|Nodes 2764|Time 0.8621749877929688
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 11
+[After Smoothness]|Length 11
+trajectory length: 0.20783994063107433
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 3|Nodes 2626|Time 0.13440823554992676
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.21693599013109502
+last_to_contact_point len = 4
+[Results]|Iterations 107|Nodes 3269|Time 2.8179657459259033
+[Before Smoothness]|Length 17
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.2093017808826186
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 47|Nodes 3649|Time 1.6949958801269531
+[Before Smoothness]|Length 40
+[After Smoothness]|Length 37
+[After Smoothness]|Length 37
+trajectory length: 0.20984609710735866
+last_to_contact_point len = 4
+[Results]|Iterations 34|Nodes 4275|Time 1.4785640239715576
+[Before Smoothness]|Length 256
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.20706658725786128
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 130|Nodes 4391|Time 5.271572113037109
+[Before Smoothness]|Length 51
+[After Smoothness]|Length 12
+[After Smoothness]|Length 12
+trajectory length: 0.20130889134131222
+last_to_contact_point len = 5
+[Results]|Iterations 17|Nodes 2853|Time 0.5890562534332275
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 12
+[After Smoothness]|Length 12
+trajectory length: 0.20069166978608083
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 28|Nodes 2269|Time 0.7180941104888916
+[Before Smoothness]|Length 14
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18402673133817302
+last_to_contact_point len = 5
+[Results]|Iterations 101|Nodes 1796|Time 2.5534675121307373
+[Before Smoothness]|Length 28
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18733657207525792
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_136_hard.json has been written
+processing data/data_all_new_4/Hook_omni_145_easy-hanging_exp/Hook_omni_145_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 4|Nodes 1671|Time 0.20370197296142578
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17059933611142136
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 1103|Time 0.08022117614746094
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17088674375726717
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1587|Time 0.08174777030944824
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16357617105775435
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 754|Time 0.07403945922851562
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.16138735405688187
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 8|Nodes 3018|Time 0.3133578300476074
+[Before Smoothness]|Length 87
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17238668299886575
+last_to_contact_point len = 5
+[Results]|Iterations 389|Nodes 7630|Time 35.46056318283081
+[Before Smoothness]|Length 85
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1748746258599807
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 40|Nodes 3613|Time 1.2762951850891113
+[Before Smoothness]|Length 89
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1852416179431071
+last_to_contact_point len = 6
+[Results]|Iterations 4|Nodes 3452|Time 0.2187976837158203
+[Before Smoothness]|Length 43
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.26196236685050384
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 23|Nodes 2904|Time 0.7253508567810059
+[Before Smoothness]|Length 99
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.19071894086090524
+last_to_contact_point len = 4
+[Results]|Iterations 25|Nodes 2042|Time 0.4722771644592285
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18572810855090208
+last_to_contact_point len = 4
+successfully find refined pose
+[Results]|Iterations 22|Nodes 2320|Time 0.6320745944976807
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.19523689180944048
+last_to_contact_point len = 6
+[Results]|Iterations 31|Nodes 4691|Time 1.3728818893432617
+[Before Smoothness]|Length 21
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.19496665091430274
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 3|Nodes 3346|Time 0.21365046501159668
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17771449312019175
+last_to_contact_point len = 7
+[Results]|Iterations 2|Nodes 1136|Time 0.11201143264770508
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17756075959786854
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 44|Nodes 3301|Time 2.414362668991089
+[Before Smoothness]|Length 159
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17175178007662265
+last_to_contact_point len = 5
+[Results]|Iterations 4|Nodes 1934|Time 0.18046069145202637
+[Before Smoothness]|Length 50
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17467160859719694
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1945|Time 0.1092071533203125
+[Before Smoothness]|Length 23
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16202599398584067
+last_to_contact_point len = 6
+[Results]|Iterations 2|Nodes 2647|Time 0.11425232887268066
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1623341568335641
+last_to_contact_point len = 6
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_145_easy.json has been written
+processing data/data_all_new_4/Hook_omni_2_easy-hanging_exp/Hook_omni_2_easy-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 10|Nodes 1321|Time 0.13967633247375488
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.15936830000299246
+last_to_contact_point len = 6
+[Results]|Iterations 7|Nodes 889|Time 0.0967721939086914
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.16160352946489998
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 0|Nodes 81|Time 0.002572298049926758
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.14552094505983867
+last_to_contact_point len = 7
+[Results]|Iterations 12|Nodes 921|Time 0.13305139541625977
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.14631640819538455
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 14|Nodes 671|Time 0.13724350929260254
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15221707153662217
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 407|Time 0.025515079498291016
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.15259152702122697
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 21|Nodes 1000|Time 0.27663135528564453
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.1694419216348347
+last_to_contact_point len = 5
+[Results]|Iterations 9|Nodes 1036|Time 0.14444994926452637
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1716183196939906
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 37|Nodes 920|Time 0.3350484371185303
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.16884284155347867
+last_to_contact_point len = 6
+[Results]|Iterations 4|Nodes 831|Time 0.06017351150512695
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17112074498621596
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 5|Nodes 734|Time 0.08037757873535156
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18193378531811238
+last_to_contact_point len = 5
+[Results]|Iterations 31|Nodes 1112|Time 0.3410298824310303
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1867209211297179
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 0|Nodes 616|Time 0.031644582748413086
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1612552491963457
+last_to_contact_point len = 4
+[Results]|Iterations 8|Nodes 1312|Time 0.14387130737304688
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.16228410439475838
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 3|Nodes 1152|Time 0.08958029747009277
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1542430527550119
+last_to_contact_point len = 5
+[Results]|Iterations 43|Nodes 1545|Time 1.2551510334014893
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.1549255714732639
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 368|Time 0.035559892654418945
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.14445019173876236
+last_to_contact_point len = 2
+[Results]|Iterations 3|Nodes 1042|Time 0.06418418884277344
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.14423341660352235
+last_to_contact_point len = 3
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_2_easy.json has been written
+processing data/data_all_new_4/Hook_omni_35_easy-hanging_exp/Hook_omni_35_easy-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 6|Nodes 749|Time 0.09953474998474121
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.16896324920175895
+last_to_contact_point len = 5
+[Results]|Iterations 4|Nodes 651|Time 0.08732962608337402
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16949691707524311
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 661|Time 0.0356600284576416
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15648694832318422
+last_to_contact_point len = 5
+[Results]|Iterations 2|Nodes 805|Time 0.03343462944030762
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15686003603409113
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 10|Nodes 903|Time 0.2871854305267334
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17193093994640254
+last_to_contact_point len = 8
+[Results]|Iterations 4|Nodes 768|Time 0.05237531661987305
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16998798905840162
+last_to_contact_point len = 8
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 44|Nodes 1273|Time 0.605811595916748
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.18109561258077328
+last_to_contact_point len = 6
+[Results]|Iterations 2|Nodes 692|Time 0.06784820556640625
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.18089172286980326
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 1232|Time 0.049112558364868164
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17350386825184874
+last_to_contact_point len = 6
+[Results]|Iterations 24|Nodes 1183|Time 0.2946658134460449
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17307409974467347
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 2|Nodes 857|Time 0.0411534309387207
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.1863027560628041
+last_to_contact_point len = 5
+[Results]|Iterations 0|Nodes 363|Time 0.011781692504882812
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.18442715361572373
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 29|Nodes 1304|Time 0.5822098255157471
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.17011002144280846
+last_to_contact_point len = 5
+[Results]|Iterations 12|Nodes 896|Time 0.2127399444580078
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.16999052988874755
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 2|Nodes 436|Time 0.034046173095703125
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.16816483525860237
+last_to_contact_point len = 5
+[Results]|Iterations 3|Nodes 1048|Time 0.06656694412231445
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16960646354854592
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 1|Nodes 671|Time 0.03395676612854004
+[Before Smoothness]|Length 4
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.15353864893334526
+last_to_contact_point len = 6
+[Results]|Iterations 0|Nodes 121|Time 0.004138946533203125
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.15168796964906167
+last_to_contact_point len = 7
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_35_easy.json has been written
+processing data/data_all_new_4/Hook_omni_42_hard-hanging_exp/Hook_omni_42_hard-hanging_exp_daily_5.json
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 16|Nodes 883|Time 0.4249536991119385
+[Before Smoothness]|Length 5
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.1818882705634206
+last_to_contact_point len = 5
+[Results]|Iterations 29|Nodes 1287|Time 0.5689618587493896
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.18436154860653378
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 61|Nodes 1049|Time 1.2100942134857178
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18012633256151395
+last_to_contact_point len = 7
+[Results]|Iterations 76|Nodes 1131|Time 0.8714275360107422
+[Before Smoothness]|Length 13
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1758050535212131
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 71|Nodes 970|Time 0.7349352836608887
+[Before Smoothness]|Length 12
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18268238439683343
+last_to_contact_point len = 7
+[Results]|Iterations 42|Nodes 1215|Time 0.46629762649536133
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1823468593609676
+last_to_contact_point len = 7
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 117|Nodes 1448|Time 3.6633667945861816
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.19199822978430547
+last_to_contact_point len = 4
+[Results]|Iterations 9|Nodes 1121|Time 0.1305255889892578
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.19248026102805793
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 59|Nodes 1521|Time 0.5790174007415771
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18972811360327685
+last_to_contact_point len = 4
+[Results]|Iterations 172|Nodes 1587|Time 5.619413614273071
+[Before Smoothness]|Length 18
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.19030867848848854
+last_to_contact_point len = 4
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 13|Nodes 958|Time 0.18154048919677734
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.19763136862300462
+last_to_contact_point len = 6
+[Results]|Iterations 50|Nodes 698|Time 0.5362927913665771
+[Before Smoothness]|Length 8
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.1997282300173957
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 35|Nodes 928|Time 0.427396297454834
+[Before Smoothness]|Length 48
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.1894179590805939
+last_to_contact_point len = 6
+[Results]|Iterations 13|Nodes 1083|Time 0.27684569358825684
+[Before Smoothness]|Length 10
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.18678167152765485
+last_to_contact_point len = 6
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 30|Nodes 1102|Time 0.38811540603637695
+[Before Smoothness]|Length 13
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18300958725360914
+last_to_contact_point len = 5
+[Results]|Iterations 35|Nodes 1063|Time 0.3727560043334961
+[Before Smoothness]|Length 11
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.182777692624638
+last_to_contact_point len = 5
+successfully find refined pose
+tgt_pose refined
+[Results]|Iterations 27|Nodes 786|Time 0.266986608505249
+[Before Smoothness]|Length 9
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.17953899118298958
+last_to_contact_point len = 5
+[Results]|Iterations 107|Nodes 1361|Time 1.5257446765899658
+[Before Smoothness]|Length 13
+[After Smoothness]|Length 9
+[After Smoothness]|Length 9
+trajectory length: 0.17892079994454652
+last_to_contact_point len = 5
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_42_hard.json has been written
+processing data/data_all_new_4/Hook_omni_84_easy-hanging_exp/Hook_omni_84_easy-hanging_exp_daily_5.json
+successfully find refined pose
+[Results]|Iterations 6|Nodes 1689|Time 0.274486780166626
+[Before Smoothness]|Length 157
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.17386803607925266
+last_to_contact_point len = 5
+[Results]|Iterations 29|Nodes 2414|Time 0.6028330326080322
+[Before Smoothness]|Length 297
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.17306132074210026
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1154|Time 0.024431943893432617
+[Before Smoothness]|Length 79
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.15614438969332556
+last_to_contact_point len = 6
+[Results]|Iterations 1|Nodes 1160|Time 0.07247447967529297
+[Before Smoothness]|Length 6
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.15534104009522054
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1520|Time 0.04746818542480469
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.17202877639196526
+last_to_contact_point len = 3
+[Results]|Iterations 0|Nodes 1181|Time 0.029674291610717773
+[Before Smoothness]|Length 179
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.17192182312849902
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 28|Nodes 3066|Time 0.8000397682189941
+[Before Smoothness]|Length 150
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1813365868864457
+last_to_contact_point len = 6
+[Results]|Iterations 0|Nodes 1445|Time 0.027276277542114258
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 3
+[After Smoothness]|Length 3
+trajectory length: 0.18132769567347146
+last_to_contact_point len = 6
+successfully find refined pose
+[Results]|Iterations 1|Nodes 2287|Time 0.1108098030090332
+[Before Smoothness]|Length 30
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18518141462305213
+last_to_contact_point len = 2
+[Results]|Iterations 0|Nodes 1501|Time 0.05160808563232422
+[Before Smoothness]|Length 3
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.18351697293111482
+last_to_contact_point len = 2
+successfully find refined pose
+[Results]|Iterations 6|Nodes 2306|Time 0.4256582260131836
+[Before Smoothness]|Length 7
+[After Smoothness]|Length 7
+[After Smoothness]|Length 7
+trajectory length: 0.2017974712361316
+last_to_contact_point len = 3
+[Results]|Iterations 39|Nodes 2488|Time 1.12729811668396
+[Before Smoothness]|Length 74
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.21055861822174857
+last_to_contact_point len = 3
+successfully find refined pose
+[Results]|Iterations 0|Nodes 1503|Time 0.04721236228942871
+[Before Smoothness]|Length 93
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.17980880152578216
+last_to_contact_point len = 5
+[Results]|Iterations 2|Nodes 1867|Time 0.13626766204833984
+[Before Smoothness]|Length 187
+[After Smoothness]|Length 8
+[After Smoothness]|Length 8
+trajectory length: 0.18327178407044195
+last_to_contact_point len = 5
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1863|Time 0.08303046226501465
+[Before Smoothness]|Length 81
+[After Smoothness]|Length 4
+[After Smoothness]|Length 4
+trajectory length: 0.1851570108026656
+last_to_contact_point len = 7
+[Results]|Iterations 3|Nodes 1760|Time 0.0703730583190918
+[Before Smoothness]|Length 20
+[After Smoothness]|Length 6
+[After Smoothness]|Length 6
+trajectory length: 0.18134930856442066
+last_to_contact_point len = 7
+successfully find refined pose
+[Results]|Iterations 1|Nodes 1177|Time 0.06493830680847168
+[Before Smoothness]|Length 15
+[After Smoothness]|Length 5
+[After Smoothness]|Length 5
+trajectory length: 0.16367325031547098
+last_to_contact_point len = 4
+[Results]|Iterations 0|Nodes 177|Time 0.008222818374633789
+[Before Smoothness]|Length 2
+[After Smoothness]|Length 2
+[After Smoothness]|Length 2
+trajectory length: 0.16364195017951108
+last_to_contact_point len = 4
+keypoint_trajectory/kptraj_all_new_4-0/Hook_omni_84_easy.json has been written
+process completed...

@@ -1,10 +1,10 @@
 import argparse, json, os, glob, sys
-from pathlib import Path
 import numpy as np
 import pybullet as p
+from PIL import Image
 from tqdm import tqdm
 
-from utils.bullet_utils import draw_coordinate, get_matrix_from_pos_rot, get_pos_rot_from_matrix
+from utils.bullet_utils import draw_coordinate, get_matrix_from_pos_rot, get_pos_rot_from_matrix, get_pose_from_matrix, get_matrix_from_pose
 
 def main(args):
 
@@ -15,9 +15,10 @@ def main(args):
 
     # Create pybullet GUI
     physics_client_id = p.connect(p.GUI)
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.3,
-        cameraYaw=120,
+        cameraDistance=0.1,
+        cameraYaw=90,
         cameraPitch=0,
         cameraTargetPosition=[0.5, -0.05, 1.3]
     )
@@ -35,6 +36,17 @@ def main(args):
         # 'Hook122.json', 'Hook12.json', 'Hook42.json'
     ]
 
+
+    hook_pose = [
+        0.5, 
+        -0.1, 
+        1.3,
+        4.329780281177466e-17,
+        0.7071067811865475,
+        0.7071067811865476,
+        4.329780281177467e-17
+    ]
+
     object_json = f'{kptraj_dir}/hanging_exp_daily_5.json'
     object_dict = json.load(open(object_json, 'r'))
     object_urdf = object_dict['file']
@@ -44,8 +56,10 @@ def main(args):
 
     obj_id = p.loadURDF(object_urdf)
 
-    kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/*.json')
+    # kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/Hook*devil.json')
+    kpt_trajectory_jsons = glob.glob(f'{kptraj_dir}/Hook_hsr_18_devil.json')
     kpt_trajectory_jsons.sort()
+    kpt_trajectory_jsons = kpt_trajectory_jsons[::-1]
 
     for i, kpt_trajectory_json in enumerate(kpt_trajectory_jsons):
         cont = False
@@ -64,28 +78,46 @@ def main(args):
             hook_id = p.loadURDF(hook_urdf, hook_pos, hook_orientation)
             hook_transform = get_matrix_from_pos_rot(hook_pos, hook_orientation)
 
+            hook_name = kpt_trajectory_json.split('/')[-1].split('.')[0]
+
             print('processing {}'.format(kpt_trajectory_json))
-            for trajectory_id, trajectory in tqdm(enumerate(kpt_trajectory_dict['trajectory'])):
+            for traj_id, trajectory in enumerate(tqdm(kpt_trajectory_dict['trajectory'])):
                 # print(f'rendering {trajectory_id}, num of waypoints = {len(trajectory)}')
-                if trajectory_id >= 50:
+                if traj_id >= 20:
                     break
 
                 color = np.random.rand(1, 3)
                 color = np.repeat(color, 3, axis=0)
 
-                for waypoint in trajectory:
+                rgbs = []
+                for wpt in trajectory[-100:]:
 
-                    relative_transform = get_matrix_from_pos_rot(waypoint[:3], waypoint[3:])
+                    relative_transform = get_matrix_from_pos_rot(wpt[:3], wpt[3:])
                     kpt_transform = hook_transform @ relative_transform
 
                     object_trans = kpt_transform @ np.linalg.inv(object_contact_trans)
                     object_pos, object_rot = get_pos_rot_from_matrix(object_trans)
                     p.resetBasePositionAndOrientation(obj_id, object_pos, object_rot)
 
-                    draw_coordinate(kpt_transform, size=0.001, color=color)
+                    # draw_coordinate(kpt_transform, size=0.002, color=color)
 
-                break
-    
+                    wpt_trans_world = get_matrix_from_pose(hook_pose) @ get_matrix_from_pose(wpt)
+                    wpt_world = get_pose_from_matrix(wpt_trans_world)
+                    # draw_coordinate(wpt_world, size=0.001)
+
+                    obj_pose = get_pose_from_matrix(wpt_trans_world @ np.linalg.inv(object_contact_trans))
+                    p.resetBasePositionAndOrientation(obj_id, obj_pose[:3], obj_pose[3:])
+
+                    cam_info = p.getDebugVisualizerCamera()
+                    width = cam_info[0]
+                    height = cam_info[1]
+                    view_mat = cam_info[2]
+                    proj_mat = cam_info[3]
+                    img_info = p.getCameraImage(width, height, viewMatrix=view_mat, projectionMatrix=proj_mat)
+                    rgbs.append(Image.fromarray(img_info[2]))
+
+                rgbs[0].save(f"visualization/path_smoothness/{hook_name}-after-{traj_id}.gif", save_all=True, append_images=rgbs, duration=20, loop=0)
+
             while True:
                 # key callback
                 keys = p.getKeyboardEvents()            
@@ -122,7 +154,7 @@ print(start_msg)
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
-    parser.add_argument('--kptraj-dir', '-kd', type=str, default='keypoint_trajectory_1104')
+    parser.add_argument('--kptraj-dir', '-kd', type=str, default='kptraj_all_smooth')
     args = parser.parse_args()
 
     main(args)

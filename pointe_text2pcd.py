@@ -42,44 +42,26 @@ sampler = PointCloudSampler(
 # Set a prompt to condition on.
 prompts_list = [
             [
-                'a hook for hanging wrench', 
-                'a hook for hanging wrench', 
-                'a hook for hanging wrench', 
-                'a hook for hanging wrench'
+                'a cooking utensil that can be hung on a hook', 
+                'a cooking utensil that can be hung on a hook', 
             ],
-            [
-                'a hook for hanging cooking utensils', 
-                'a hook for hanging cooking utensils', 
-                'a hook for hanging cooking utensils', 
-                'a hook for hanging cooking utensils' 
-            ],
-            [
-                'a hook for hanging keys', 
-                'a hook for hanging keys', 
-                'a hook for hanging keys', 
-                'a hook for hanging keys' 
-            ],
-            [
-                'a hook for hanging scissors', 
-                'a hook for hanging scissors', 
-                'a hook for hanging scissors', 
-                'a hook for hanging scissors'
-            ]
         ]
+out_dir_name = 'utensil'
 
 # Produce a sample from the model.
 for prompts in prompts_list:
-    print(f'now is time for {prompts[0]}')
-    output_dir = f'pointe_out/{prompts[0]}'
+    output_dir = f'pointe_out/{out_dir_name}'
     os.makedirs(output_dir, exist_ok=True)
     batch_size = len(prompts)
     counter = 0
-    for i in tqdm(range(100)):
+    for i in tqdm(range(1)):
         samples = None
         for x in tqdm(sampler.sample_batch_progressive(batch_size=batch_size, model_kwargs=dict(texts=prompts))):
             samples = x
 
         pcds = sampler.output_to_point_clouds(samples)
         for i, pcd in enumerate(pcds):
-            pcds[i].save(f'{output_dir}/{prompts[i]}-{counter}.npz')
+            output_whole_dir = f'{output_dir}/{out_dir_name}-{counter}'
+            os.makedirs(output_whole_dir, exist_ok=True)
+            pcds[i].save(f'{output_whole_dir}/{out_dir_name}-{counter}.npz')
             counter += 1

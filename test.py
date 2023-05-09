@@ -49,8 +49,8 @@ def main(args):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_dir', '-md', type=str, default='models/hook_all_new_1')
-    parser.add_argument('--data_dir', '-dd', type=str, default='data/data_all_new_1')
-    parser.add_argument('--kptraj_dir', '-kd', type=str, default='keypoint_trajectory/kptraj_all_new_1-0')
+    parser.add_argument('--model_dir', '-md', type=str, default='models/hook_all_new_0')
+    parser.add_argument('--data_dir', '-dd', type=str, default='data/data_all_new_0')
+    parser.add_argument('--kptraj_dir', '-kd', type=str, default='keypoint_trajectory/kptraj_all_new_0-0')
     args = parser.parse_args()
     main(args)

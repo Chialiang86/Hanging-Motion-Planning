@@ -2,8 +2,8 @@ import os, glob, json
 from tqdm import tqdm
 
 def main():
-    folder = 'data_all_new_4'
-    fix_term = 'hook_all_new_4'
+    folder = 'data_all_new'
+    fix_term = 'hook_all_new'
     json_files = glob.glob(f'{folder}/*/*.json')
     json_files.sort()
     for json_file in tqdm(json_files):

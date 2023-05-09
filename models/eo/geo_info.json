@@ -1,0 +1,778 @@
+{
+    "geo_info": [
+        {
+            "path": "models/geo_data/hanging_exp/daily_41/base.urdf",
+            "center": [
+                -1.6748901511277518e-05,
+                -0.007056335105483627,
+                -0.00035447215456309696
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_97/base.urdf",
+            "center": [
+                -3.716910253882455e-05,
+                -8.345859388435556e-08,
+                -0.014436062815547027
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_118/base.urdf",
+            "center": [
+                -0.01189761009480487,
+                3.0107273560381008e-06,
+                -0.004957745665236365
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_11/base.urdf",
+            "center": [
+                -0.0008601680581173622,
+                0.0002484193347715158,
+                5.695681913034978e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_95/base.urdf",
+            "center": [
+                0.01072970066750242,
+                4.3466103660254265e-08,
+                -0.00037624814700897355
+            ],
+            "scale": 1.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_32/base.urdf",
+            "center": [
+                -0.0017866862393481565,
+                0.0030009765998208495,
+                -1.282671339040114e-09
+            ],
+            "scale": 2.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_70/base.urdf",
+            "center": [
+                -0.010663320972639365,
+                -0.0040266461270764276,
+                7.288250908367701e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_199/base.urdf",
+            "center": [
+                -0.012193537046094308,
+                -0.0015697879124640457,
+                -7.288608479267949e-08
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_90/base.urdf",
+            "center": [
+                -0.009266798559594752,
+                -0.0008656767402786152,
+                -0.0001519070220638026
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_35/base.urdf",
+            "center": [
+                0.002075797180334867,
+                -0.0028899456219372613,
+                5.535507961218853e-05
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_79/base.urdf",
+            "center": [
+                0.00867945825028171,
+                -9.314412964657046e-06,
+                -3.3604640147932234e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_31/base.urdf",
+            "center": [
+                0.010227320872266545,
+                3.970561470221745e-05,
+                -4.592784852108493e-05
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_8/base.urdf",
+            "center": [
+                0.005575206370299372,
+                -0.0004271698470774983,
+                0.0002708473198913275
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_22/base.urdf",
+            "center": [
+                0.014568939781026151,
+                -2.5598897761671516e-07,
+                -0.0004345583040457642
+            ],
+            "scale": 1.7
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_114/base.urdf",
+            "center": [
+                0.0004919212333776829,
+                -0.0032142757383020705,
+                6.418444521421182e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_135/base.urdf",
+            "center": [
+                -0.012259019659067472,
+                -0.004130898864576638,
+                -1.0807074312465621e-08
+            ],
+            "scale": 1.2
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_113/base.urdf",
+            "center": [
+                -0.012230237579224396,
+                -0.005010249944337554,
+                1.7743410814578413e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_62/base.urdf",
+            "center": [
+                0.019333070004849396,
+                0.00020139215163065044,
+                -6.033132578742251e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_205/base.urdf",
+            "center": [
+                -0.007840265547424998,
+                -0.003658550038065194,
+                -6.661488675560808e-07
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_129/base.urdf",
+            "center": [
+                -0.008725267816096536,
+                -0.00814892862501719,
+                2.5670278069093427e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_150/base.urdf",
+            "center": [
+                -0.012628548088646213,
+                -0.0034401877984465462,
+                -0.0027865022228581587
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_2/base.urdf",
+            "center": [
+                -0.0016486266000388982,
+                -0.00020794468563847444,
+                -0.017792968311516444
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_112/base.urdf",
+            "center": [
+                -0.012199390821534506,
+                -0.003118226420587001,
+                3.872200834310529e-06
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_85/base.urdf",
+            "center": [
+                0.0019216084454584358,
+                -0.004754067441950967,
+                0.0009705027918199229
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_142/base.urdf",
+            "center": [
+                -0.01333077814819562,
+                -0.004707780454928211,
+                -0.00033858485746136754
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_19/base.urdf",
+            "center": [
+                -0.011775629996855178,
+                -0.00025516388359048115,
+                1.4008695462864944e-06
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_115/base.urdf",
+            "center": [
+                -0.0002852463664101993,
+                -0.00036980079999479186,
+                -0.013782746932018008
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_204/base.urdf",
+            "center": [
+                -0.008098112182367717,
+                -0.0035329842744449558,
+                -0.00016278788176979817
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_12/base.urdf",
+            "center": [
+                0.011917074985515535,
+                1.109802086290463e-05,
+                0.0012232921227969314
+            ],
+            "scale": 1.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_166/base.urdf",
+            "center": [
+                -0.00915321003883024,
+                0.0016511343960919907,
+                -0.0001670952776808727
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_149/base.urdf",
+            "center": [
+                -0.011144037280152294,
+                -0.0043933568763445474,
+                2.066028256791473e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_14/base.urdf",
+            "center": [
+                0.02025136307172669,
+                0.0005830500666126951,
+                -0.0002545760988377074
+            ],
+            "scale": 1.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_58/base.urdf",
+            "center": [
+                0.010629210378092429,
+                -2.0587370610420958e-05,
+                0.00014006669516064172
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_147/base.urdf",
+            "center": [
+                -0.010707334995827456,
+                -0.005736518695244818,
+                8.371024959530385e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_159/base.urdf",
+            "center": [
+                -0.011407819270270283,
+                -0.005397617652087764,
+                -4.522577943201676e-08
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_84/base.urdf",
+            "center": [
+                -1.6221678628673772e-07,
+                -6.620866508464605e-09,
+                6.435878618544129e-19
+            ],
+            "scale": 0.8
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_6/base.urdf",
+            "center": [
+                0.0025530504584463268,
+                0.013097585650145531,
+                -0.0006265340586089286
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_100/base.urdf",
+            "center": [
+                -0.0106987400914921,
+                -0.004980187038952032,
+                -4.7586781433235185e-07
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_80/base.urdf",
+            "center": [
+                -0.01739390274269326,
+                -0.0033213653439687417,
+                5.389441303017563e-07
+            ],
+            "scale": 1.2
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_72/base.urdf",
+            "center": [
+                -6.884355291373783e-05,
+                -0.009383936605405662,
+                -0.00011785602953187676
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/bag_70/base.urdf",
+            "center": [
+                8.325309038163278e-07,
+                -0.01800352944836142,
+                -8.702600534567612e-05
+            ],
+            "scale": 1.2
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_63/base.urdf",
+            "center": [
+                0.001115354348493387,
+                -0.0006681568278647577,
+                -0.01671858696860874
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_27/base.urdf",
+            "center": [
+                -0.00029699610974356016,
+                0.00045185722339023286,
+                0.0002681966153518535
+            ],
+            "scale": 2.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_71/base.urdf",
+            "center": [
+                0.00010490712118047917,
+                -4.4506050997719025e-05,
+                -0.011415227603329902
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_39/base.urdf",
+            "center": [
+                0.0010192164062382755,
+                -1.1667373209462993e-06,
+                0.0020425289139542734
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_98/base.urdf",
+            "center": [
+                0.014244333470249065,
+                -4.1308738876701974e-05,
+                -1.5080449416199237e-05
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_145/base.urdf",
+            "center": [
+                -0.009981398099204843,
+                -0.004770976893059027,
+                3.1994324996532716e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_23/base.urdf",
+            "center": [
+                -0.0001452873099422748,
+                0.009796777072590376,
+                -1.71896246353324e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_115/base.urdf",
+            "center": [
+                -0.011805465916342106,
+                -0.003621342806809623,
+                4.784663638759802e-06
+            ],
+            "scale": 0.8
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_106/base.urdf",
+            "center": [
+                0.0007551958102080082,
+                0.0038753127014581035,
+                0.010983229368742378
+            ],
+            "scale": 1.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_4/base.urdf",
+            "center": [
+                0.011136267275355606,
+                -0.0003554717329089851,
+                0.0015227639814380802
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_92/base.urdf",
+            "center": [
+                0.010584508728591749,
+                -1.5671110426647284e-06,
+                -3.0614532474687424e-08
+            ],
+            "scale": 1.5
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_123/base.urdf",
+            "center": [
+                -0.009683138991526067,
+                -0.0030410044505767876,
+                1.076194834782163e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_67/base.urdf",
+            "center": [
+                -0.013059664641113407,
+                -0.002708156725716621,
+                1.2781728545920605e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_193/base.urdf",
+            "center": [
+                -0.01130483088236886,
+                0.003081495299164848,
+                -0.0003051547091029712
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_43/base.urdf",
+            "center": [
+                -0.007513447723556566,
+                -0.004514970117604054,
+                -5.914049778906732e-07
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_64/base.urdf",
+            "center": [
+                -0.01134684311043297,
+                0.0016867703212572853,
+                1.882559793995973e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_48/base.urdf",
+            "center": [
+                0.02403401896210557,
+                0.0006935381576073816,
+                -0.0009547460123553497
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_82/base.urdf",
+            "center": [
+                -0.009570258323266221,
+                -0.005720715804115432,
+                1.5536258786707618e-07
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_57/base.urdf",
+            "center": [
+                -0.0002934652154517679,
+                -0.017068056013264898,
+                -0.0007138711919691463
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_184/base.urdf",
+            "center": [
+                -0.013307721194568816,
+                -0.004292254000103524,
+                0.00018482326856381946
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_101/base.urdf",
+            "center": [
+                0.014216899409957701,
+                2.7312567573017467e-05,
+                -8.545674679407886e-06
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_126/base.urdf",
+            "center": [
+                -0.015259496153025371,
+                -0.00535785863837256,
+                -7.418621847194189e-08
+            ],
+            "scale": 1.2
+        },
+        {
+            "path": "models/geo_data/hanging_exp/bag_5/base.urdf",
+            "center": [
+                -3.705644647861063e-05,
+                -0.017207737307421592,
+                0.00017452589444642985
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_5/base.urdf",
+            "center": [
+                2.1735894874754333e-05,
+                -3.7382788093233483e-05,
+                -6.438320001378794e-06
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_132/base.urdf",
+            "center": [
+                -0.011813388730185816,
+                -0.003606354497871806,
+                -3.154551336127685e-07
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_19/base.urdf",
+            "center": [
+                0.005917392023969665,
+                -0.00041073904762171714,
+                0.00023239337705710088
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_42/base.urdf",
+            "center": [
+                0.008921473746386176,
+                -4.170278995203838e-06,
+                -0.000613669315925527
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_31/base.urdf",
+            "center": [
+                0.0005249409644143189,
+                2.3981834904168258e-05,
+                1.5393476290455048e-06
+            ],
+            "scale": 3.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_146/base.urdf",
+            "center": [
+                -0.012539539732748494,
+                -0.004408200847782411,
+                -0.0001600371753283279
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_10/base.urdf",
+            "center": [
+                0.00023903158365246738,
+                -0.006945632528995504,
+                -9.103649311300532e-05
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_173/base.urdf",
+            "center": [
+                -0.013712961881351259,
+                -0.003757631358232404,
+                -9.266041825076299e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_1/base.urdf",
+            "center": [
+                -0.0037361487890029705,
+                6.7500085095423e-05,
+                -0.0009632907847421303
+            ],
+            "scale": 3.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_25/base.urdf",
+            "center": [
+                0.016038371704730027,
+                0.0006262865745509955,
+                2.7896574791527832e-05
+            ],
+            "scale": 3.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_36/base.urdf",
+            "center": [
+                -0.005018285757603826,
+                -0.006787348810253459,
+                1.5779549292946403e-06
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_73/base.urdf",
+            "center": [
+                -0.011726203700338042,
+                -0.004303800712393668,
+                0.0003103259376074356
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/bag_6/base.urdf",
+            "center": [
+                -1.3583303811174384e-05,
+                -0.011788181889508581,
+                1.3554800208150047e-05
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_8/base.urdf",
+            "center": [
+                -0.0009341306832965127,
+                1.4999085855557918e-06,
+                -0.02082628327549838
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_74/base.urdf",
+            "center": [
+                0.014039956590168583,
+                3.43937101569516e-06,
+                0.00013216572669075798
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_181/base.urdf",
+            "center": [
+                -0.009214708459560846,
+                -0.0006986412455449542,
+                -1.952797804508887e-06
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/scissor_27/base.urdf",
+            "center": [
+                0.010625050221357738,
+                -2.027744133753496e-05,
+                0.00014193935742377482
+            ],
+            "scale": 2.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_17/base.urdf",
+            "center": [
+                0.015952127492184155,
+                -0.0014973511270910498,
+                3.735348834596034e-05
+            ],
+            "scale": 3.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_128/base.urdf",
+            "center": [
+                -0.013133292207619541,
+                -0.00521436495731925,
+                -9.780992097332964e-06
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/daily_7/base.urdf",
+            "center": [
+                1.9610987033142594e-05,
+                -0.00019313772328271434,
+                -0.02872666260869175
+            ],
+            "scale": 1.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/wrench_12/base.urdf",
+            "center": [
+                -0.010549451589333613,
+                -0.00019193581324410561,
+                0.0024836936859119287
+            ],
+            "scale": 3.0
+        },
+        {
+            "path": "models/geo_data/hanging_exp/mug_11/base.urdf",
+            "center": [
+                -0.009145742178698653,
+                -0.008151730881300693,
+                -0.00013831961038202807
+            ],
+            "scale": 1.0
+        }
+    ]
+}
