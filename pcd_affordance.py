@@ -121,13 +121,14 @@ def main(args):
     data_dirs.sort()
 
 
-    for data_dir in tqdm(data_dirs):
+    for data_dir in tqdm(data_dirs[-20:]):
         
         if not os.path.isdir(data_dir):
           continue
         
         # print(f'processing {data_dir} ...')
-        pivot_json = glob.glob(f'{data_dir}/*exp_daily_5.json')[0]
+        pivot_json = glob.glob(f'{data_dir}/*hanging_exp_daily_5.json')[0]
+        # pivot_json = glob.glob(f'{data_dir}/*everyday_objects_50_daily_63.json')[0]
 
         f_json = open(pivot_json, 'r')
         json_dict = json.load(f_json)
@@ -139,7 +140,7 @@ def main(args):
         hook_urdf = json_dict['hook_path']
         hook_id, center, scale = load_obj_urdf(hook_urdf, [0, 0, 0], [0, 0, 0])
 
-        ply_paths = glob.glob(f'{os.path.split(hook_urdf)[0]}/base-0.ply')
+        ply_paths = glob.glob(f'{os.path.split(hook_urdf)[0]}/base-*.ply')
         ply_paths.sort()
         
         # hook ply
@@ -195,7 +196,7 @@ def main(args):
 
           affordance_path = os.path.split(hook_urdf)[0] + f'/affordance-{ply_id}.npy'
           hook_affordance = np.hstack((hook_pcd_points, affordance_map, partseg_map))
-          # np.save(open(affordance_path, 'wb'), hook_affordance)
+          np.save(open(affordance_path, 'wb'), hook_affordance)
 
           # fusion = (affordance_map + partseg_map) / 2 
 

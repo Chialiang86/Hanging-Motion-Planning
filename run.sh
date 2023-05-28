@@ -139,13 +139,116 @@ if [ $# -ge 1 ]; then
         )
 
         INPUT5=(  
+            # =============== hook_all_new_5 =============== #  
             # 'Hook_hcu_279_devil' 
             # 'Hook_hsr_27_devil' 
             # 'Hook_hsr_118_hard' 'Hook_hsr_129_normal' 'Hook_hsr_321_devil' 'Hook_omni_57_devil'
             # 'Hook_hsr_313_hard'
         )
+
+        INFERENCE_HOOKS=(  
+            # # too small
+            'Hook_hky_120_devil' \
+            'Hook_hky_13_hard' \
+            'Hook_hky_157_devil' \
+            'Hook_hky_160_devil' \
+            'Hook_hky_164_devil' \
+            'Hook_hky_209_devil' \
+            'Hook_hky_348_devil' \
+            # ====================================
+            'Hook_htl_40_easy' \
+            'Hook_htl_70_normal' \
+            'Hook_htl_97_hard'
+            'Hook_htl_100_easy' \
+            'Hook_htl_105_normal' \
+            'Hook_htl_106_hard' \
+            'Hook_htl_133_easy' \
+            'Hook_htl_147_devil' \
+            'Hook_htl_152_normal' \
+            # 'Hook_htl_175_devil' \ 
+            'Hook_htl_175_hard' \ 
+            'Hook_htl_186_hard' \
+            # 'Hook_htl_194_devil' \
+            'Hook_htl_194_hard' \
+            'Hook_htl_209_hard' \
+            'Hook_htl_222_hard' \
+            'Hook_htl_232_hard' \
+            'Hook_htl_284_normal' \
+            'Hook_htl_337_hard' \
+            # ====================================
+            # 'Hook_htl_100_easy' \
+            # 'Hook_htl_102_hard' \
+            # 'Hook_htl_105_normal' \
+            # 'Hook_htl_106_hard' \
+            # 'Hook_htl_109_easy' \
+            # 'Hook_htl_10_easy' \
+            # 'Hook_htl_112_easy' \
+            # 'Hook_htl_117_easy' \
+            # 'Hook_htl_118_devil' \
+            # 'Hook_htl_119_easy' \
+            # 'Hook_htl_122_hard' \
+            # 'Hook_htl_123_easy' \
+            # 'Hook_htl_127_hard' \
+            # 'Hook_htl_128_easy' \
+            # 'Hook_htl_135_easy' \
+            # 'Hook_htl_141_normal' \
+            # 'Hook_htl_144_easy' \
+            # 'Hook_htl_145_normal' \
+            # 'Hook_htl_147_devil' \
+            # 'Hook_htl_152_normal' \
+            # 'Hook_htl_154_normal' \
+            # 'Hook_htl_155_hard' \
+            # 'Hook_htl_161_easy' \
+            # 'Hook_htl_168_normal' \
+            # 'Hook_htl_175_devil' \ 
+            # 'Hook_htl_175_hard' \ 
+            # 'Hook_htl_178_devil' \
+            # 'Hook_htl_179_devil' \
+            # 'Hook_htl_181_normal' \
+            # 'Hook_htl_186_hard' \
+            # 'Hook_htl_189_hard' \
+            # 'Hook_htl_18_easy' \
+            # 'Hook_htl_194_hard' \
+            # 'Hook_htl_209_hard' \
+            # 'Hook_htl_20_hard' \
+            # 'Hook_htl_210_easy' \
+            # 'Hook_htl_217_hard' \
+            # 'Hook_htl_222_hard' \
+            # 'Hook_htl_224_devil' \
+            # 'Hook_htl_22_normal' \
+            # 'Hook_htl_232_hard' \
+            # 'Hook_htl_23_devil' \
+            # 'Hook_htl_240_normal' \
+            # 'Hook_htl_245_hard' \
+            # 'Hook_htl_251_devil' \
+            # 'Hook_htl_262_devil' \
+            # 'Hook_htl_264_normal' \
+            # 'Hook_htl_273_normal' \
+            # 'Hook_htl_284_normal' \
+            # 'Hook_htl_291_normal' \
+            # 'Hook_htl_296_normal' \
+            # 'Hook_htl_306_normal' \
+            # 'Hook_htl_337_hard' \
+            # 'Hook_htl_338_hard' \
+            # 'Hook_htl_339_devil' \
+            # 'Hook_htl_375_hard' \
+            # 'Hook_htl_389_devil' \
+            # 'Hook_htl_40_easy' \
+            # 'Hook_htl_46_normal' \
+            # 'Hook_htl_55_devil' \
+            # 'Hook_htl_57_normal' \
+            # 'Hook_htl_68_easy' \
+            # 'Hook_htl_6_hard' \
+            # 'Hook_htl_70_normal' \
+            # 'Hook_htl_7_normal' \
+            # 'Hook_htl_83_easy' \
+            # 'Hook_htl_91_hard' \
+            # 'Hook_htl_92_normal' \
+            # 'Hook_htl_96_easy' \
+            # 'Hook_htl_97_hard'
+        )
         
-        python3 hanging_point_sim.py --hook-root 'models/hook_all_new' --hook Hook_my_bar_easy --output-dir everyday_objects
+        # python3 hanging_point_sim.py --hook-root 'models/hook_all_new' --hook Hook_my_bar_easy --output-dir everyday_objects_50
 
         for input in "${INPUT0[@]}"
         do
@@ -175,6 +278,10 @@ if [ $# -ge 1 ]; then
         for input in "${INPUT5[@]}"
         do
             python3 hanging_point_sim.py --hook-root 'models/hook_all_new' --hook $input --output-dir 'data_all_new_tmp'
+        done    
+        for input in "${INFERENCE_HOOKS[@]}"
+        do
+            python3 hanging_point_sim.py --hook-root 'models/inference_hooks' --hook $input --output-dir 'inference_hooks'
         done    
 
     elif [ $1 = 'hangpose' ]; then 
@@ -321,269 +428,56 @@ if [ $# -ge 1 ]; then
                 # # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_23' \
                 # # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_23' \
 
-                # # "data_all_new/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_bag_5" 
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70" , \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_114" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_115" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_11" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_2" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_72" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_7" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_84" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_85" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_8" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_97" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_100" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_112" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_113" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_118" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_11" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_123" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_126" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_128" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_129" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_132" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_135" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_142" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_145" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_146" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_147" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_149" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_150" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_159" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_166" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_173" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_181" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_184" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_193" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_199" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_204" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_205" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48" \
-                # # "data_all_new/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_scissor_4" 
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17" \
-                # # "data_all_new/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_wrench_1" 
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
-
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
-                # # "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
-                # # "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
-                # # "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
-                # # "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
-                # # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
-                # # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
-                # # ddd"data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
-                # # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
-                # # "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
-                # # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
-                # # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5" \
-                # # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5" \
-                # # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5" \
-                # # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5" \
-                # # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5" \
-                # # "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5" \
-                # # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5" \
-                # # "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5" \
-                # # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5" \
-                # # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5" \
-                # # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5" \
-                # # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5" \
-                # # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5" \
-                # # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5" \
-                # # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5" \
-                
-                
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_43" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_64" \
-                # "data_all_new/Hook_my_bar_easy-hanging_exp/Hook_my_bar_easy-hanging_exp_mug_67" 
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_73" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_82" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_90" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_101" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_12" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
-
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
-                # # "data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5" \
-                # # "data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5" \
-                # # "data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5" \
-                # # "data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5" \
-                # # "data/Hook1-hanging_exp/Hook1-hanging_exp_daily_5" \
-                # # "data/Hook2-hanging_exp/Hook2-hanging_exp_daily_5" \
-                # # ddd"data/Hook12-hanging_exp/Hook12-hanging_exp_daily_5" \
-                # # "data/Hook15-hanging_exp/Hook15-hanging_exp_daily_5" \
-                # # "data/Hook22-hanging_exp/Hook22-hanging_exp_daily_5" \
-                # # "data/Hook23-hanging_exp/Hook23-hanging_exp_daily_5" \
-                # # "data/Hook35-hanging_exp/Hook35-hanging_exp_daily_5" \
-                # # "data/Hook40-hanging_exp/Hook40-hanging_exp_daily_5" \
-                # # "data/Hook42-hanging_exp/Hook42-hanging_exp_daily_5" \
-                # # "data/Hook44-hanging_exp/Hook44-hanging_exp_daily_5" \
-                # # "data/Hook47-hanging_exp/Hook47-hanging_exp_daily_5" \
-                # # "data/Hook48-hanging_exp/Hook48-hanging_exp_daily_5" \
-                # # "data/Hook57-hanging_exp/Hook57-hanging_exp_daily_5" \
-                # # "data/Hook67-hanging_exp/Hook67-hanging_exp_daily_5" \
-                # # "data/Hook84-hanging_exp/Hook84-hanging_exp_daily_5" \
-                # # "data/Hook122-hanging_exp/Hook122-hanging_exp_daily_5" \
-                # # "data/Hook124-hanging_exp/Hook124-hanging_exp_daily_5" \
-                # # "data/Hook136-hanging_exp/Hook136-hanging_exp_daily_5" \
-                # # "data/Hook145-hanging_exp/Hook145-hanging_exp_daily_5" \
-                # # "data/Hook186-hanging_exp/Hook186-hanging_exp_daily_5" \
-                # # "data/Hook209-hanging_exp/Hook209-hanging_exp_daily_5" \
-                # # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19" \
-
-
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_bag_5' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_bag_6' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_bag_70' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_117' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_127' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_132' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_169' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_310' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_32' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_415' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_74' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_77' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_cooking_78' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_106' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_114' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_115' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_11' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_23' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_2' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_34' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_41' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_42' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_57' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_5' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_63' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_71' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_72' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_7' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_84' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_85' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_8' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_daily_97' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_100' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_112' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_113' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_115' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_118' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_11' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_123' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_126' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_128' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_129' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_132' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_135' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_142' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_145' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_146' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_147' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_149' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_150' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_159' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_166' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_173' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_181' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_184' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_193' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_199' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_19' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_204' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_205' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_43' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_64' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_67' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_70' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_73' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_80' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_82' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_mug_90' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_101' \   
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_12' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_14' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_19' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_22' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_27' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_31' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_39' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_48' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_4' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_58' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_62' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_74' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_79' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_8' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_92' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_95' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_scissor_98' \    
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_10' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_17' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_1' \  
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_25' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_27' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_31' \ 
-                # 'everyday_objects/Hook_my_bar_easy-everyday_objects/Hook_my_bar_easy-everyday_objects_wrench_35' 
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_117' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_11' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_132' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_169' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_23' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_32' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_310' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_42' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_74' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_cooking_77' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_115' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_41' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_5' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_63' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_6' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_70' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_71' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_72' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_85' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_daily_8' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_100' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_113' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_115' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_118' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_193' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_126' \
+                'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_128' \
+                'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_19' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_67' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_mug_90' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_8' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_19' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_27' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_31' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_39' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_48' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_58' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_74' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_79' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_scissor_95' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_10' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_127' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_12' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_1' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_27' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_31' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_32' \
+                # # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_35' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_36' \
+                # 'everyday_objects_50/Hook_my_bar_easy-everyday_objects_50/Hook_my_bar_easy-everyday_objects_50_tool_6'
                 
             )
 
@@ -785,21 +679,69 @@ if [ $# -ge 1 ]; then
     elif [ $1 = 'hangtraj' ]; then 
 
         OBJECT=(
-            # 'hanging_exp_bag_5.json' \
-            'hanging_exp_daily_5.json' \
-            # 'hanging_exp_mug_59.json' \
-            # 'hanging_exp_scissor_4.json' \
-            # 'hanging_exp_wrench_1.json'
+            'everyday_objects_50_cooking_11.json'
+            'everyday_objects_50_cooking_117.json'
+            'everyday_objects_50_cooking_132.json'
+            'everyday_objects_50_cooking_169.json'
+            'everyday_objects_50_cooking_23.json'
+            'everyday_objects_50_cooking_310.json'
+            'everyday_objects_50_cooking_32.json'
+            'everyday_objects_50_cooking_42.json'
+            'everyday_objects_50_cooking_74.json'
+            'everyday_objects_50_cooking_77.json'
+            'everyday_objects_50_daily_115.json'
+            'everyday_objects_50_daily_41.json'
+            'everyday_objects_50_daily_5.json'
+            'everyday_objects_50_daily_6.json'
+            'everyday_objects_50_daily_63.json'
+            'everyday_objects_50_daily_70.json'
+            'everyday_objects_50_daily_71.json'
+            'everyday_objects_50_daily_72.json'
+            'everyday_objects_50_daily_8.json'
+            'everyday_objects_50_daily_85.json'
+            'everyday_objects_50_mug_100.json'
+            'everyday_objects_50_mug_113.json'
+            'everyday_objects_50_mug_115.json'
+            'everyday_objects_50_mug_118.json'
+            'everyday_objects_50_mug_126.json'
+            'everyday_objects_50_mug_128.json'
+            'everyday_objects_50_mug_19.json'
+            'everyday_objects_50_mug_193.json'
+            'everyday_objects_50_mug_67.json'
+            'everyday_objects_50_mug_90.json'
+            'everyday_objects_50_scissor_19.json'
+            'everyday_objects_50_scissor_27.json'
+            'everyday_objects_50_scissor_31.json'
+            'everyday_objects_50_scissor_39.json'
+            'everyday_objects_50_scissor_48.json'
+            'everyday_objects_50_scissor_58.json'
+            'everyday_objects_50_scissor_74.json'
+            'everyday_objects_50_scissor_79.json'
+            'everyday_objects_50_scissor_8.json'
+            'everyday_objects_50_scissor_95.json'
+            'everyday_objects_50_tool_1.json'
+            'everyday_objects_50_tool_10.json'
+            'everyday_objects_50_tool_12.json'
+            'everyday_objects_50_tool_127.json'
+            'everyday_objects_50_tool_27.json'
+            'everyday_objects_50_tool_31.json'
+            'everyday_objects_50_tool_32.json'
+            'everyday_objects_50_tool_35.json'
+            'everyday_objects_50_tool_36.json'
+            'everyday_objects_50_tool_6.json'
         )
-        HOOK=($(ls keypoint_trajectory/kptraj_all_new/ | grep devil))
+        HOOK=($(ls keypoint_pose/everyday_objects_50/ | grep Hook))
+        # HOOK=(
+        #     'Hook_my_bar_easy.json'
+        # )
 
-        rm "keypoint_trajectory/result.txt"
+        # rm "keypoint_trajectory/result.txt"
         for hook in "${HOOK[@]}"
         do
             for object in "${OBJECT[@]}"
             do
                 echo "pair : $object $hook"
-                python3 hanging_by_trajectory.py -dd 'data_all_new' -id 'kptraj_all_new' -od 1104 -obj $object -hook $hook # -sg
+                python3 hanging_by_trajectory.py -dd 'everyday_objects_50' -id 'everyday_objects_50' -od '1104' -obj $object -hook $hook # -sg
             done
         done
     

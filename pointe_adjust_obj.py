@@ -172,17 +172,17 @@ def get_affine_mat(status, step_size=0.1):
     if status == "zneg":
         retmat[:3, 3] -= np.array([0, 0, step_size])
     if status == "x30":
-        retmat[:3, :3] = R.from_rotvec([ np.pi / 12, 0, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([ np.pi / 6, 0, 0]).as_matrix()
     if status == "x30neg":
-        retmat[:3, :3] = R.from_rotvec([-np.pi / 12, 0, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([-np.pi / 6, 0, 0]).as_matrix()
     if status == "y30":
-        retmat[:3, :3] = R.from_rotvec([0, np.pi / 12, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, np.pi / 6, 0]).as_matrix()
     if status == "y30neg":
-        retmat[:3, :3] = R.from_rotvec([0,-np.pi / 12, 0]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0,-np.pi / 6, 0]).as_matrix()
     if status == "z30":
-        retmat[:3, :3] = R.from_rotvec([0, 0, np.pi / 12]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, 0, np.pi / 6]).as_matrix()
     if status == "z30neg":
-        retmat[:3, :3] = R.from_rotvec([0, 0,-np.pi / 12]).as_matrix()
+        retmat[:3, :3] = R.from_rotvec([0, 0,-np.pi / 6]).as_matrix()
     if status == "scaleup":
         retmat[0, 0] = 1.1
         retmat[1, 1] = 1.1
@@ -208,7 +208,7 @@ def main(args):
     if ext == ".ply":
         mesh_paths = glob.glob(f'{input_dir}/*/*.ply')
     mesh_paths.sort()
-    coor = o3d.geometry.TriangleMesh.create_coordinate_frame(size=args.coor_scale)
+    coor = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
 
     # window for displaying point cloud
     vis = o3d.visualization.VisualizerWithKeyCallback()
@@ -241,11 +241,8 @@ def main(args):
     global affine_op
 
     # fout = open("res.txt", "w")
-
     # for mesh_path in mesh_paths:
-        
     #     mesh = o3d.io.read_triangle_mesh(mesh_path)
-
     #     vis.add_geometry(mesh)
     #     vis.poll_events()
     #     time.sleep(1)
@@ -275,6 +272,8 @@ def main(args):
         # if 'wrench' in mesh_path:
         #     continue
 
+        print(mesh_path.split('/')[-2])
+
         cont = False
         for line in res_history:
             if mesh_path in line:
@@ -289,7 +288,7 @@ def main(args):
         size = np.array(np.max(mesh.vertices, axis=0)
                         - np.min(mesh.vertices, axis=0))
         length = np.max(size)
-        mesh.scale( 0.1 / length, np.array([0, 0, 0]))
+        mesh.scale( args.obj_scale / length, np.array([0, 0, 0]))
 
         vis.add_geometry(mesh)
         status = ""
@@ -321,7 +320,7 @@ def main(args):
                         mesh.scale(0.9, np.array([0, 0, 0]))
                 else :
 
-                    affine_mat = get_affine_mat(status, args.coor_scale / 10)
+                    affine_mat = get_affine_mat(status, args.obj_scale / 10)
                     points = np.asarray(mesh.vertices)
                     points_homo = np.hstack((points, np.ones((points.shape[0], 1)))).T
                     points_homo = affine_mat @ points_homo
@@ -351,7 +350,6 @@ def main(args):
             #     print(f'{fname} exists, ignore it')
             #     continue
                 
-
             # create new object folder
             os.makedirs(os.path.split(fname)[0], exist_ok=True)
 
@@ -372,9 +370,11 @@ def main(args):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir', '-id', type=str, default='pointe_out/hcu')
-    parser.add_argument('--output_dir', '-od', type=str, default='pointe_out/hcu_selected')
+    # parser.add_argument('--input_dir', '-id', type=str, default='models/everyday_objects_50_raw')
+    # parser.add_argument('--output_dir', '-od', type=str, default='models/everyday_objects_50')
+    parser.add_argument('--input_dir', '-id', type=str, default='pointe_out/hky')
+    parser.add_argument('--output_dir', '-od', type=str, default='pointe_out/hky_selected')
     parser.add_argument('--extension', '-ext', type=str, default='.obj')
-    parser.add_argument('--coor_scale', '-cs', type=float, default=0.1)
+    parser.add_argument('--obj_scale', '-cs', type=float, default=0.1)
     args = parser.parse_args()
     main(args)

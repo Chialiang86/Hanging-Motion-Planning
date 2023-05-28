@@ -43,6 +43,17 @@ def get_matrix_from_pose(pose : list or tuple or np.ndarray) -> np.ndarray:
 
     return ret_m
 
+def rot_6d_to_3d(rot) -> np.ndarray:
+
+    rot_xy = np.asarray(rot)
+
+    assert rot_xy.shape == (6,), f'dimension of rot should be (6,), but got {rot_xy.shape}'
+
+    rot_xy = rot_xy.reshape(2, 3)
+    rot_mat = np.vstack((rot_xy, np.cross(rot_xy[0], rot_xy[1]))).T 
+
+    return R.from_matrix(rot_mat).as_rotvec()
+
 def get_pose_from_matrix(matrix : list or tuple or np.ndarray, 
                         pose_size : int = 7) -> np.ndarray:
 

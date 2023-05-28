@@ -97,13 +97,41 @@ def main(args):
 
     files = glob.glob(f'{input_dir}/*/*_normalized.obj')
     files.sort()
-    ignore_list = []
+    keep_list = [
+        # 'Hook_htl_40_easy',
+        # 'Hook_htl_70_normal',
+        # 'Hook_htl_97_hard',
+        # 'Hook_htl_100_easy',
+        # 'Hook_htl_105_normal',
+        # 'Hook_htl_106_hard',
+        # 'Hook_htl_133_easy',
+        # 'Hook_htl_147_devil',
+        # 'Hook_htl_152_normal',
+        # 'Hook_htl_175_devil',
+        # 'Hook_htl_175_hard',
+        # 'Hook_htl_186_hard',
+        # 'Hook_htl_194_devil',
+        # 'Hook_htl_194_hard',
+        # 'Hook_htl_209_hard',
+        # 'Hook_htl_222_hard',
+        # 'Hook_htl_232_hard',
+        # 'Hook_htl_284_normal',
+        # 'Hook_htl_337_hard',
+        # 'Hook_htl_337_hard',
+        'Hook_hky_120_devil',
+    ]
 
     for file in tqdm(files):
-
-        for ignore_item in ignore_list:
+        
+        cont = True
+        for ignore_item in keep_list:
             if ignore_item in file:
-                print(f'ignore : {ignore_item}')
+                print(f'ignore : {file}')
+                cont = False
+                break
+        if cont:
+            continue
+
 
         dirname, filename = os.path.split(file)
         filename_without_ext, ext = os.path.splitext(filename)
@@ -144,7 +172,7 @@ if __name__=='__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument(
-        '--input-dir',
+        '--input_dir',
         '-i',
         type=str,
         help='input directory',

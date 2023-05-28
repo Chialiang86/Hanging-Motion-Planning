@@ -26,31 +26,31 @@ def main(args):
         if data_id not in model_ids:
             print(f'{data_id} not in model_ids')
 
-    print('================================')    
-    for data_id in data_ids:
-        if data_id not in kptraj_ids:
-            print(f'{data_id} not in kptraj_ids')
+    # print('================================')    
+    # for data_id in data_ids:
+    #     if data_id not in kptraj_ids:
+    #         print(f'{data_id} not in kptraj_ids')
 
-    print('================================')    
-    for kptraj_id in kptraj_ids:
-        if kptraj_id not in data_ids:
-            print(f'{kptraj_id} not in data_ids')
+    # print('================================')    
+    # for kptraj_id in kptraj_ids:
+    #     if kptraj_id not in data_ids:
+    #         print(f'{kptraj_id} not in data_ids')
 
-    print('================================')    
-    for model_id in model_ids:
-        if model_id not in kptraj_ids:
-            print(f'{model_id} not in kptraj_ids')
+    # print('================================')    
+    # for model_id in model_ids:
+    #     if model_id not in kptraj_ids:
+    #         print(f'{model_id} not in kptraj_ids')
 
-    print('================================')    
-    for kptraj_id in kptraj_ids:
-        if kptraj_id not in model_ids:
-            print(f'{kptraj_id} not in model_ids')
+    # print('================================')    
+    # for kptraj_id in kptraj_ids:
+    #     if kptraj_id not in model_ids:
+    #         print(f'{kptraj_id} not in model_ids')
     return
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_dir', '-md', type=str, default='models/hook_all_new_0')
-    parser.add_argument('--data_dir', '-dd', type=str, default='data/data_all_new_0')
-    parser.add_argument('--kptraj_dir', '-kd', type=str, default='keypoint_trajectory/kptraj_all_new_0-0')
+    parser.add_argument('--model_dir', '-md', type=str, default='models/inference_hooks')
+    parser.add_argument('--data_dir', '-dd', type=str, default='data/inference_hooks')
+    parser.add_argument('--kptraj_dir', '-kd', type=str, default='keypoint_trajectory/kptraj_all_new')
     args = parser.parse_args()
     main(args)

@@ -216,7 +216,7 @@ def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf,
     
     low_limit = [0, 0, 0]
     high_limit = [0, 0, 0]
-    up_padding = [0.02, 0.03, 0.08]
+    up_padding = [0.05, 0.03, 0.1]
     down_padding = [0.05, 0.03, 0.02]
 
     # xlim, ylim
@@ -362,7 +362,8 @@ def main(args):
     table_id = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "table/table.urdf"), [1, 0.0, 0.0])
 
     input_jsons = []
-    input_jsons = glob.glob(f'{data_dir}/*/Hook_*-hanging_exp_daily_5.json')
+    input_jsons = glob.glob(f'{data_dir}/*/Hook_*-everyday_objects_50_daily_63.json')
+    print(data_dir)
     input_jsons.sort()
     ignore_list = []
 
@@ -574,9 +575,9 @@ print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-root', '-dr', type=str, default='data_all_new_1')
-    parser.add_argument('--kptraj-root', '-kr', type=str, default='keypoint_trajectory')
-    parser.add_argument('--kptraj-dir', '-kd', type=str, default='')
-    parser.add_argument('--max-cnt', '-mc', type=int, default='5')
+    parser.add_argument('--data_root', '-dr', type=str, default='inference_hooks')
+    parser.add_argument('--kptraj_root', '-kr', type=str, default='keypoint_trajectory')
+    parser.add_argument('--kptraj_dir', '-kd', type=str, default='kptraj_inference_hooks')
+    parser.add_argument('--max_cnt', '-mc', type=int, default='1')
     args = parser.parse_args()
     main(args)

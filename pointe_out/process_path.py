@@ -26,8 +26,8 @@ def main(args):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src', '-src', type=str, default='a hook for hanging scissors')
-    parser.add_argument('--dst', '-dst', type=str, default='hsr')
+    parser.add_argument('--src', '-src', type=str, default='a hook for hanging keys')
+    parser.add_argument('--dst', '-dst', type=str, default='hky')
     args = parser.parse_args()
 
     main(args)

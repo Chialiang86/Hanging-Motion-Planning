@@ -254,43 +254,43 @@ def main(args):
   projection_matrix, intrinsic = get_projmat_and_intrinsic(width, height, fx, fy, far, near)
 
   # extrinsic matrix for hanging pose
-  cam_dist = 0.25
+  cam_dist = 0.4
   cameraEyePositions = []
-  # cam_angles = [
-  #   30 * np.pi / 180,  35 * np.pi / 180, 40 * np.pi / 180, 45 * np.pi / 180, 50 * np.pi / 180, 55 * np.pi / 180,  60 * np.pi / 180, 
-  #   120 * np.pi / 180, 125 * np.pi / 180, 130 * np.pi / 180, 135 * np.pi / 180, 140 * np.pi / 180, 145 * np.pi / 180, 150 * np.pi / 180
-  # ]
   cam_angles = [
-    0 * np.pi / 180,  90 * np.pi / 180, 180 * np.pi / 180
+    30 * np.pi / 180,  35 * np.pi / 180, 40 * np.pi / 180, 45 * np.pi / 180, 50 * np.pi / 180, 55 * np.pi / 180,  60 * np.pi / 180, 
+    120 * np.pi / 180, 125 * np.pi / 180, 130 * np.pi / 180, 135 * np.pi / 180, 140 * np.pi / 180, 145 * np.pi / 180, 150 * np.pi / 180
   ]
+  # cam_angles = [
+  #   0 * np.pi / 180,  90 * np.pi / 180, 180 * np.pi / 180
+  # ]
 
-  # up =  [[-cam_dist * np.cos(i), 0.015, cam_dist * np.sin(i)] for i in cam_angles]
-  # mid =  [[-cam_dist * np.cos(i), 0.01, cam_dist * np.sin(i)] for i in cam_angles]
-  # down = [[-cam_dist * np.cos(i),  0.05, cam_dist * np.sin(i)] for i in cam_angles]
-  up =  [[-cam_dist * np.cos(i), 0.1, cam_dist * np.sin(i)] for i in cam_angles]
-  mid =  [[-cam_dist * np.cos(i), 0.05, cam_dist * np.sin(i)] for i in cam_angles]
-  down = [[-cam_dist * np.cos(i),  -0.1, cam_dist * np.sin(i)] for i in cam_angles]
+  up =  [[-cam_dist * np.cos(i), 0.15, cam_dist * np.sin(i)] for i in cam_angles]
+  mid =  [[-cam_dist * np.cos(i), 0.1, cam_dist * np.sin(i)] for i in cam_angles]
+  down = [[-cam_dist * np.cos(i),  0.05, cam_dist * np.sin(i)] for i in cam_angles]
+  # up =  [[-cam_dist * np.cos(i), 0.1, cam_dist * np.sin(i)] for i in cam_angles]
+  # mid =  [[-cam_dist * np.cos(i), 0.05, cam_dist * np.sin(i)] for i in cam_angles]
+  # down = [[-cam_dist * np.cos(i),  -0.1, cam_dist * np.sin(i)] for i in cam_angles]
   cameraEyePositions.extend(up)
-  # cameraEyePositions.extend(mid)
+  cameraEyePositions.extend(mid)
   cameraEyePositions.extend(down)
 
   cameraTargetPositions = [[0.0, 0.0, 0.0] for _ in range(len(cameraEyePositions))]
   cameraUpVectors = [[0.0, 1.0, 0.0] for _ in range(len(cameraEyePositions))]
   cam_extr_num = len(cameraEyePositions)
 
-  # cameraEyePosition = [-0.12, 0.08, 0.0]
-  # cameraTargetPosition = [0.0, 0.0, 0.0]
-  # cameraUpVector =  [0.0, 0.0, 1.0]
+  cameraEyePosition = [0.0, 0.00, 0.25]
+  cameraTargetPosition = [0.0, 0.0, 0.00]
+  cameraUpVector =  [0.0, 1.0, 0.0]
   # cameraEyePosition = [0.0, 0.36, -0.24]
   # cameraTargetPosition = [0.0, 0.0, 0.0]
   # cameraUpVector =  [1.0, 0.0, 0.0]
-  # rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
+  rgb_view_matrix, rgb_extrinsic = get_viewmat_and_extrinsic(cameraEyePosition, cameraTargetPosition, cameraUpVector)
 
   origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
   urdf_files = glob.glob(f'{object_dir}/*/base.urdf')
   urdf_files.sort()
+  print(len(urdf_files))
   for urdf_file in tqdm(urdf_files):
-    print(urdf_file)
     
     # TODO:
     # in the future, add an option [hook/object]
@@ -316,7 +316,6 @@ def main(args):
 
       pcd_extrinsics.append(pcd_extrinsic)
 
-      time.sleep(0.01)
       img = p.getCameraImage(width, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
       rgb_buffer = np.reshape(img[2], (height, width, 4))[:,:,:3]
       depth_buffer = np.reshape(img[3], [height, width])
@@ -331,17 +330,16 @@ def main(args):
       pcd_points.append(pcd_point)
       pcd_colors.append(pcd_color)
 
-      # for visualization
+      # # for visualization
       # mesh_file = os.path.splitext(urdf_file)[0] + '.obj'
       # pcd_ori = o3d.io.read_triangle_mesh(mesh_file)
       # pcd_ori.scale(scale, [0., 0., 0.,])
+      # print(scale)
       # o3d.visualization.draw_geometries([origin, pcd_ori, pcd], point_show_normal=False)
       
       # save ply
-      # o3d.io.write_point_cloud(output_ply_path, pcd)
-
-      # img = p.getCameraImage(height, height, viewMatrix=pcd_view_matrix, projectionMatrix=projection_matrix)
-      # rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
+      o3d.io.write_point_cloud(output_ply_path, pcd)
+      print(f'{output_ply_path} saved')
 
       # img = p.getCameraImage(height, height, viewMatrix=rgb_view_matrix, projectionMatrix=projection_matrix)
       # rgb_buffer = np.reshape(img[2], (height, height, 4))[:,:,:3]
@@ -366,15 +364,15 @@ def main(args):
     #   geometries.append(origin)
     # o3d.visualization.draw_geometries(geometries, point_show_normal=False)
 
-    pcd_fullview = o3d.geometry.PointCloud()
-    pcd_fullview_points = np.vstack(pcd_points)
-    pcd_fullview_colors = np.vstack(pcd_colors)
-    pcd_fullview.points = o3d.utility.Vector3dVector(pcd_fullview_points)
-    pcd_fullview.colors = o3d.utility.Vector3dVector(pcd_fullview_colors)
-    # o3d.visualization.draw_geometries([pcd_fullview], point_show_normal=False)
+    # pcd_fullview = o3d.geometry.PointCloud()
+    # pcd_fullview_points = np.vstack(pcd_points)
+    # pcd_fullview_colors = np.vstack(pcd_colors)
+    # pcd_fullview.points = o3d.utility.Vector3dVector(pcd_fullview_points)
+    # pcd_fullview.colors = o3d.utility.Vector3dVector(pcd_fullview_colors)
+    # # o3d.visualization.draw_geometries([pcd_fullview], point_show_normal=False)
 
-    output_ply_path = os.path.splitext(urdf_file)[0] + f'-fullview.ply'
-    o3d.io.write_point_cloud(output_ply_path, pcd_fullview)
+    # output_ply_path = os.path.splitext(urdf_file)[0] + f'-fullview.ply'
+    # o3d.io.write_point_cloud(output_ply_path, pcd_fullview)
 
     p.removeBody(obj_id)
 
@@ -396,7 +394,7 @@ if __name__=="__main__":
   # TODO: 
   # if object is hook => the pose should be assigned by p.loadURDF
   # if object is everyday object => the pose should be assigned by p.resetBasePositionAndOrientation
-  parser.add_argument('--object-dir', '-id', type=str, default='models/hook_all_new')
+  parser.add_argument('--object-dir', '-id', type=str, default='models/everyday_objects_50')
   parser.add_argument('--file-token', '-ft', type=str, default='base')
   args = parser.parse_args()
 

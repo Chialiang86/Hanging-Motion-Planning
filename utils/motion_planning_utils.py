@@ -89,37 +89,37 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
         if rand_val < ratio_to_target:
             ret = target_conf
         else:
-            # pos_euler = []
-            # pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
-            # pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
-            # pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
-            # # for i in range(3, 6):
-            #     # pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
+            pos_euler = []
+            pos_euler.append(np.random.uniform(low_limit[0], high_limit[0])) # x
+            pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
+            pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
+            for i in range(3, 6):
+                pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
 
             # # 20 * np.pi / 180, 90 * np.pi / 180, -60 * np.pi / 180
             # pos_euler.append( 0 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # roll
             # pos_euler.append( 0 * np.pi / 180 + np.random.uniform(-120 * np.pi / 180, 60 * np.pi / 180)) # pitch
             # pos_euler.append(90 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # yew
-            # ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
+            ret = pos_euler[:3] + list(R.from_rotvec(pos_euler[3:]).as_quat())
 
-            template_traj_id = np.random.randint(0, len(template_trajs))
-            template_traj = template_trajs[template_traj_id]
+            # template_traj_id = np.random.randint(0, len(template_trajs))
+            # template_traj = template_trajs[template_traj_id]
 
-            template_wpt_id = np.random.randint(0, len(template_traj))
-            template_wpt = template_traj[template_wpt_id]
+            # template_wpt_id = np.random.randint(0, len(template_traj))
+            # template_wpt = template_traj[template_wpt_id]
 
-            template_pos = np.asarray(template_wpt[:3])
-            template_euler = np.asarray(template_wpt[3:])
+            # template_pos = np.asarray(template_wpt[:3])
+            # template_euler = np.asarray(template_wpt[3:])
 
-            template_pos += np.random.uniform([-0.02, -0.02, -0.01], [0.02, 0.02, 0.02])
-            template_euler += np.random.uniform(
-                                [-20 * deg2rad, -50 * deg2rad, -20 * deg2rad], 
-                                [ 20 * deg2rad,  50 * deg2rad,  20 * deg2rad]
-                            )
-            template_euler = ((template_euler + np.pi) % (2 * np.pi)) - np.pi
-            template_quat = R.from_rotvec(template_euler).as_quat()
+            # template_pos += np.random.uniform([-0.04, -0.04, -0.03], [0.04, 0.04, 0.07])
+            # template_euler += np.random.uniform(
+            #                     [-20 * deg2rad, -50 * deg2rad, -20 * deg2rad], 
+            #                     [ 20 * deg2rad,  50 * deg2rad,  20 * deg2rad]
+            #                 )
+            # template_euler = ((template_euler + np.pi) % (2 * np.pi)) - np.pi
+            # template_quat = R.from_rotvec(template_euler).as_quat()
 
-            ret = list(np.hstack((template_pos, template_quat)))
+            # ret = list(np.hstack((template_pos, template_quat)))
             
         return tuple(ret)
     return sample7d_fn

@@ -110,13 +110,13 @@ def render(pos, rot):
 
 
 def reset_pose(obj_id, x_offset=0.1, y_offset=0., z_offset=1.):
-    x = (np.random.rand() - 0.5) * 0.2 + x_offset
+    x = (np.random.rand() - 0.5) * 0.1 + x_offset
     y = (np.random.rand() - 0.5) * 0.1 + y_offset
-    z = (np.random.rand() - 0.5) * 0.2 + z_offset
+    z = (np.random.rand() - 0.3) * 0.1 + z_offset
 
-    roll = 0 + np.random.rand() * np.pi * 2
-    pitch = 0 + np.random.rand() * np.pi * 2
-    yaw = 0 + np.random.rand() * np.pi * 2
+    roll = np.pi/2 + np.random.rand() * np.pi * 0.2
+    pitch = 0 + np.random.rand() * np.pi * 0.2
+    yaw = 0 + np.random.rand() * np.pi
     p.setGravity(0, 0, 0)
     p.resetBasePositionAndOrientation(
         obj_id,
@@ -264,46 +264,40 @@ def main(args):
     
     # ignore_list = []
     ignore_list = [ 
-        'bag_5', 'bag_6', 'bag_70', 
-        'cooking_117', 'cooking_127', 'cooking_132', 'cooking_169', 
-        'cooking_18', 
-        'cooking_310', 'cooking_32', 'cooking_415', 'cooking_74', 'cooking_77', 
-        'cooking_78', 
-        'daily_106', 'daily_11', 'daily_114', 'daily_115', 'daily_2', 
-        'daily_23', 'daily_34', 'daily_41', 'daily_42', 'daily_5', 
-        'daily_57', 'daily_63', 'daily_7', 'daily_71', 'daily_72', 
-        'daily_8', 'daily_84', 'daily_85', 'daily_97', 
-        'mug_100', 
-        'mug_11', 'mug_112', 'mug_113', 'mug_115', 
-        'mug_118', 'mug_123', 'mug_126', 'mug_128', 'mug_129', 
-        'mug_132', 'mug_135', 'mug_142', 'mug_145', 'mug_146', 
-        'mug_147', 'mug_149', 'mug_150', 'mug_159', 'mug_166', 
-        'mug_173', 'mug_181', 'mug_184', 'mug_19', 'mug_193', 
-        'mug_199', 
-        # 'mug_204', 
-        'mug_205', 'mug_43', 'mug_64', 
-        'mug_67', 'mug_70', 'mug_73', 'mug_80', 'mug_82', 
-        'mug_90', 
-        'scissor_101', 'scissor_12', 'scissor_14', 'scissor_19', 'scissor_22', 
-        'scissor_27', 'scissor_31', 'scissor_39', 'scissor_4', 'scissor_48', 
-        'scissor_58', 'scissor_62', 'scissor_74', 'scissor_79', 'scissor_8', 
-        'scissor_92', 'scissor_95', 'scissor_98', 
-        # 'wrench_1', 'wrench_10', 
-        'wrench_12', 
-        # 'wrench_17', 'wrench_25', 
-        # 'wrench_27', 'wrench_31', 
-        'wrench_32', 
-        # 'wrench_35', 
-        'wrench_36', 
-        # 'wrench_6', 
+        'cooking_74/', 'cooking_132/', 'cooking_310/',  'cooking_11/', 'cooking_23/', 'cooking_32/', 'cooking_42/', 'cooking_77/', 'cooking_117/', 'cooking_169/',  
+        'daily_5/',    'daily_6/',     'daily_8/',      'daily_41/',   
+        # 'daily_63/',   
+        'daily_70/',   'daily_71/',   'daily_72/',    'daily_85/',    'daily_115/',   
+        'mug_113/',    'mug_100/',     'mug_115/',      'mug_118/',    'mug_193/',    
+        'mug_19/',     
+        'mug_67/',     'mug_90/',     'mug_126/',     
+        'mug_128/',      
+        'scissor_8/',   
+        'scissor_19/',   'scissor_27/', 'scissor_31/', 
+        'scissor_39/',  
+        'scissor_48/',  
+        'scissor_58/',  
+        'scissor_74', 
+        'scissor_79', 
+        'scissor_95',
+        'tool_1/',     
+        'tool_6/',      
+        'tool_10/',      
+        'tool_12/',    
+        'tool_27/',    
+        'tool_31/',    
+        'tool_32/',    
+        'tool_35/',      
+        'tool_36/',      
+        'tool_127/',  
     ]   
     # focus_list = ['scissor_39/", 'wrench_27/", 'mug_67']
 
     mug_good_quat = [
-                0.7076418595227408,
-                0.06810451711719505,
-                -0.03828128134156289,
-                0.7022387890869312
+                0.6909570924809603,
+                0.15018661689672447,
+                -0.1500200201332891,
+                0.6910255205233609
             ]
     mug_good_rot = R.from_quat(mug_good_quat).as_rotvec()
 
@@ -374,7 +368,7 @@ def main(args):
             elif args.hook == 'Hook_skew':
                 reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.3) # for hook_60
             else:
-                reset_pose(obj_id, x_offset=0.5, y_offset=0.0, z_offset=1.3) # for hook_60
+                reset_pose(obj_id, x_offset=0.47, y_offset=0.0, z_offset=1.25) # for hook_60
 
             p.stepSimulation()
             contact_points = p.getContactPoints(obj_id, hook_id)
@@ -449,14 +443,14 @@ def main(args):
             if len(contact_points) < 3:
                 continue
 
-            # # special : check mug rotation
-            # if 'mug' in obj_path:
-            #     mug_rot = R.from_quat(rot).as_rotvec()
-            #     rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
-            #     print(rot_diff)
-            #     if rot_diff > 2.0:
-            #         print('================ the rotation of mug is not good!!! ================')
-            #         continue
+            # special : check mug rotation
+            if 'mug' in obj_path:
+                mug_rot = R.from_quat(rot).as_rotvec()
+                rot_diff = np.sum((np.asarray(mug_rot) - np.asarray(mug_good_rot))**2)
+                print(rot_diff)
+                if rot_diff > 2.0:
+                    print('================ the rotation of mug is not good!!! ================')
+                    continue
             
             # add candidate contact points
             p.removeAllUserDebugItems()
@@ -535,10 +529,10 @@ print(start_msg)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--output-root', '-or', type=str, default='data')
-    parser.add_argument('--output-dir', '-od', type=str, default='everyday_objects')
+    parser.add_argument('--output-dir', '-od', type=str, default='everyday_objects_50')
     parser.add_argument('--object-root', '-ir', type=str, default='models')
     parser.add_argument('--hook-root', '-hr', type=str, default='models/hook_all_new')
-    parser.add_argument('--obj', '-o', type=str, default='everyday_objects')
+    parser.add_argument('--obj', '-o', type=str, default='everyday_objects_50')
     parser.add_argument('--hook', '-ho', type=str, default='Hook_my_bar_easy')
     args = parser.parse_args()
     main(args)

@@ -67,8 +67,8 @@ def update_debug_param(robot : pandaEnv):
 
 def robot_key_callback(robot : pandaEnv, keys : dict, object_id : int=None):
 
-    move_offset = 0.003
-    rot_offset = 0.01
+    move_offset = 0.002
+    rot_offset = 0.005
     ret = None
 
     # move up
@@ -178,14 +178,18 @@ def main(args):
     # ------------------------ #
 
     # Create pybullet GUI
-    physics_client_id = p.connect(p.GUI)
+    physics_client_id = p.connect(p.GUI, options = '--width=3940 --height=2160')
     # p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
-        cameraDistance=0.2,
+        cameraDistance=0.3,
         cameraYaw=120,
         cameraPitch=0,
-        cameraTargetPosition=[0.7, 0.0, 1.3]
+        cameraTargetPosition=[
+            0.5,
+            -0.1,
+            1.3,
+        ]
     )
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
@@ -317,13 +321,13 @@ def main(args):
                 draw_bbox(np.asarray(obj_pos) + pos_low_limit, np.asarray(obj_pos) + pos_high_limit)
 
                 aug_offset = np.asarray([
-                                [-0.03, 0, -0.03],
-                                [-0.03, 0,  0],
-                                [-0.03, 0,  0.03],
+                                [-0.01, 0, -0.03],
+                                [-0.01, 0,  0],
+                                [-0.01, 0,  0.03],
                                 [    0, 0,  0.03],
-                                [ 0.03, 0,  0.03],
-                                [ 0.03, 0,  0],
-                                [ 0.03, 0, -0.03],
+                                [ 0.05, 0,  0.03],
+                                [ 0.05, 0,  0],
+                                [ 0.05, 0, -0.01],
                                 [    0, 0, -0.03]
                             ])
 
