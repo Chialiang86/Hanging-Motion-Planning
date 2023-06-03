@@ -542,129 +542,80 @@ if [ $# -ge 1 ]; then
         max=1
         # INPUT='data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5'
         INPUT=( 
-                'data/Hook_60-hanging_exp/Hook_60-hanging_exp_bag_5' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_daily_5' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_mug_59' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_scissor_4' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_bag_5' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_daily_5' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_mug_59' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_scissor_4' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_bag_5' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_daily_5' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_mug_59' \
-                # 'data/Hook_180-hanging_exp/Hook_180-hanging_exp_scissor_4' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_bag_5' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_daily_5' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_mug_59' \
-                # 'data/Hook_90-hanging_exp/Hook_90-hanging_exp_scissor_4' \
-                # 'data/Hook_60-hanging_exp/Hook_60-hanging_exp_wrench_1' \
-                # 'data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1' \
-                # 'data/Hook_skew-hanging_exp/Hook_skew-hanging_exp_wrench_1' \
-                'data/Hook_180-hanging_exp/Hook_180-hanging_exp_wrench_1'
-                'data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1' \
+            # 'data/data_all_new_testing/Hook_hcu_190_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_293_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_359_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_362_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_390_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_75_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_190_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_216_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_314_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_317_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_370_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_70_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_125_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_381_easy-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_71_easy-everyday_objects'
 
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_5" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_6" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_bag_70" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_106" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_114" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_115" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_11" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_23" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_2" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_41" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_42" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_5" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_63" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_71" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_72" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_7" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_84" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_85" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_8" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_daily_97" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_100" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_112" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_113" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_115" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_118" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_11" , \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_123" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_126" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_128" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_129" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_132" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_135" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_142" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_145" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_146" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_147" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_149" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_150" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_159" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_166" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_173" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_181" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_184" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_193" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_199" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_19" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_204" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_205" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_43" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_59" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_64" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_67" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_70" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_73" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_80" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_82" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_mug_90" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_101" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_12" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_14" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_19" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_22" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_27" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_31" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_39" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_48" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_4" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_58" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_62" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_74" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_79" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_8" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_92" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_95" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_scissor_98" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_10" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_12" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_17" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_1" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_25" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_27" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_31" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_32" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_35" \
-                # "data/Hook_bar-hanging_exp/Hook_bar-hanging_exp_wrench_36" \
-            )
-        for input in "${INPUT[@]}"
+            # 'data/data_all_new_testing/Hook_hcu_134_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_243_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_296_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_303_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_306_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_335_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_364_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_229_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_293_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_123_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_15_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_22_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_298_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_56_normal-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_5_normal-everyday_objects'
+
+            'data/data_all_new_testing/Hook_hcu_138_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hcu_181_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hcu_380_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hcu_3_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_105_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_117_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_154_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_156_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_42_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hs_94_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hsr_118_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hsr_263_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hsr_304_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hsr_335_hard-everyday_objects'
+            'data/data_all_new_testing/Hook_hsr_391_hard-everyday_objects'
+
+            # 'data/data_all_new_testing/Hook_hcu_104_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_279_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_376_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hcu_89_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_275_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_339_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_363_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_393_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hs_95_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_13_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_218_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_312_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_321_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_hsr_371_devil-everyday_objects'
+            # 'data/data_all_new_testing/Hook_omni_124_devil-everyday_objects'
+        )
+
+        length=${#INPUT[@]}
+        
+        # for input in "${INPUT[@]}"
+        # do
+
+        for (( i=0; i<$length; i++ )) 
         do
-            # rm "${input}_easy.csv"
-            # rm "${input}_medium.csv"
-            # rm "${input}_hard.csv"
-            for i in `seq 1 $max`
-            do
-                python3 hanging_env.py --input-json "$input.json" --id $i > "$input.txt"
-                python3 extract_log.py --input "$input.txt" --output "$input" 
-                # rm "$input.txt"
-            done
+            LOG_FILE="nce_package/res_hard_${i}_new.txt"
+            python3 hanging_env_hce.py -ir ${INPUT[$i]} > $LOG_FILE
         done
     
     elif [ $1 = 'kptpose' ]; then 
@@ -730,10 +681,24 @@ if [ $# -ge 1 ]; then
             'everyday_objects_50_tool_36.json'
             'everyday_objects_50_tool_6.json'
         )
-        HOOK=($(ls keypoint_pose/everyday_objects_50/ | grep Hook))
+        # HOOK=($(ls keypoint_trajectory/everyday_objects_50/ | grep Hook))
         # HOOK=(
         #     'Hook_my_bar_easy.json'
         # )
+        HOOK=(
+            'Hook_hcu_104_devil.json' 'Hook_hcu_134_normal.json' 'Hook_hcu_138_hard.json' 'Hook_hcu_181_hard.json' 'Hook_hcu_190_easy.json' 
+            'Hook_hcu_243_normal.json' 'Hook_hcu_279_devil.json' 'Hook_hcu_293_easy.json' 'Hook_hcu_296_normal.json' 'Hook_hcu_303_normal.json' 
+            'Hook_hcu_306_normal.json' 'Hook_hcu_335_normal.json' 'Hook_hcu_359_easy.json' 'Hook_hcu_362_easy.json' 'Hook_hcu_364_normal.json' 
+            'Hook_hcu_376_devil.json' 'Hook_hcu_380_hard.json' 'Hook_hcu_390_easy.json' 'Hook_hcu_3_hard.json' 'Hook_hcu_75_easy.json' 
+            'Hook_hcu_89_devil.json' 'Hook_hs_105_hard.json' 'Hook_hs_117_hard.json' 'Hook_hs_154_hard.json' 'Hook_hs_156_hard.json' 
+            'Hook_hs_190_easy.json' 'Hook_hs_216_easy.json' 'Hook_hs_229_normal.json' 'Hook_hs_275_devil.json' 'Hook_hs_293_normal.json' 
+            'Hook_hs_314_easy.json' 'Hook_hs_317_easy.json' 'Hook_hs_339_devil.json' 'Hook_hs_363_devil.json' 'Hook_hs_370_easy.json' 
+            'Hook_hs_393_devil.json' 'Hook_hs_42_hard.json' 'Hook_hs_70_easy.json' 'Hook_hs_94_hard.json' 'Hook_hs_95_devil.json' 
+            'Hook_hsr_118_hard.json' 'Hook_hsr_123_normal.json' 'Hook_hsr_125_easy.json' 'Hook_hsr_13_devil.json' 'Hook_hsr_15_normal.json' 
+            'Hook_hsr_218_devil.json' 'Hook_hsr_22_normal.json' 'Hook_hsr_263_hard.json' 'Hook_hsr_298_normal.json' 'Hook_hsr_304_hard.json' 
+            'Hook_hsr_312_devil.json' 'Hook_hsr_321_devil.json' 'Hook_hsr_335_hard.json' 'Hook_hsr_371_devil.json' 'Hook_hsr_381_easy.json' 
+            'Hook_hsr_391_hard.json' 'Hook_hsr_56_normal.json' 'Hook_hsr_5_normal.json' 'Hook_hsr_71_easy.json' 'Hook_omni_124_devil.json'
+        )
 
         # rm "keypoint_trajectory/result.txt"
         for hook in "${HOOK[@]}"
@@ -741,7 +706,7 @@ if [ $# -ge 1 ]; then
             for object in "${OBJECT[@]}"
             do
                 echo "pair : $object $hook"
-                python3 hanging_by_trajectory.py -dd 'everyday_objects_50' -id 'everyday_objects_50' -od '1104' -obj $object -hook $hook # -sg
+                python3 hanging_by_trajectory.py -dd 'everyday_objects_50' -id 'everyday_objects_50' --traj_id 10 --wpt_num 40 --wpt_dim 6 -obj $object -hook $hook # -sg
             done
         done
     

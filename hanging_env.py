@@ -507,7 +507,6 @@ def main(args):
     max_cnt = len_init_pose if args.max_cnt == -1 else args.max_cnt
     assert max_cnt > 0 and max_cnt <= len_init_pose
 
-
     for index in range(max_cnt):
         # object initialization
         initial_info = json_dict['initial_pose'][index]
@@ -654,9 +653,9 @@ print(start_msg)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-root', '-ir', type=str, default='data')
-    parser.add_argument('--input-json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
+    parser.add_argument('--input_root', '-ir', type=str, default='data')
+    parser.add_argument('--input_json', '-ij', type=str, default='data/Hook_90-hanging_exp/Hook_90-hanging_exp_wrench_1.json')
     parser.add_argument('--id', '-id', type=str, default='0')
-    parser.add_argument('--max-cnt', '-mc', type=int, default=1)
+    parser.add_argument('--max_cnt', '-mc', type=int, default=1)
     args = parser.parse_args()
     main(args)

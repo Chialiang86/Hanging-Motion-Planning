@@ -1,8 +1,11 @@
-import json
+import torch
+import json, os, inspect
 import numpy as np
+import open3d as o3d
 import pybullet as p
 import quaternion
 import glob
+import copy
 
 from scipy.spatial.transform import Rotation as R
 
@@ -12,6 +15,11 @@ from pybullet_planning.interfaces.robots.body import set_pose
 from pybullet_planning.interfaces.robots.link import get_all_links
 from pybullet_planning.interfaces.debug_utils.debug_utils import draw_collision_diagnosis
 
+from utils.bullet_utils import get_matrix_from_pose, get_pose_from_matrix, get_matrix_from_pos_rot
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0, parentdir)
 
 def get_matrix_from_pose(pose : list or tuple or np.ndarray) -> np.ndarray:
     assert len(pose) == 6 or len(pose) == 7, f'pose must contain 6 or 7 elements, but got {len(pose)}'
@@ -28,7 +36,6 @@ def get_matrix_from_pose(pose : list or tuple or np.ndarray) -> np.ndarray:
     ret_m[:3, 3] = pos_m
 
     return ret_m
-
 
 def get_pose_from_matrix(matrix : list or tuple or np.ndarray, 
                         pose_size : int = 7) -> np.ndarray:
@@ -94,7 +101,7 @@ def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
             pos_euler.append(np.random.uniform(low_limit[1], high_limit[1])) # y 
             pos_euler.append(np.random.uniform(low_limit[2], high_limit[2])) # z
             for i in range(3, 6):
-                pos_euler.append(np.random.uniform(-np.pi, np.pi)) # row
+                pos_euler.append(np.random.uniform(-np.pi / 2, np.pi / 2)) # row
 
             # # 20 * np.pi / 180, 90 * np.pi / 180, -60 * np.pi / 180
             # pos_euler.append( 0 * np.pi / 180 + np.random.uniform( -60 * np.pi / 180, 60 * np.pi / 180)) # roll
@@ -286,6 +293,41 @@ def get_collision7d_fn(physicsClientId, body, obstacles=[], attachments=[], disa
                 return True
         return False
     return collision7d_fn
+
+def get_collision7d_nce_fn(physicsClientId, body_pcd=None, obstacle_pcd=None, hook_trans=None, nce_weights=None):
+
+    obj_pcd_static = copy.deepcopy(body_pcd) # (4 x N)
+    hook_pcd_static = copy.deepcopy(obstacle_pcd) # (4 x N)
+    hook_points = hook_pcd_static.T[:, :3]
+    hook_points_down_4d = np.hstack((hook_points, np.ones((hook_points.shape[0], 1))))
+
+    def collision7d_nce_fn(pose, diagnosis=False):
+        obj_trans = get_matrix_from_pose(pose)
+        obj_points = (obj_trans @ obj_pcd_static).T[:,:3]
+
+        obj_points_down_4d  = np.hstack((obj_points, np.zeros((obj_points.shape[0], 1))))
+        obj_points_down_4d[:, :3] -= hook_trans[:3, 3]
+        
+        pared_points = np.vstack((hook_points_down_4d, obj_points_down_4d)).astype(np.float32)
+
+        # tmp_pcd = o3d.geometry.PointCloud()
+        # colors = np.zeros(pared_points[:,:3].shape)
+        # colors[:hook_points_down_4d.shape[0]] = np.array([1, 0, 0])
+        # colors[hook_points_down_4d.shape[0]:] = np.array([0, 0, 1])
+        # tmp_pcd.points = o3d.utility.Vector3dVector(pared_points[:, :3])
+        # tmp_pcd.colors = o3d.utility.Vector3dVector(colors)
+        # coor = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+        # o3d.visualization.draw_geometries([coor, tmp_pcd])
+
+        point_batch = torch.from_numpy(pared_points).unsqueeze(0).to('cuda').contiguous()
+        pred = nce_weights.inference(point_batch) 
+
+        return pred[0,0].item() > 0.95
+
+        # if collision:
+        #     return True
+        # return False
+    return collision7d_nce_fn
 
 
             

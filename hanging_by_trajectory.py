@@ -22,6 +22,66 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
+def recover_trajectory(traj_src : np.ndarray, hook_poses : np.ndarray, 
+                        centers : np.ndarray, scales, dataset_mode : int=0):
+    # traj : dim = batch x num_steps x 6
+    # dataset_mode : 0 for abosute, 1 for residual 
+
+    traj = None
+    traj = np.copy(traj_src)
+
+    waypoints = []
+
+    if dataset_mode == 0: # "absolute"
+
+        traj[:, :3] = traj[:, :3] * scales + centers
+        
+        hook_trans = get_matrix_from_pose(hook_poses)
+        for wpt_id in range(0, traj.shape[0]): # waypoints
+
+            wpt = np.zeros(6)
+            # contact pose rotation
+            wpt[:3] = traj[wpt_id]
+
+            # transform to world coordinate first
+            current_trans = np.identity(4)
+            current_trans[:3, 3] = traj[wpt_id]
+            current_trans = hook_trans @ current_trans
+
+            if wpt_id < traj.shape[0] - 1:
+                # transform to world coordinate first
+
+                peep_num_max = int(np.ceil(traj.shape[0] / 10.0))
+                peep_num = peep_num_max if wpt_id < traj.shape[0] - peep_num_max else traj.shape[0] - wpt_id - 1
+                to_pos = np.ones((4, peep_num))
+                to_pos[:3] = traj[wpt_id:wpt_id+peep_num].T 
+                to_pos = (hook_trans @ to_pos)[:3]
+                
+                from_pos = np.ones((4, peep_num))
+                from_pos[:3] = traj[wpt_id+1:wpt_id+peep_num+1].T 
+                from_pos = (hook_trans @ from_pos)[:3]
+
+                weight = np.array([1/x for x in range(3, peep_num+3)])[:peep_num]
+                weight /= np.sum(weight)
+                diff = (to_pos - from_pos) * weight
+                
+                x_direction = np.sum(diff, axis=1)
+                x_direction /= np.linalg.norm(x_direction, ord=2)
+                y_direction = np.cross(x_direction, [0, 0, -1])
+                y_direction /= np.linalg.norm(y_direction, ord=2)
+                z_direction = np.cross(x_direction, y_direction)
+                rotation_mat = np.vstack((x_direction, y_direction, z_direction)).T
+                current_trans[:3, :3] = rotation_mat
+                
+            else :
+
+                current_trans[:3, :3] = R.from_rotvec(waypoints[-1][3:]).as_matrix() # use the last waypoint's rotation as current rotation
+            
+            waypoints.append(get_pose_from_matrix(current_trans, pose_size=6))
+    
+    return waypoints
+
+
 def robot_apply_action(robot : pandaEnv, obj_id : int, action : tuple or list, gripper_action : str = 'nop', 
                         sim_timestep : float = 1.0 / 240.0, diff_thresh : float = 0.005, max_vel : float = 0.2, max_iter = 5000):
 
@@ -176,7 +236,14 @@ def main(args):
     hook_quat = hook_pose_6d[3:]
     hook_id = p.loadURDF(hook_dict['file'], hook_pos, hook_quat)
     hook_transform = get_matrix_from_pos_rot(hook_pos, hook_quat)
-    trajectories_hook = hook_dict['trajectory'][2:3]
+
+    wpt_num = args.wpt_num
+    wpt_dim = args.wpt_dim
+    preload_path = f'kptraj_{wpt_num}/val/{hook_name}/traj-{args.traj_id}.json'
+    assert os.path.exists(preload_path), f'{preload_path} not exists'
+    preload_traj_dict = json.load(open(preload_path, 'r')) 
+    trajectories_hook = [preload_traj_dict['trajectory'][::-1]]
+    # trajectories_hook = hook_dict['trajectory'][2:3]
 
     # grasping
     index = 0 # medium
@@ -211,7 +278,18 @@ def main(args):
         kpt_transform_world = obj_transform @ obj_contact_relative_transform
         
         trajectory_hook = trajectories_hook[traj_i]
-        first_waypoint = trajectory_hook[-100:][0]
+
+        if wpt_dim == 3:
+            trajectory_hook_3d = np.asarray(trajectory_hook)[:, :3]
+            trajectory_hook_world = recover_trajectory(trajectory_hook_3d, hook_pose_6d, np.array([0, 0, 0]), 1)
+
+            trajectory_hook = []
+            for wpt_world in trajectory_hook_world:
+                wpt_trans = np.linalg.inv(get_matrix_from_pose(hook_pose_6d)) @ get_matrix_from_pose(wpt_world)
+                trajectory_hook.append(list(get_pose_from_matrix(wpt_trans)))
+
+        # first_waypoint = trajectory_hook[-100:][0]
+        first_waypoint = trajectory_hook[0]
         relative_kpt_transform = get_matrix_from_pos_rot(first_waypoint[:3], first_waypoint[3:])
         first_kpt_transform_world = hook_transform @ relative_kpt_transform
 
@@ -235,7 +313,13 @@ def main(args):
                 time.sleep(sim_timestep)
         
         old_gripper_pose = first_gripper_pose
-        for i, waypoint in enumerate(trajectory_hook[-100:]):
+        # trajectory_hook = trajectory_hook[-100:-20] if 'hard' in hook_name or 'devil' in hook_name else trajectory_hook[-100:-5]
+        
+        ignore_wpt_num = int(np.ceil(len(trajectory_hook[0]) * 0.1)) if wpt_dim == 3 else 0
+        for i, waypoint in enumerate(trajectory_hook):
+
+            if i + ignore_wpt_num >= len(trajectory_hook):
+                break
 
             waypoint_abs = get_pose_from_matrix(hook_transform @ get_matrix_from_pose(waypoint))
 
@@ -275,7 +359,7 @@ def main(args):
     contact_points = p.getContactPoints(obj_id, hook_id)
     contact = True if contact_points != () else False
 
-    fname_out = 'hanging_by_trajectory_res.txt'
+    fname_out = f'hanging_by_trajectory_result_{args.traj_id}_{wpt_num}w_{wpt_dim}d.txt'
     f_out = open(fname_out, 'a')
     f_out.write(f'{hook_name},{obj_name},{traj_i},{1 if contact else 0}\n')
     f_out.close()
@@ -306,10 +390,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-root', '-dr', type=str, default='data')
     parser.add_argument('--data-dir', '-dd', type=str, default='everyday_objects_50')
-    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_pose')
+    parser.add_argument('--input-root', '-ir', type=str, default='keypoint_trajectory')
     parser.add_argument('--input-dir', '-id', type=str, default='everyday_objects_50')
     parser.add_argument('--obj', '-obj', type=str, default='hanging_exp_daily_5.json')
     parser.add_argument('--hook', '-hook', type=str, default='Hook_my_bar_easy.json')
+    parser.add_argument('--traj_id', '-ti', type=int, default=0)
+    parser.add_argument('--wpt_num', '-wn', type=int, default=10)
+    parser.add_argument('--wpt_dim', '-wd', type=int, default=3)
     parser.add_argument('--output-root', '-or', type=str, default='demonstration_data')
     parser.add_argument('--output-dir', '-od', type=str, default='')
     parser.add_argument('--save-demo', '-sd', action="store_true")

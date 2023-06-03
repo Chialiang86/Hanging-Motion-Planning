@@ -12,7 +12,7 @@ __all__ = [
 INF = float('inf')
 
 # default RRT configurations
-RRT_ITERATIONS = 5000
+RRT_ITERATIONS = 2000
 RRT_RESTARTS = 1
 RRT_SMOOTHING = 100
 

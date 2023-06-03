@@ -111,15 +111,15 @@ def random_restarts(solve_fn, start, goal, distance_fn, sample_fn, extend_fn, co
         if compute_path_cost(path, distance_fn) < success_cost:
             break
     solutions = sorted(solutions, key=lambda path: compute_path_cost(path, distance_fn))
-    if verbose:
+    # if verbose:
         # print('[After Smoothness] Solutions ({}): {} | Time: {:.3f}'.format(len(solutions), [(len(path), round(compute_path_cost(
         #     path, distance_fn), 3)) for path in solutions], elapsed_time(start_time)))
-        if path == None:
-            print('[Before Smoothness]|Length -1')
-            print('[After Smoothness]|Length -1')
-        else :
-            print('[After Smoothness]|Length {}'.format(len(path)))
-        sys.stdout.flush()
+        # if path == None:
+        #     print('[Before Smoothness]|Length -1')
+        #     print('[After Smoothness]|Length -1')
+        # else :
+        #     print('[After Smoothness]|Length {}'.format(len(path)))
+        # sys.stdout.flush()
     return solutions, nodess
 
 def solve_and_smooth(solve_fn, q1, q2, distance_fn, sample_fn, extend_fn, collision_fn, **kwargs):
