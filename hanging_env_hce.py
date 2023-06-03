@@ -186,6 +186,23 @@ def get_target_gripper_pose(robot : pandaEnv, obj_id : int, tgt_obj_pos : tuple 
 
     return tuple(tgt_gripper_pos), tuple(tgt_gripper_rot)
 
+# def refine_tgt_obj_pose(physicsClientId, body, obstacles=[]):
+#     collision7d_fn = get_collision7d_fn(physicsClientId, body, obstacles=obstacles)
+
+#     low_limit = [-0.005, -0.005, -0.005, -np.pi / 180, -np.pi / 180, -np.pi / 180]
+#     high_limit = [ 0.005,  0.005,  0.005,  np.pi / 180,  np.pi / 180,  np.pi / 180]
+
+#     obj_pos, obj_rot = p.getBasePositionAndOrientation(body)
+#     original_pose = np.asarray(obj_pos + obj_rot)
+#     refine_pose = original_pose
+#     max_iter = 100000
+#     i = 0
+#     while i < max_iter and collision7d_fn(tuple(refine_pose)):
+#         refine_pose6d = np.concatenate((np.asarray(obj_pos), R.from_quat(obj_rot).as_rotvec())) + np.random.uniform(low_limit, high_limit)
+#         refine_pose = np.concatenate((refine_pose6d[:3], R.from_rotvec(refine_pose6d[3:]).as_quat()))
+#         i += 1
+#     return refine_pose
+
 def refine_tgt_obj_pose(body, collision7d_fn=None):
 
 
@@ -296,9 +313,8 @@ def rrt_connect_7d(physics_client_id, start_conf, target_conf, hook_trans,
 
     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
     distance7d_fn = get_distance7d_fn()
-    extend7d_fn = get_extend7d_fn(resolution=0.001)
+    extend7d_fn = get_extend7d_fn(resolution=0.003)
     collision_fn = get_collision7d_nce_fn(physics_client_id, obj_pcd, obstacle_pcd, hook_trans, nce_weight)
-    # collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
         return None, None
@@ -306,7 +322,7 @@ def rrt_connect_7d(physics_client_id, start_conf, target_conf, hook_trans,
     return birrt(start_conf, target_conf, distance7d_fn, sample7d_fn, extend7d_fn, collision_fn, **kwargs)
 
 # def rrt_connect_7d(physics_client_id, obj_id, start_conf, target_conf, 
-#                     obstacles : list = [], obj_pcd = None, obstacle_pcds = [], nce_weight = None, diagnosis=False, **kwargs):
+#                     obstacles : list = [], diagnosis=False, **kwargs):
 
 #     # https://github.com/yijiangh/pybullet_planning/blob/dev/src/pybullet_planning/motion_planners/rrt_connect.py
 
@@ -332,12 +348,11 @@ def rrt_connect_7d(physics_client_id, start_conf, target_conf, hook_trans,
 
 #     sample7d_fn = get_sample7d_fn(target_conf, low_limit, high_limit)
 #     distance7d_fn = get_distance7d_fn()
-#     extend7d_fn = get_extend7d_fn(resolution=0.001)
-#     # collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
-#     collision_fn = get_collision7d_nce_fn(physics_client_id, obj_pcd, obstacle_pcds, nce_weight)
+#     extend7d_fn = get_extend7d_fn(resolution=0.002)
+#     collision_fn = get_collision7d_fn(physics_client_id, obj_id, obstacles=obstacles)
 
 #     if not check_initial_end(start_conf, target_conf, collision_fn, diagnosis=diagnosis):
-#         return None
+#         return None, None
 
 #     return birrt(start_conf, target_conf, distance7d_fn, sample7d_fn, extend7d_fn, collision_fn, **kwargs)
 
@@ -374,12 +389,6 @@ def traj_down_sample(traj):
             tmp_wpt = traj_reverse[wpt_id]
     
     return wpts_reverse[::-1]
-
-
-# def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, 
-#                     obj_id : int, target_conf : list or tuple, obstacles : list=[], 
-#                     obj_pcd : o3d.geometry.PointCloud = None, obstacle_pcds : o3d.geometry.PointCloud = None, nce_weight = None, 
-#                     sim_timestep : float=1.0 / 240.0, max_vel : float=0.2):
 
 def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, 
                     obj_id : int, target_conf : list or tuple, hook_trans=None,
@@ -458,9 +467,75 @@ def hanging_by_rrt(physics_client_id : int, robot : pandaEnv,
     # action = tuple(ending_gripper_pos) + tuple(gripper_rot)
     # robot_apply_action(robot, obj_id, action, gripper_action='nop', 
     #     sim_timestep=0.05, diff_thresh=0.005, max_vel=-1, max_iter=100)
-    
 
     return [Image.fromarray(img) for img in imgs]
+
+# def hanging_by_rrt(physics_client_id : int, robot : pandaEnv, obj_id : int, target_conf : list or tuple, 
+#                     obstacles : list=[], sim_timestep : float=1.0 / 240.0, max_vel : float=0.2):
+
+#     obj_pos, obj_rot = p.getBasePositionAndOrientation(obj_id)
+#     start_conf = obj_pos + obj_rot
+#     waypoints, nodes = rrt_connect_7d(physics_client_id, obj_id, start_conf=start_conf, target_conf=target_conf, obstacles=obstacles)
+    
+#     if waypoints is None:
+#         print("Oops, no solution!")
+#         return
+
+#     # extract current gripper pose
+#     gripper_pos = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[4]
+#     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+#     origin_gripper_pose = get_matrix_from_pos_rot(gripper_pos, gripper_rot)
+
+#     origin_obj_pose = get_matrix_from_pos_rot(start_conf[:3], start_conf[3:])
+
+#     # relative transform from object to gripper
+#     # see this stack-overflow issue : https://stackoverflow.com/questions/67001118/relative-transform
+#     obj2gripper_pose = np.linalg.inv(origin_obj_pose) @ origin_gripper_pose
+#     planning_resolution = 0.005
+
+#     # reset obj pose
+#     p.resetBasePositionAndOrientation(obj_id, start_conf[:3], start_conf[3:])
+
+#     waypoints = traj_down_sample(waypoints)
+
+#     imgs = []
+#     # execution step 1 : execute RRT trajectories
+#     for i in range(len(waypoints) - 1):
+
+#         dense_waypoints = get_dense_waypoints(waypoints[i], waypoints[i+1], planning_resolution)
+
+#         # plan trajectory in the same way in collision detection module
+#         for wpt in dense_waypoints:
+
+#             gripper_pose = get_matrix_from_pos_rot(wpt[:3], wpt[3:]) @ obj2gripper_pose
+#             gripper_pos, gripper_rot = get_pos_rot_from_matrix(gripper_pose)
+#             gripper_action = np.concatenate((gripper_pos, gripper_rot))
+
+#             robot.apply_action(gripper_action)
+#             p.stepSimulation()
+            
+#             robot.grasp()
+#             for _ in range(10): # 1 sec
+#                 p.stepSimulation()
+#                 time.sleep(sim_timestep)
+
+#             img = p.getCameraImage(480, 480, renderer=p.ER_BULLET_HARDWARE_OPENGL)[2]
+#             imgs.append(img)
+    
+#     # execution step 2 : release gripper
+#     robot_apply_action(robot, obj_id, waypoints[-1], gripper_action='pre_grasp', 
+#         sim_timestep=0.05, diff_thresh=0.01, max_vel=-1, max_iter=100)
+
+#     # execution step 3 : go to the ending pose
+#     gripper_rot = p.getLinkState(robot.robot_id, robot.end_eff_idx, physicsClientId=robot._physics_client_id)[5]
+#     gripper_rot_matrix = R.from_quat(gripper_rot).as_matrix()
+#     ending_gripper_pos = np.asarray(waypoints[-1][:3]) + (gripper_rot_matrix @ np.array([[0], [0], [-0.2]])).reshape(3)
+#     action = tuple(ending_gripper_pos) + tuple(gripper_rot)
+#     robot_apply_action(robot, obj_id, action, gripper_action='nop', 
+#         sim_timestep=0.05, diff_thresh=0.005, max_vel=-1, max_iter=100)
+
+#     return [Image.fromarray(img) for img in imgs]
+
 
 def gripper_motion_planning(robot : pandaEnv, tgt_gripper_pos : tuple or list, tgt_gripper_rot : tuple or list, 
                     obstacles : list = [], sim_timestep : float = 1.0 / 240.0, max_vel : float = 0.2):
@@ -639,6 +714,7 @@ def main(args):
         p.resetBasePositionAndOrientation(obj_id_target, tgt_obj_pos, tgt_obj_rot)
         collision_fn = get_collision7d_nce_fn(physics_client_id, obj_pcd_down_homo, hook_pcd_down_homo, hook_trans, nce_network)
         tgt_pose = refine_tgt_obj_pose(obj_id_target, collision_fn)
+        # tgt_pose = refine_tgt_obj_pose(physics_client_id, obj_id_target, obstacles=[hook_id])
         p.removeBody(obj_id_target)
 
         # config output path
@@ -663,17 +739,15 @@ def main(args):
 
         for index in range(max_cnt):
             # object initialization
-            initial_info = json_dict['initial_pose'][0]
+            init_pose_id = 3
+            initial_info = json_dict['initial_pose'][init_pose_id]
             obj_pos = initial_info['obj_pose'][:3]
             obj_rot = initial_info['obj_pose'][3:]
-            # obj_pos = list(np.asarray(obj_pos) + pos_noise)
-            # obj_transform = get_matrix_from_pos_rot(obj_pos, obj_rot)
 
             # grasping
-            initial_info = json_dict['initial_pose'][0]
+            initial_info = json_dict['initial_pose'][init_pose_id]
             robot_pos = initial_info['robot_pose'][:3]
             robot_rot = initial_info['robot_pose'][3:]
-            # robot_pos = list(np.asarray(robot_pos) + pos_noise)
             robot_pose = robot_pos + robot_rot
 
             robot.apply_action(robot_pose, max_vel=-1)
@@ -697,7 +771,7 @@ def main(args):
                                         obj_id, target_conf=tgt_pose, hook_trans=hook_trans,
                                         obj_pcd=obj_pcd_down_homo, obstacle_pcd=hook_pcd_down_homo, nce_weight=nce_network, 
                                         max_vel=0.1)
-            # imgs_array = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[ table_id, hook_id], max_vel=0.1)
+            # imgs_array = hanging_by_rrt(physics_client_id, robot, obj_id, target_conf=tgt_pose, obstacles=[hook_id], max_vel=0.1)
             
             # check success
             

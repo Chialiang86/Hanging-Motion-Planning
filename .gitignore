@@ -10,6 +10,7 @@ models/robot
 *.gif
 *.zip
 __pycache__
+visualization/
 keypoint_trajectory/
 keypoint_trajectory_/
 demonstration_data/

@@ -59,7 +59,7 @@ def extract_contact_point(candidate_pts : np.ndarray, eps=0.002, min_samples=2):
 if __name__=="__main__":
 
     input_kptraj_dir = 'keypoint_trajectory/everyday_objects_50'
-    output_dir = 'data/data_all_new_testing'
+    output_dir = 'data/data_all_new_testing_stable'
 
     # hook and kptraj
     hook_kptraj_jsons_all = glob.glob(f'{input_kptraj_dir}/Hook*.json')
@@ -78,8 +78,8 @@ if __name__=="__main__":
     # ------------------------ #
 
     # Create pybullet GUI
-    physics_client_id = p.connect(p.GUI)
-    # physics_client_id = p.connect(p.DIRECT)
+    # physics_client_id = p.connect(p.GUI)
+    physics_client_id = p.connect(p.DIRECT)
     # p.resetDebugVisualizerCamera(2.1, 90, -30, [0.0, -0.0, -0.0])
     p.resetDebugVisualizerCamera(
         cameraDistance=0.2,
@@ -94,7 +94,7 @@ if __name__=="__main__":
     p.setGravity(0, 0, -9.8)
     height_thresh = 0.8
 
-    for hook_kptraj_json in hook_kptraj_jsons:
+    for hook_kptraj_json in hook_kptraj_jsons[50:]:
         hook_kptraj_dict = json.load(open(hook_kptraj_json, 'r'))
 
         hook_name = hook_kptraj_json.split('/')[-1].split('.')[0]
@@ -153,6 +153,57 @@ if __name__=="__main__":
             output_whole_dir = f'{output_dir}/{hook_name}-everyday_objects'
             os.makedirs(output_whole_dir, exist_ok=True)
 
+            # output_path = f'{output_whole_dir}/{hook_name}-{obj_name}.json'
+            # output_dict = {
+            #     'hook_path': hook_urdf_path,
+            #     'obj_path': obj_urdf_path,
+            #     'hook_pose': hook_pose,
+            #     'contact_info': [
+            #         {
+            #             'contact_point_hook': [],
+            #             'obj_pose': obj_pose,
+            #             'contact_point_obj': [],
+            #         }
+            #     ],
+            #     'initial_pose': obj_init_poses
+            # }
+
+            # json.dump(output_dict, open(output_path, 'w'), indent=4)
+            # print(f'{output_path} has been written')
+
+            # get_contact_point
+            contact_points = p.getContactPoints(obj_id, hook_id)
+            if len(contact_points) < 3:
+                p.removeBody(obj_id)
+                continue
+            
+            # add candidate contact points
+            candidate_pts = []
+            for contact_point in contact_points:
+                candidate_pts.append(contact_point[5]) # on the object
+            candidate_pts = np.asarray(candidate_pts)
+            
+            # relative homogeneous contact point
+            contact_point = extract_contact_point(candidate_pts, eps=0.01, min_samples=3)
+            contact_point_homo = np.concatenate((contact_point, [1]))
+
+            # relative transform (hook, object)
+            hook_transform = get_matrix_from_pos_rot(hook_pose[:3], hook_pose[3:])
+            obj_transform = get_matrix_from_pos_rot(pos, rot)
+            contact_point_hook = np.linalg.inv(hook_transform) @ contact_point_homo
+            contact_point_obj = np.linalg.inv(obj_transform) @ contact_point_homo
+
+            # draw contact point
+            contact_point_homo_hook = hook_transform @ contact_point_hook
+            contact_point_homo_obj = obj_transform @ contact_point_obj
+            contact_point_pose_hook = list(contact_point_homo_hook[:3]) + [0, 0, 0, 1]
+            contact_point_pose_obj = list(contact_point_homo_obj[:3]) + [0, 0, 0, 1]
+            p.removeAllUserDebugItems()
+
+            for i in range(int(10 / sim_timestep)):
+                p.stepSimulation()
+                time.sleep(sim_timestep)
+
             output_path = f'{output_whole_dir}/{hook_name}-{obj_name}.json'
             output_dict = {
                 'hook_path': hook_urdf_path,
@@ -160,9 +211,9 @@ if __name__=="__main__":
                 'hook_pose': hook_pose,
                 'contact_info': [
                     {
-                        'contact_point_hook': [],
-                        'obj_pose': obj_pose,
-                        'contact_point_obj': [],
+                        'contact_point_hook': contact_point_hook.tolist(),
+                        'obj_pose': list(pos + rot),
+                        'contact_point_obj': contact_point_obj.tolist(),
                     }
                 ],
                 'initial_pose': obj_init_poses
@@ -170,50 +221,6 @@ if __name__=="__main__":
 
             json.dump(output_dict, open(output_path, 'w'), indent=4)
             print(f'{output_path} has been written')
-
-            # # get_contact_point
-            # contact_points = p.getContactPoints(obj_id, hook_id)
-            # if len(contact_points) < 3:
-            #     p.removeBody(obj_id)
-            #     continue
-            
-            # # add candidate contact points
-            # candidate_pts = []
-            # for contact_point in contact_points:
-            #     candidate_pts.append(contact_point[5]) # on the object
-            # candidate_pts = np.asarray(candidate_pts)
-            
-            # # relative homogeneous contact point
-            # contact_point = extract_contact_point(candidate_pts, eps=0.01, min_samples=3)
-            # contact_point_homo = np.concatenate((contact_point, [1]))
-
-            # # relative transform (hook, object)
-            # hook_transform = get_matrix_from_pos_rot(hook_pose[:3], hook_pose[3:])
-            # obj_transform = get_matrix_from_pos_rot(pos, rot)
-            # contact_point_hook = np.linalg.inv(hook_transform) @ contact_point_homo
-            # contact_point_obj = np.linalg.inv(obj_transform) @ contact_point_homo
-
-            # # draw contact point
-            # contact_point_homo_hook = hook_transform @ contact_point_hook
-            # contact_point_homo_obj = obj_transform @ contact_point_obj
-            # contact_point_pose_hook = list(contact_point_homo_hook[:3]) + [0, 0, 0, 1]
-            # contact_point_pose_obj = list(contact_point_homo_obj[:3]) + [0, 0, 0, 1]
-            # draw_coordinate(contact_point_pose_hook)
-            # p.removeAllUserDebugItems()
-
-            # out_dict = {
-            #     'hook_path': hook_urdf_path,
-            #     'obj_path': obj_urdf_path,
-            #     'hook_pose': hook_pose,
-            #     'contact_info': [
-            #         {
-            #             'contact_point_hook': contact_point_hook.tolist(),
-            #             'obj_pose': list(pos + rot),
-            #             'contact_point_obj': contact_point_obj.tolist(),
-            #         }
-            #     ],
-            #     'initial_pose': obj_init_poses
-            # }
 
             p.removeBody(obj_id)
 

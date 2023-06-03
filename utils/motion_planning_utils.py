@@ -58,7 +58,7 @@ def get_pose_from_matrix(matrix : list or tuple or np.ndarray,
 def get_sample7d_fn(target_conf : list or tuple or np.ndarray,
                     low_limit : list or tuple or np.ndarray,
                     high_limit : list or tuple or np.ndarray, 
-                    ratio_to_target=0.1):
+                    ratio_to_target=0.2):
 
     assert len(low_limit) == 3 and len(high_limit) == 3, 'illegal size of limit, len(limit) must be 3'
 
@@ -302,6 +302,8 @@ def get_collision7d_nce_fn(physicsClientId, body_pcd=None, obstacle_pcd=None, ho
     hook_points_down_4d = np.hstack((hook_points, np.ones((hook_points.shape[0], 1))))
 
     def collision7d_nce_fn(pose, diagnosis=False):
+
+        p.resetBasePositionAndOrientation(4, pose[:3], pose[3:])
         obj_trans = get_matrix_from_pose(pose)
         obj_points = (obj_trans @ obj_pcd_static).T[:,:3]
 
@@ -322,7 +324,7 @@ def get_collision7d_nce_fn(physicsClientId, body_pcd=None, obstacle_pcd=None, ho
         point_batch = torch.from_numpy(pared_points).unsqueeze(0).to('cuda').contiguous()
         pred = nce_weights.inference(point_batch) 
 
-        return pred[0,0].item() > 0.95
+        return pred[0,0].item() > 0.85
 
         # if collision:
         #     return True

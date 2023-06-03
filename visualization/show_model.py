@@ -34,7 +34,7 @@ def main(args):
     assert os.path.exists(input_dir), f'{input_dir} not exists'
 
     sub_dir = input_dir.split('/')[-1]
-    out_dir = f'visualization/hanging_objects/{sub_dir}'
+    out_dir = f'visualization/0603/{sub_dir}'
     os.makedirs(out_dir, exist_ok=True)
 
     # frames for visualization
@@ -44,29 +44,36 @@ def main(args):
     rotate_per_frame = (2 * np.pi) / frames
 
     for obj_file in tqdm(obj_files):
+
+        print(obj_file)
         
         mesh = o3d.io.read_triangle_mesh(obj_file)
         mesh_90 = copy.deepcopy(mesh)
-        r_90 = mesh.get_rotation_matrix_from_xyz((0, 0, np.pi / 2)) # (rx, ry, rz) = (right, up, inner)
+        r_90 = mesh.get_rotation_matrix_from_xyz((0, np.pi / 3, 0)) # (rx, ry, rz) = (right, up, inner)
         mesh_90.rotate(r_90, center=(0, 0, 0))
 
         obj_dir = os.path.split(obj_file)[0].split('/')[-1]
 
-        img_list = []
-        for _ in range(frames):
-            r = mesh.get_rotation_matrix_from_xyz((0, rotate_per_frame, 0)) # (rx, ry, rz) = (right, up, inner)
-            mesh.rotate(r, center=(0, 0, 0))
+        img = capture_from_viewer(mesh_90)
+        save_path = f'{out_dir}/{sub_dir}_{obj_dir}-0.png'
+        imageio.imsave(save_path, img)
+        # img_list = []
+        # for _ in range(frames):
+        #     r = mesh.get_rotation_matrix_from_xyz((0, rotate_per_frame, 0)) # (rx, ry, rz) = (right, up, inner)
+        #     mesh.rotate(r, center=(0, 0, 0))
 
-            img = capture_from_viewer(mesh)
-            img_list.append(img)
+        #     img = capture_from_viewer(mesh)
+        #     img_list.append(img)
         
-        save_path = f'{out_dir}/{sub_dir}_{obj_dir}-0.gif'
-        imageio.mimsave(save_path, img_list, fps=10)
+        # save_path = f'{out_dir}/{sub_dir}_{obj_dir}-0.gif'
+        # imageio.mimsave(save_path, img_list, fps=10)
+
+        break
 
 if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-dir', '-id', type=str, default='models/geo_data/hanging_exp')
+    parser.add_argument('--input-dir', '-id', type=str, default='models/hook_all_new')
     args = parser.parse_args()
 
     main(args)
